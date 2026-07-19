@@ -1,0 +1,167 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---------------------------------------------------------------------------
+   CHOSEN — brand tokens. Canonical source; documented in docs/BRANDING.md.
+   Paper & ink carry the work of judging; electric blue appears only when a
+   decision is being made. One accent element per viewport region.
+--------------------------------------------------------------------------- */
+
+@font-face {
+  font-family: "Clash Display";
+  src: url("/fonts/ClashDisplay-400.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Clash Display";
+  src: url("/fonts/ClashDisplay-500.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Clash Display";
+  src: url("/fonts/ClashDisplay-600.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "DM Sans";
+  src: url("/fonts/DMSans-Variable.woff2") format("woff2");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Geist Mono";
+  src: url("/fonts/GeistMono-Variable.woff2") format("woff2");
+  font-weight: 400 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@layer base {
+  :root {
+    /* Brand palette (hex — use these names in app code) */
+    --paper: #faf7ea;
+    --ink: #0e0e0c;
+    --quiet: #6f6f63;
+    --line: rgba(14, 14, 12, 0.12);
+    --line-strong: rgba(14, 14, 12, 0.24);
+    --wash: rgba(14, 14, 12, 0.05);
+    --electric: #0037ff;
+    --electric-hover: #002bd1;
+    --electric-on-ink: #4d6fff; /* the only accent allowed on ink surfaces (raw electric fails contrast on ink) */
+    --electric-wash: rgba(0, 55, 255, 0.08);
+    --danger: #a8200d;
+
+    /* Layout */
+    --cell: 14px;
+    --gutter: 28px;
+    --gutter-lg: 56px;
+    --section: 112px;
+    --maxw: 1176px;
+
+    /* Motion */
+    --dur-1: 120ms;
+    --dur-2: 180ms;
+    --dur-3: 240ms;
+    --dur-4: 320ms;
+    --dur-sig: 1600ms;
+    --ease-swift: cubic-bezier(0.22, 1, 0.36, 1);
+    --ease-travel: cubic-bezier(0.65, 0, 0.35, 1);
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    /* shadcn slot bridge (HSL triplets) — stock shadcn components render on-brand */
+    --background: 49 62% 95%; /* paper */
+    --foreground: 60 8% 5%; /* ink */
+    --card: 49 62% 95%;
+    --card-foreground: 60 8% 5%;
+    --popover: 49 62% 95%;
+    --popover-foreground: 60 8% 5%;
+    --primary: 227 100% 50%; /* electric */
+    --primary-foreground: 49 62% 95%;
+    --secondary: 49 33% 91%;
+    --secondary-foreground: 60 8% 5%;
+    --muted: 49 33% 91%;
+    --muted-foreground: 60 6% 41%; /* quiet */
+    --accent: 49 33% 91%; /* shadcn "accent" = hover wash, NOT the electric brand accent */
+    --accent-foreground: 60 8% 5%;
+    --destructive: 7 86% 35%;
+    --destructive-foreground: 49 62% 95%;
+    --border: 48 18% 84%;
+    --input: 48 18% 84%;
+    --ring: 227 100% 50%;
+    --radius: 0.25rem;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply bg-paper font-sans text-body text-ink;
+  }
+
+  ::selection {
+    background: var(--electric);
+    color: var(--paper);
+  }
+}
+
+@layer components {
+  /* UPPERCASE metadata label — the Swiss eyebrow used across both sides */
+  .mono-label {
+    @apply font-mono text-mono-label uppercase text-quiet;
+  }
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+  .hairline-t {
+    border-top: 1px solid var(--line);
+  }
+  .hairline-b {
+    border-bottom: 1px solid var(--line);
+  }
+  .hairline-r {
+    border-right: 1px solid var(--line);
+  }
+  /* Skeleton shimmer: transform-only sweep on a wash base */
+  .skeleton {
+    @apply relative overflow-hidden bg-wash;
+  }
+  .skeleton::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+      90deg,
+      rgba(14, 14, 12, 0) 0%,
+      rgba(14, 14, 12, 0.04) 50%,
+      rgba(14, 14, 12, 0) 100%
+    );
+    animation: shimmer 1.6s linear infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
