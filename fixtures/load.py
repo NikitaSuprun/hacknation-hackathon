@@ -16,7 +16,7 @@ from contracts.models import Json, SinkRow
 from fixtures.build import DATA_DIR, LENA
 from fixtures.validate import Tables, load_tables, validate
 from tools.db import DatabricksSink
-from tools.ddl_registry import coerce, table_schema
+from tools.ddl_registry import coerce_rows, table_schema
 from tools.settings import load_databricks_settings
 from tools.warehouse import Warehouse
 
@@ -49,11 +49,7 @@ def typed_rows(table: str, rows: list[dict[str, Json]]) -> list[SinkRow]:
     Returns:
         New rows with temporal strings converted per the DDL registry.
     """
-    schema = table_schema(table)
-    return [
-        {column: coerce(value, schema.column_type(column)) for column, value in row.items()}
-        for row in rows
-    ]
+    return coerce_rows(table, rows)
 
 
 def load_all(tables: Tables, sink: DatabricksSink) -> tuple[int, int]:

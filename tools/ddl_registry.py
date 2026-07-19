@@ -9,14 +9,14 @@ subset they actually use.
 """
 
 import re
-from collections.abc import Iterable, Mapping
+from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import date, datetime
 from functools import cache
 from pathlib import Path
 from typing import Final, Literal, cast
 
-from contracts.models import Json, SinkValue
+from contracts.models import Json, SinkRow, SinkValue
 
 DDL_DIR: Final[Path] = Path(__file__).resolve().parent.parent / "schemas" / "ddl"
 
@@ -316,6 +316,32 @@ def coerce(value: Json, ddl_type: DdlType) -> SinkValue:
             # Json is a semantic subset of SinkValue; the cast bridges the
             # container invariance the type system cannot see through.
             return cast("SinkValue", value)
+
+
+def coerce_rows(table: str, rows: Sequence[Mapping[str, object]]) -> list[SinkRow]:
+    """Coerce every cell of every row to its DDL type.
+
+    Rows assembled from JSONL (or read back from the warehouse) carry ISO
+    strings where the DDL declares TIMESTAMP/DATE; Parquet staging needs the
+    typed values. Cells that are already typed pass through untouched, so
+    this is safe to apply on any write path.
+
+    Args:
+        table: Schema-qualified table name.
+        rows: Rows in DDL column shape; cells are Json or already-typed
+            SinkValues (the two spellings the write paths produce).
+
+    Returns:
+        New rows with temporal values typed per the DDL.
+    """
+    schema = table_schema(table)
+    return [
+        {
+            column: coerce(cast("Json", value), schema.column_type(column))
+            for column, value in row.items()
+        }
+        for row in rows
+    ]
 
 
 def _coerce_items(values: Iterable[Json], element: DdlType) -> list[SinkValue]:

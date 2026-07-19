@@ -15,7 +15,7 @@ from contracts.interfaces import Sink
 from contracts.models import Json, SinkRow, UpsertResult
 from scrapers.common.jsonutil import as_mapping
 from scrapers.common.state import SqlRunner, require_identifier
-from tools.ddl_registry import table_schema
+from tools.ddl_registry import coerce_rows, table_schema
 
 
 class RowSource(Protocol):
@@ -92,7 +92,8 @@ def sink_all(sink: Sink, tables: Mapping[str, list[SinkRow]]) -> dict[str, Upser
         if not rows:
             continue
         schema = table_schema(table)
+        typed = coerce_rows(table, rows)
         results[table] = sink.upsert(
-            table, rows, list(schema.primary_key), variant_cols=schema.variant_cols
+            table, typed, list(schema.primary_key), variant_cols=schema.variant_cols
         )
     return results

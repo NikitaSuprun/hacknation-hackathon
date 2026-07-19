@@ -53,7 +53,7 @@ from scoring.ventures import build_ventures, hackathon_extras
 from scrapers.common.jsonutil import get_list, get_map, get_str
 from scrapers.common.log import configure_logging
 from scrapers.common.sink import DEFAULT_CATALOG
-from tools.ddl_registry import table_schema
+from tools.ddl_registry import coerce_rows, table_schema
 from tools.llm import EMBEDDING_MODEL
 
 DEFAULT_DATA_DIR: Final[str] = "fixtures/data"
@@ -83,7 +83,8 @@ def _setup(
 def _upsert(deps: ScoringDeps, table: str, rows: list[SinkRow]) -> None:
     schema = table_schema(table)
     keys = list(schema.primary_key or ("run_id", "stage"))
-    result = deps.sink.upsert(table, rows, keys, variant_cols=schema.variant_cols)
+    typed = coerce_rows(table, rows)
+    result = deps.sink.upsert(table, typed, keys, variant_cols=schema.variant_cols)
     typer.echo(f"{table}: +{result.inserted} ~{result.updated}")
 
 

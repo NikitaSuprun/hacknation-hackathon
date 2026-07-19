@@ -14,6 +14,7 @@ from tools.ddl_registry import (
     Scalar,
     Struct,
     coerce,
+    coerce_rows,
     parse_type,
     registry,
     table_schema,
@@ -130,3 +131,26 @@ def test_coerce_handles_nested_temporals_and_variant_passthrough() -> None:
 def test_parse_type_round_trips_the_tricky_shapes() -> None:
     assert parse_type("MAP<STRING,BIGINT>") == parse_type("MAP<STRING, BIGINT>")
     assert isinstance(parse_type("ARRAY<FLOAT>"), Array)
+
+
+def test_coerce_rows_types_temporal_cells_and_passes_typed_ones_through() -> None:
+    # Rows assembled from JSONL carry ISO strings where the DDL says
+    # TIMESTAMP; Parquet staging needs real datetimes (the venture builder
+    # passes prior-state created_at straight through).
+    typed = coerce_rows(
+        "gold.venture",
+        [
+            {
+                "venture_id": "v1",
+                "anchor_type": "repo",
+                "anchor_id": "p1",
+                "name": "GraspLab",
+                "status": "sourced",
+                "created_at": "2026-07-15T08:00:00+00:00",
+                "updated_at": datetime(2026, 7, 15, 8, 0, tzinfo=UTC),
+            }
+        ],
+    )
+    assert typed[0]["created_at"] == datetime(2026, 7, 15, 8, 0, tzinfo=UTC)
+    assert typed[0]["updated_at"] == datetime(2026, 7, 15, 8, 0, tzinfo=UTC)
+    assert typed[0]["name"] == "GraspLab"
