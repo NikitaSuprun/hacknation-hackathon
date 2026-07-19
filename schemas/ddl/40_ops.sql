@@ -39,3 +39,12 @@ CREATE TABLE IF NOT EXISTS ops.erasure_suppression (  -- blocks re-scrape resurr
 
 -- Parquet staging area for the merge_upsert write path (tools/db.py).
 CREATE VOLUME IF NOT EXISTS ops.staging;
+
+CREATE TABLE IF NOT EXISTS ops.llm_adjudications (   -- stage-4 verdicts; no_match persisted so re-runs skip
+  pair_id STRING NOT NULL,                           -- UUIDv5(ns, sorted psr ids)
+  source_record_id_a STRING NOT NULL, source_record_id_b STRING NOT NULL,
+  splink_probability DOUBLE, verdict STRING NOT NULL, rationale STRING,
+  fields_supporting ARRAY<STRING>, model STRING NOT NULL,
+  pipeline_version STRING NOT NULL, adjudicated_at TIMESTAMP NOT NULL,
+  CONSTRAINT pk_llm_adjudications PRIMARY KEY (pair_id)
+);
