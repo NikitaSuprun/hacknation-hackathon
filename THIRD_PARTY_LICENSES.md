@@ -41,7 +41,7 @@
 | pytest-xdist              | 3.8.0           | MIT                                                | https://github.com/pytest-dev/pytest-xdist                                       |
 | referencing               | 0.37.0          | MIT                                                | https://github.com/python-jsonschema/referencing                                 |
 | rpds-py                   | 2026.6.3        | MIT                                                | https://github.com/crate-py/rpds                                                 |
-| ruff                      | 0.15.17         | MIT                                                | https://docs.astral.sh/ruff                                                      |
+| ruff                      | 0.15.22         | MIT                                                | https://docs.astral.sh/ruff                                                      |
 | urllib3                   | 2.7.0           | MIT                                                | https://github.com/urllib3/urllib3/blob/main/CHANGES.rst                         |
 | virtualenv                | 21.6.1          | MIT                                                | https://github.com/pypa/virtualenv                                               |
 | PyYAML                    | 6.0.3           | MIT License                                        | https://pyyaml.org/                                                              |
