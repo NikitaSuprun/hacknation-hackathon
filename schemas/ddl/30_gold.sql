@@ -206,3 +206,15 @@ CREATE TABLE IF NOT EXISTS gold.interview (          -- consent-gated; fills gap
   updated_at       TIMESTAMP NOT NULL,
   CONSTRAINT pk_interview PRIMARY KEY (interview_id)
 );
+
+CREATE TABLE IF NOT EXISTS gold.score_run (          -- rescore ledger: idempotent trigger handling (WS-E)
+  run_id         STRING NOT NULL,
+  trigger        STRING NOT NULL,                    -- interview | nightly | ideal_edit | manual
+  venture_id     STRING,
+  thesis_id      STRING,
+  input_versions VARIANT,                            -- content hashes of the inputs the run saw
+  status         STRING NOT NULL,                    -- ok | error | skipped_duplicate
+  started_at     TIMESTAMP NOT NULL,
+  finished_at    TIMESTAMP,
+  CONSTRAINT pk_score_run PRIMARY KEY (run_id)
+);
