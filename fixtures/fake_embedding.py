@@ -2,30 +2,40 @@
 # Proprietary and confidential. See LICENSE.
 """Deterministic stand-in embeddings until `databricks-gte-large-en` is wired up.
 
-Each token maps to a seeded pseudo-random unit vector and a text is the
-L2-normalized sum of its token vectors, so texts sharing vocabulary correlate:
-"robotic grasping" scores near "robotics manipulation ideal" and far from
-"database systems". That property carries the WS-D acceptance check that the
-robotics founder tops domain-fit against the robotics ideal profile.
+Each token maps to a hash-derived vector and a text is the L2-normalized sum
+of its token vectors, so texts sharing vocabulary correlate: "robotic
+grasping" scores near "robotics manipulation ideal" and far from "database
+systems". That property carries the WS-D acceptance check that the robotics
+founder tops domain-fit against the robotics ideal profile.
+
+Components are sha256 integers mapped to [-1, 1) by exact division; the only
+floating-point operations are add/multiply/divide/sqrt, all IEEE-754
+correctly rounded - so the committed fixture bytes are identical on every
+platform (libm functions like log/cos are not, which broke CI on Linux).
 """
 
 import hashlib
 import math
-import random
 import re
 from functools import cache
 from typing import Final
 
 EMBEDDING_DIM: Final[int] = 1024
 
+_COMPONENT_BYTES: Final[int] = 8
+_COMPONENTS_PER_DIGEST: Final[int] = 32 // _COMPONENT_BYTES
 _TOKEN_PATTERN: Final[re.Pattern[str]] = re.compile(r"[a-z0-9]+")
 
 
 @cache
 def _token_vector(token: str) -> tuple[float, ...]:
-    seed = int.from_bytes(hashlib.sha256(token.encode("utf-8")).digest()[:8], "big")
-    rng = random.Random(seed)  # noqa: S311 - deterministic fixture vectors, not cryptography
-    return tuple(rng.gauss(0.0, 1.0) for _ in range(EMBEDDING_DIM))
+    components: list[float] = []
+    for block in range(EMBEDDING_DIM // _COMPONENTS_PER_DIGEST):
+        digest = hashlib.sha256(f"{token}:{block}".encode()).digest()
+        for i in range(_COMPONENTS_PER_DIGEST):
+            k = int.from_bytes(digest[i * _COMPONENT_BYTES : (i + 1) * _COMPONENT_BYTES], "big")
+            components.append(k / 2**63 - 1.0)
+    return tuple(components)
 
 
 def fake_embedding(text: str) -> list[float]:
@@ -35,7 +45,8 @@ def fake_embedding(text: str) -> list[float]:
         text: Free text; tokenized on lowercase alphanumeric runs.
 
     Returns:
-        A 1024-dim L2-normalized vector; deterministic for identical input.
+        A 1024-dim L2-normalized vector; bit-identical for identical input
+        on any platform.
     """
     tokens = _TOKEN_PATTERN.findall(text.lower()) or ["<empty>"]
     summed = [0.0] * EMBEDDING_DIM

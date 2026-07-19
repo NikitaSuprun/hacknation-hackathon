@@ -38,26 +38,6 @@ _LEGAL_SUFFIXES: Final[frozenset[str]] = frozenset(
     {"ag", "gmbh", "sa", "sarl", "inc", "llc", "ltd", "se", "kg", "co", "corp", "plc"}
 )
 
-# Alias table: every observed spelling folds to one canonical org key.
-_ORG_ALIASES: Final[dict[str, str]] = {
-    "ethz": "eth zurich",
-    "eth zurich": "eth zurich",
-    "eidgenossische technische hochschule zurich": "eth zurich",
-    "swiss federal institute of technology": "eth zurich",
-    "swiss federal institute of technology zurich": "eth zurich",
-    "swiss federal institute of technology in zurich": "eth zurich",
-    "epfl": "epfl",
-    "ecole polytechnique federale de lausanne": "epfl",
-    "swiss federal institute of technology lausanne": "epfl",
-    "uzh": "university of zurich",
-    "university of zurich": "university of zurich",
-    "universitat zurich": "university of zurich",
-    "mit": "mit",
-    "massachusetts institute of technology": "mit",
-    "kth": "kth",
-    "kth royal institute of technology": "kth",
-}
-
 _WHITESPACE: Final[re.Pattern[str]] = re.compile(r"\s+")
 _NAME_PUNCTUATION: Final[re.Pattern[str]] = re.compile(r"[.,;:!?'\"()\[\]]")
 
@@ -121,22 +101,24 @@ def email_domain(email: str) -> str | None:
     return normalized.split("@")[1]
 
 
-def org_norm(org: str) -> str:
-    """Normalize an organisation string: de-accent, strip legal suffixes, fold aliases.
+def org_key(org: str) -> str:
+    """Mechanical organisation key: de-accent, strip punctuation and legal suffixes.
+
+    Pure text mechanics with no semantics - canonicalization of universities
+    to their registered names lives in tools.institutions (ROR-backed).
 
     Args:
         org: Affiliation or company name as observed.
 
     Returns:
-        The canonical org key; empty string when nothing survives.
+        The mechanical key; empty string when nothing survives.
     """
     lowered = _strip_diacritics(org).lower()
     cleaned = _NAME_PUNCTUATION.sub(" ", lowered)
     tokens = [t for t in _WHITESPACE.split(cleaned) if t]
     while tokens and tokens[-1] in _LEGAL_SUFFIXES:
         tokens.pop()
-    joined = " ".join(tokens)
-    return _ORG_ALIASES.get(joined, joined)
+    return " ".join(tokens)
 
 
 def url_norm(url: str) -> str | None:

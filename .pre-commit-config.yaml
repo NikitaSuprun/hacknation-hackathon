@@ -8,14 +8,20 @@ repos:
       - id: check-toml
       - id: check-added-large-files
       - id: check-merge-conflict
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.17
-    hooks:
-      - id: ruff-check
-        args: [--fix]
-      - id: ruff-format
   - repo: local
     hooks:
+      # Local uv-run hooks so the ruff version is single-sourced from uv.lock
+      # (a remote ruff-pre-commit rev would skew against dependabot bumps).
+      - id: ruff-check
+        name: ruff check
+        entry: uv run ruff check --fix
+        language: system
+        types_or: [python, pyi]
+      - id: ruff-format
+        name: ruff format
+        entry: uv run ruff format
+        language: system
+        types_or: [python, pyi]
       - id: ty
         name: ty check
         entry: uv run ty check

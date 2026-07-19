@@ -84,13 +84,23 @@ UUIDv4 - never derived, never reused.
   `LLMClient`, `EnrichmentProvider`, `FundedFounderResolver`,
   `InstitutionScorer`, `CategoryScorer` (all Protocols).
   Note: `Sink.upsert` takes `variant_cols: frozenset[str]` (immutable
-  tightening of the reference's `set[str]`).
+  tightening of the reference's `set[str]`) and `rows: list[SinkRow]`.
 - `contracts.models`: the frozen value types (`PersonSourceRecord`,
-  `UpsertResult`, `CategoryScore`, `Evidence`, ...).
+  `UpsertResult`, `CategoryScore`, `Evidence`, ...) plus the type aliases
+  every producer uses: `Json` (parsed JSON) and `SinkValue`/`SinkRow`
+  (JSON shape plus typed datetime/date cells, any nesting depth).
 - `tools.db.DatabricksSink`: the shared Sink implementation
   (canonical JSON -> Parquet -> `ops.staging` volume -> one MERGE, content-hash
-  skip, erasure-suppression guard). `tools.ids` / `tools.norm` are the only
-  id mint and the shared normalizers.
+  skip, erasure-suppression guard). Every target must be a table in
+  `schemas/ddl` - staging Arrow schemas, VARIANT detection, and complex-column
+  comparison all come from `tools.ddl_registry`, and identifiers are validated
+  at entry. `tools.ids` is the only id mint.
+- Normalizers: `tools.norm` (mechanical - `name_norm`, `email_norm`,
+  `email_domain`, `org_key`, `url_norm`) and `tools.institutions`
+  (`resolve`, `org_norm`) for semantic organisation folding backed by the CC0
+  ROR seed in `data/institutions/`. PSR `org_norm` is the mechanically-normed
+  ROR display name when resolved (`"KTH"` -> `"kth royal institute of
+  technology"`), else the mechanical key.
 
 ## Payload JSON Schemas (`contracts/schemas/`, CI-enforced)
 

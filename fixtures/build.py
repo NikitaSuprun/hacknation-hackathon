@@ -13,14 +13,27 @@ committed files fails CI.
 """
 
 import json
+from dataclasses import dataclass
+from datetime import date, datetime
 from pathlib import Path
 from typing import Final
 
+from contracts.models import PersonSourceRecord, SinkValue
 from fixtures.fake_embedding import fake_embedding
-from tools import ids, norm
+from tools import ids, institutions, norm
 from tools.db import content_hash
+from tools.institutions import InstitutionRecord
 
-Row = dict[str, object]
+
+class MissingInstitutionError(LookupError):
+    """Raised when a fixture institution is absent from the ROR seed."""
+
+    def __init__(self, query: str) -> None:
+        """Name the unresolved institution."""
+        super().__init__(f"{query} does not resolve; extend data/institutions/seed_queries.txt")
+
+
+Row = dict[str, SinkValue]
 Tables = dict[str, list[Row]]
 
 DATA_DIR: Final[Path] = Path(__file__).resolve().parent / "data"
@@ -91,7 +104,13 @@ SUPPRESSED_GITHUB_KEY: Final[str] = "999001"
 SUPPRESSED_KEY_HASH: Final[str] = "80d14bf49f1a6242ce6ffce28f45a80c2c9bb2c82b113f30b5f92bf82a131824"
 
 
-def _bronze_common(source_url: str, payload: object) -> Row:
+def _embedding(text: str) -> SinkValue:
+    """Widen the embedding to a sink cell (list invariance blocks a direct pass)."""
+    vector: SinkValue = list(fake_embedding(text))
+    return vector
+
+
+def _bronze_common(source_url: str, payload: SinkValue) -> Row:
     return {
         "payload": payload,
         "content_hash": content_hash(payload),
@@ -237,6 +256,10 @@ def _github_bronze() -> Tables:
             ),
         },
     ]
+    for commit in commits:
+        # Commits are immutable and keyed (repo_id, sha); the DDL carries no
+        # change-detection hash for them.
+        del commit["content_hash"]
     return {
         "bronze.github_repos_raw": repos,
         "bronze.github_users_raw": users,
@@ -330,7 +353,7 @@ def _papers_bronze() -> Tables:
                             },
                             "institutions": [
                                 {
-                                    "ror": "https://ror.org/026zzn846",
+                                    "ror": "https://ror.org/026vcq606",
                                     "display_name": "KTH Royal Institute of Technology",
                                 }
                             ],
@@ -403,215 +426,226 @@ def _zefix_bronze() -> Tables:
     return {"bronze.zefix_companies_raw": companies, "bronze.zefix_sogc_raw": sogc}
 
 
-def _psr(  # noqa: PLR0913 - a PSR row simply has this many contract fields
-    source_record_id: str,
-    source: str,
-    source_key: str,
-    *,
-    bronze_ref: str | None,
-    full_name: str | None,
-    emails: list[str],
-    orcid: str | None = None,
-    github_login: str | None = None,
-    website_url: str | None = None,
-    linkedin_url: str | None = None,
-    twitter_handle: str | None = None,
-    affiliation_raw: str | None = None,
-    location_raw: str | None = None,
-    country_code: str | None = None,
-    keywords: list[str] | None = None,
-    bio: str | None = None,
-    source_url: str,
-) -> Row:
-    email_norms = [n for n in (norm.email_norm(e) for e in emails) if n is not None]
-    name_parts = norm.name_norm(full_name).split() if full_name else []
-    return {
-        "source_record_id": source_record_id,
-        "source": source,
-        "source_key": source_key,
-        "bronze_ref": bronze_ref,
-        "full_name": full_name,
-        "name_norm": norm.name_norm(full_name) if full_name else None,
-        "first_name": name_parts[0] if name_parts else None,
-        "last_name": name_parts[-1] if len(name_parts) > 1 else None,
-        "emails": emails,
-        "email_norms": email_norms,
-        "email_domain": norm.email_domain(emails[0]) if emails else None,
-        "orcid": orcid,
-        "github_login": github_login,
-        "website_url_norm": norm.url_norm(website_url) if website_url else None,
-        "linkedin_url": linkedin_url,
-        "twitter_handle": twitter_handle,
-        "affiliation_raw": affiliation_raw,
-        "org_norm": norm.org_norm(affiliation_raw) if affiliation_raw else None,
-        "location_raw": location_raw,
-        "country_code": country_code,
-        "keywords": keywords or [],
-        "bio": bio,
-        "source_url": source_url,
-        "first_seen_at": T_SCRAPED,
-        "last_seen_at": T_SCRAPED,
-        "scraped_at": T_SCRAPED,
-        "ingested_at": T_INGESTED,
-    }
+@dataclass(frozen=True, slots=True)
+class PsrSeed:
+    """Raw observed identity fields for one persona source record.
+
+    Builder input only - contract value objects live in contracts.models -
+    so empty defaults keep the persona definitions readable.
+    """
+
+    source: str
+    source_key: str
+    source_url: str
+    bronze_ref: str | None = None
+    full_name: str | None = None
+    emails: tuple[str, ...] = ()
+    orcid: str | None = None
+    github_login: str | None = None
+    website_url: str | None = None
+    linkedin_url: str | None = None
+    twitter_handle: str | None = None
+    affiliation_raw: str | None = None
+    location_raw: str | None = None
+    country_code: str | None = None
+    keywords: tuple[str, ...] = ()
+    bio: str | None = None
+
+
+def make_psr(seed: PsrSeed) -> Row:
+    """Derive the full PSR through the contract dataclass (byte-exact norms)."""
+    email_norms = tuple(n for n in (norm.email_norm(e) for e in seed.emails) if n is not None)
+    name_norm_value = norm.name_norm(seed.full_name) if seed.full_name else None
+    parts = name_norm_value.split() if name_norm_value else []
+    record = PersonSourceRecord(
+        source_record_id=ids.psr_id(seed.source, seed.source_key),
+        source=seed.source,
+        source_key=seed.source_key,
+        bronze_ref=seed.bronze_ref,
+        full_name=seed.full_name,
+        name_norm=name_norm_value,
+        first_name=parts[0] if parts else None,
+        last_name=parts[-1] if len(parts) > 1 else None,
+        emails=seed.emails,
+        email_norms=email_norms,
+        email_domain=norm.email_domain(seed.emails[0]) if seed.emails else None,
+        orcid=seed.orcid,
+        github_login=seed.github_login,
+        website_url_norm=norm.url_norm(seed.website_url) if seed.website_url else None,
+        linkedin_url=seed.linkedin_url,
+        twitter_handle=seed.twitter_handle,
+        affiliation_raw=seed.affiliation_raw,
+        org_norm=institutions.org_norm(seed.affiliation_raw) if seed.affiliation_raw else None,
+        location_raw=seed.location_raw,
+        country_code=seed.country_code,
+        keywords=seed.keywords,
+        bio=seed.bio,
+        source_url=seed.source_url,
+        first_seen_at=datetime.fromisoformat(T_SCRAPED),
+        last_seen_at=datetime.fromisoformat(T_SCRAPED),
+        scraped_at=datetime.fromisoformat(T_SCRAPED),
+        ingested_at=datetime.fromisoformat(T_INGESTED),
+    )
+    return record.to_row()
 
 
 def _person_source_records() -> list[Row]:
     return [
-        _psr(
-            PSR_LENA_GITHUB,
-            "github",
-            "501001",
-            bronze_ref="bronze.github_users_raw:user_id=501001",
-            full_name="Léna Fischer",
-            emails=["lena.fischer@ethz.ch"],
-            github_login="lenafischer",
-            website_url="https://www.grasplab.ch/",
-            affiliation_raw="ETH Zürich",
-            location_raw="Zurich, Switzerland",
-            country_code="CH",
-            keywords=["robotics", "grasping", "foundation-models"],
-            bio="Robotics PhD building foundation models for grasping.",
-            source_url="https://api.github.com/users/lenafischer",
+        make_psr(
+            PsrSeed(
+                source="github",
+                source_key="501001",
+                bronze_ref="bronze.github_users_raw:user_id=501001",
+                full_name="Léna Fischer",
+                emails=("lena.fischer@ethz.ch",),
+                github_login="lenafischer",
+                website_url="https://www.grasplab.ch/",
+                affiliation_raw="ETH Zürich",
+                location_raw="Zurich, Switzerland",
+                country_code="CH",
+                keywords=("robotics", "grasping", "foundation-models"),
+                bio="Robotics PhD building foundation models for grasping.",
+                source_url="https://api.github.com/users/lenafischer",
+            )
         ),
-        _psr(
-            PSR_LENA_OPENALEX,
-            "openalex_author",
-            "A5000000001",
-            bronze_ref="bronze.openalex_works_raw:openalex_id=W4400000001",
-            full_name="Léna Fischer",
-            emails=[],
-            orcid="0000-0002-1825-0097",
-            affiliation_raw="ETH Zürich",
-            country_code="CH",
-            keywords=["robotics", "manipulation"],
-            source_url="https://api.openalex.org/people/A5000000001",
+        make_psr(
+            PsrSeed(
+                source="openalex_author",
+                source_key="A5000000001",
+                bronze_ref="bronze.openalex_works_raw:openalex_id=W4400000001",
+                full_name="Léna Fischer",
+                orcid="0000-0002-1825-0097",
+                affiliation_raw="ETH Zürich",
+                country_code="CH",
+                keywords=("robotics", "manipulation"),
+                source_url="https://api.openalex.org/people/A5000000001",
+            )
         ),
-        _psr(
-            PSR_LENA_ZEFIX,
-            "zefix_officer",
-            f"{GRASP_UID}:fischer lena",
-            bronze_ref="bronze.zefix_sogc_raw:sogc_id=SHAB-2026-001234",
-            full_name="Léna Fischer",
-            emails=[],
-            affiliation_raw="GraspLab AG",
-            location_raw="Zürich",
-            country_code="CH",
-            source_url="https://amtsblattportal.ch/api/v1/publications/SHAB-2026-001234",
+        make_psr(
+            PsrSeed(
+                source="zefix_officer",
+                source_key=f"{GRASP_UID}:fischer lena",
+                bronze_ref="bronze.zefix_sogc_raw:sogc_id=SHAB-2026-001234",
+                full_name="Léna Fischer",
+                affiliation_raw="GraspLab AG",
+                location_raw="Zürich",
+                country_code="CH",
+                source_url="https://amtsblattportal.ch/api/v1/publications/SHAB-2026-001234",
+            )
         ),
-        _psr(
-            PSR_WEI_A_OPENALEX,
-            "openalex_author",
-            "A5000000002",
-            bronze_ref="bronze.openalex_works_raw:openalex_id=W4400000001",
-            full_name="Wei Zhang",
-            emails=[],
-            affiliation_raw="ETH Zürich",
-            country_code="CH",
-            keywords=["robot-learning"],
-            source_url="https://api.openalex.org/people/A5000000002",
+        make_psr(
+            PsrSeed(
+                source="openalex_author",
+                source_key="A5000000002",
+                bronze_ref="bronze.openalex_works_raw:openalex_id=W4400000001",
+                full_name="Wei Zhang",
+                affiliation_raw="ETH Zürich",
+                country_code="CH",
+                keywords=("robot-learning",),
+                source_url="https://api.openalex.org/people/A5000000002",
+            )
         ),
-        _psr(
-            PSR_WEI_A_GITHUB,
-            "github",
-            "501002",
-            bronze_ref="bronze.github_users_raw:user_id=501002",
-            full_name="Wei Zhang",
-            emails=[],
-            github_login="weizhang-robotics",
-            affiliation_raw="ETH Zürich",
-            location_raw="Zurich",
-            country_code="CH",
-            keywords=["robot-learning", "simulation"],
-            bio="Robot learning and simulation.",
-            source_url="https://api.github.com/users/weizhang-robotics",
+        make_psr(
+            PsrSeed(
+                source="github",
+                source_key="501002",
+                bronze_ref="bronze.github_users_raw:user_id=501002",
+                full_name="Wei Zhang",
+                github_login="weizhang-robotics",
+                affiliation_raw="ETH Zürich",
+                location_raw="Zurich",
+                country_code="CH",
+                keywords=("robot-learning", "simulation"),
+                bio="Robot learning and simulation.",
+                source_url="https://api.github.com/users/weizhang-robotics",
+            )
         ),
-        _psr(
-            PSR_WEI_B_OPENALEX,
-            "openalex_author",
-            "A5000000003",
-            bronze_ref=None,
-            full_name="Wei Zhang",
-            emails=[],
-            affiliation_raw="National University of Singapore",
-            country_code="SG",
-            keywords=["databases", "query-optimization"],
-            source_url="https://api.openalex.org/people/A5000000003",
+        make_psr(
+            PsrSeed(
+                source="openalex_author",
+                source_key="A5000000003",
+                full_name="Wei Zhang",
+                affiliation_raw="National University of Singapore",
+                country_code="SG",
+                keywords=("databases", "query-optimization"),
+                source_url="https://api.openalex.org/people/A5000000003",
+            )
         ),
-        _psr(
-            PSR_NILS_GITHUB,
-            "github",
-            "501003",
-            bronze_ref="bronze.github_users_raw:user_id=501003",
-            full_name="Nils Berger",
-            emails=["nils@berger.dev"],
-            github_login="nilsberger",
-            location_raw="Munich",
-            country_code="DE",
-            keywords=["simulation"],
-            source_url="https://api.github.com/users/nilsberger",
+        make_psr(
+            PsrSeed(
+                source="github",
+                source_key="501003",
+                bronze_ref="bronze.github_users_raw:user_id=501003",
+                full_name="Nils Berger",
+                emails=("nils@berger.dev",),
+                github_login="nilsberger",
+                location_raw="Munich",
+                country_code="DE",
+                keywords=("simulation",),
+                source_url="https://api.github.com/users/nilsberger",
+            )
         ),
-        _psr(
-            PSR_NILS_ARXIV,
-            "arxiv_author",
-            f"{BERGER_ARXIV}:1",
-            bronze_ref=f"bronze.arxiv_papers_raw:arxiv_id={BERGER_ARXIV}",
-            full_name="Nils Berger",
-            emails=["nils@berger.dev"],
-            source_url=f"https://arxiv.org/abs/{BERGER_ARXIV}",
+        make_psr(
+            PsrSeed(
+                source="arxiv_author",
+                source_key=f"{BERGER_ARXIV}:1",
+                bronze_ref=f"bronze.arxiv_papers_raw:arxiv_id={BERGER_ARXIV}",
+                full_name="Nils Berger",
+                emails=("nils@berger.dev",),
+                source_url=f"https://arxiv.org/abs/{BERGER_ARXIV}",
+            )
         ),
-        _psr(
-            PSR_AISHA_OPENALEX,
-            "openalex_author",
-            "A5000000005",
-            bronze_ref="bronze.openalex_works_raw:openalex_id=W4400000002",
-            full_name="A. Patel",
-            emails=[],
-            orcid="0000-0001-5109-3700",
-            affiliation_raw="KTH Royal Institute of Technology",
-            country_code="SE",
-            keywords=["slam"],
-            source_url="https://api.openalex.org/people/A5000000005",
+        make_psr(
+            PsrSeed(
+                source="openalex_author",
+                source_key="A5000000005",
+                bronze_ref="bronze.openalex_works_raw:openalex_id=W4400000002",
+                full_name="A. Patel",
+                orcid="0000-0001-5109-3700",
+                affiliation_raw="KTH Royal Institute of Technology",
+                country_code="SE",
+                keywords=("slam",),
+                source_url="https://api.openalex.org/people/A5000000005",
+            )
         ),
-        _psr(
-            PSR_AISHA_ENRICHMENT,
-            "enrichment",
-            "aisha-patel-site",
-            bronze_ref=None,
-            full_name="Aisha Patel",
-            emails=[],
-            orcid="0000-0001-5109-3700",
-            website_url="https://aishapatel.se",
-            source_url="https://aishapatel.se/about",
+        make_psr(
+            PsrSeed(
+                source="enrichment",
+                source_key="aisha-patel-site",
+                full_name="Aisha Patel",
+                orcid="0000-0001-5109-3700",
+                website_url="https://aishapatel.se",
+                source_url="https://aishapatel.se/about",
+            )
         ),
-        _psr(
-            PSR_JONAS_GITHUB,
-            "github",
-            "501006",
-            bronze_ref="bronze.github_users_raw:user_id=501006",
-            full_name="Jonas Keller",
-            emails=[],
-            github_login="jonaskeller",
-            location_raw="Berlin",
-            country_code="DE",
-            source_url="https://api.github.com/users/jonaskeller",
+        make_psr(
+            PsrSeed(
+                source="github",
+                source_key="501006",
+                bronze_ref="bronze.github_users_raw:user_id=501006",
+                full_name="Jonas Keller",
+                github_login="jonaskeller",
+                location_raw="Berlin",
+                country_code="DE",
+                source_url="https://api.github.com/users/jonaskeller",
+            )
         ),
-        _psr(
-            PSR_JONAS_ZEFIX,
-            "zefix_officer",
-            f"{KELLER_UID}:keller jonas",
-            bronze_ref="bronze.zefix_companies_raw:uid=" + KELLER_UID,
-            full_name="Jonas Keller",
-            emails=[],
-            affiliation_raw="Keller Advisory GmbH",
-            location_raw="Zug",
-            country_code="CH",
-            source_url=f"https://www.zefix.admin.ch/api/v1/company/uid/{KELLER_UID}",
+        make_psr(
+            PsrSeed(
+                source="zefix_officer",
+                source_key=f"{KELLER_UID}:keller jonas",
+                bronze_ref="bronze.zefix_companies_raw:uid=" + KELLER_UID,
+                full_name="Jonas Keller",
+                affiliation_raw="Keller Advisory GmbH",
+                location_raw="Zug",
+                country_code="CH",
+                source_url=f"https://www.zefix.admin.ch/api/v1/company/uid/{KELLER_UID}",
+            )
         ),
     ]
 
 
-def _person(person_id: str, full_name: str, **overrides: object) -> Row:
+def _person(person_id: str, full_name: str, **overrides: SinkValue) -> Row:
     row: Row = {
         "person_id": person_id,
         "full_name": full_name,
@@ -715,16 +749,10 @@ def _persons() -> list[Row]:
     ]
 
 
-def _link(  # noqa: PLR0913 - link rows carry the full audit contract
-    person_id: str,
-    source_record_id: str,
-    method: str,
-    confidence: float,
-    evidence: Row,
-    *,
-    status: str = "active",
-    retracted_reason: str | None = None,
+def _link(
+    person_id: str, source_record_id: str, method: str, confidence: float, evidence: Row
 ) -> Row:
+    """One active ER link row."""
     return {
         "link_id": ids.link_id(person_id, source_record_id, method),
         "person_id": person_id,
@@ -734,10 +762,21 @@ def _link(  # noqa: PLR0913 - link rows carry the full audit contract
         "evidence": evidence,
         "pipeline_version": PIPELINE_VERSION,
         "matched_at": T_UPDATED,
-        "status": status,
-        "retracted_at": T_UPDATED if status == "retracted" else None,
-        "retracted_by": "analyst" if status == "retracted" else None,
-        "retracted_reason": retracted_reason,
+        "status": "active",
+        "retracted_at": None,
+        "retracted_by": None,
+        "retracted_reason": None,
+    }
+
+
+def _retracted(link: Row, reason: str) -> Row:
+    """Mark a link analyst-retracted: the reversible unmerge shape."""
+    return {
+        **link,
+        "status": "retracted",
+        "retracted_at": T_UPDATED,
+        "retracted_by": "analyst",
+        "retracted_reason": reason,
     }
 
 
@@ -800,14 +839,15 @@ def _links() -> list[Row]:
             {"rule": "D1", "orcid": "0000-0001-5109-3700"},
         ),
         _link(JONAS_DEV, PSR_JONAS_GITHUB, "seed_fixture", 0.95, {"rule": "fixture seed"}),
-        _link(
-            JONAS_DEV,
-            PSR_JONAS_ZEFIX,
-            "splink",
-            0.72,
-            {"comparison_vector": {"name": 2, "org": 0, "country": 0}},
-            status="retracted",
-            retracted_reason="Different person: Berlin developer vs Zug advisor",
+        _retracted(
+            _link(
+                JONAS_DEV,
+                PSR_JONAS_ZEFIX,
+                "splink",
+                0.72,
+                {"comparison_vector": {"name": 2, "org": 0, "country": 0}},
+            ),
+            "Different person: Berlin developer vs Zug advisor",
         ),
         _link(
             JONAS_LAW,
@@ -1490,7 +1530,7 @@ def _gold() -> Tables:
             "feature_weights": {"school_tier": 1.0, "stars_weighted": 1.0, "recency_score": 0.5},
         },
         "profile_text": IDEAL_TEXT,
-        "embedding": fake_embedding(IDEAL_TEXT),
+        "embedding": _embedding(IDEAL_TEXT),
         "embedding_model": "fixture-fake-embedding",
         "is_active": True,
         "updated_by": "partner@fund.example",
@@ -1550,7 +1590,7 @@ def _gold() -> Tables:
                 "zero_to_one_flag": 1.0,
             },
             "profile_text": LENA_TEXT,
-            "profile_embedding": fake_embedding(LENA_TEXT),
+            "profile_embedding": _embedding(LENA_TEXT),
             "embedding_model": "fixture-fake-embedding",
             "computed_at": T_UPDATED,
         },
@@ -1563,7 +1603,7 @@ def _gold() -> Tables:
                 "recency_score": 0.9,
             },
             "profile_text": WEI_A_TEXT,
-            "profile_embedding": fake_embedding(WEI_A_TEXT),
+            "profile_embedding": _embedding(WEI_A_TEXT),
             "embedding_model": "fixture-fake-embedding",
             "computed_at": T_UPDATED,
         },
@@ -1667,14 +1707,23 @@ def _gold() -> Tables:
     }
 
 
+def _resolved_university(query: str) -> InstitutionRecord:
+    record = institutions.resolve(query)
+    if record is None:
+        raise MissingInstitutionError(query)
+    return record
+
+
 def _institution_scores() -> list[Row]:
+    # ROR ids, canonical names, and aliases come from the resolver seed;
+    # only the calibration numbers are fixture-owned.
     universities = [
-        ("MIT", "https://ror.org/042nb2s44", 1.00, 1.00, 100.0),
-        ("ETH Zurich", "https://ror.org/05a28rw58", 0.95, 0.99, 97.0),
-        ("Stanford University", "https://ror.org/00f54p054", 1.00, 1.00, 100.0),
-        ("EPFL", "https://ror.org/02s376052", 0.90, 0.96, 93.0),
-        ("KTH", "https://ror.org/026zzn846", 0.82, 0.82, 82.0),
-        ("University of Zurich", "https://ror.org/02crff812", 0.75, 0.75, 75.0),
+        ("Massachusetts Institute of Technology", 1.00, 1.00, 100.0),
+        ("ETH Zurich", 0.95, 0.99, 97.0),
+        ("Stanford University", 1.00, 1.00, 100.0),
+        ("EPFL", 0.90, 0.96, 93.0),
+        ("KTH", 0.82, 0.82, 82.0),
+        ("University of Zurich", 0.75, 0.75, 75.0),
     ]
     companies = [
         ("GOOGLE", 0.98, 0.98, 98.0),
@@ -1683,20 +1732,23 @@ def _institution_scores() -> list[Row]:
         ("ABB", 0.55, 0.45, 50.0),
     ]
     rows: list[Row] = []
-    for name, ror, prestige, outcome, score in universities:
+    for query, prestige, outcome, score in universities:
+        record = _resolved_university(query)
+        alias_keys = sorted({norm.org_key(a) for a in (record.name, *record.aliases)} - {""})
+        aliases: list[SinkValue] = list(alias_keys)
         rows.append(
             {
-                "institution_id": ids.institution_id(ror),
+                "institution_id": ids.institution_id(record.ror_id),
                 "kind": "university",
-                "canonical_name": name,
-                "aliases": [norm.org_norm(name)],
-                "ror_id": ror,
+                "canonical_name": record.name,
+                "aliases": aliases,
+                "ror_id": record.ror_id,
                 "prestige": prestige,
                 "outcome": outcome,
                 "score": score,
                 "provenance": {
                     "seed": "ws0-fixture",
-                    "sources": ["leiden-open-cc0", "hand-curated"],
+                    "sources": ["ror-cc0", "leiden-open-cc0", "hand-curated"],
                 },
                 "updated_at": T_UPDATED,
             }
@@ -1707,7 +1759,7 @@ def _institution_scores() -> list[Row]:
                 "institution_id": ids.institution_id(name),
                 "kind": "company",
                 "canonical_name": name,
-                "aliases": [norm.org_norm(name)],
+                "aliases": [norm.org_key(name)],
                 "ror_id": None,
                 "prestige": prestige,
                 "outcome": outcome,
@@ -1784,6 +1836,13 @@ def build_tables() -> Tables:
     return tables
 
 
+def _temporal_default(value: object) -> str:
+    """json.dumps hook: rows built via the contract dataclass carry real temporals."""
+    if isinstance(value, datetime | date):
+        return value.isoformat()
+    raise TypeError(str(type(value)))
+
+
 def write_jsonl(data_dir: Path = DATA_DIR) -> list[Path]:
     """Write one JSONL file per table.
 
@@ -1797,7 +1856,10 @@ def write_jsonl(data_dir: Path = DATA_DIR) -> list[Path]:
     written: list[Path] = []
     for table, rows in sorted(build_tables().items()):
         path = data_dir / f"{table}.jsonl"
-        lines = [json.dumps(row, ensure_ascii=False, sort_keys=True) for row in rows]
+        lines = [
+            json.dumps(row, ensure_ascii=False, sort_keys=True, default=_temporal_default)
+            for row in rows
+        ]
         path.write_text("\n".join(lines) + "\n", encoding="utf-8")
         written.append(path)
     return written

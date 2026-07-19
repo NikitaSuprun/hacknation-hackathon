@@ -1,0 +1,26 @@
+# One institution per line; regenerate the seed with:
+#   uv run python -m tools.build_institutions
+Massachusetts Institute of Technology
+Stanford University
+ETH Zurich
+University of California, Berkeley
+Harvard University
+University of Cambridge
+University of Oxford
+Ecole Polytechnique Federale de Lausanne
+Imperial College London
+Technical University of Munich
+Technion - Israel Institute of Technology
+Carnegie Mellon University
+University College London
+KTH Royal Institute of Technology
+Delft University of Technology
+University of Edinburgh
+Tel Aviv University
+University of Zurich
+Technical University of Denmark
+Aalto University
+Ludwig Maximilian University of Munich
+HEC Paris
+INSEAD
+National University of Singapore

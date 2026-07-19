@@ -10,6 +10,7 @@ import sys
 from datetime import UTC, datetime
 from typing import Final
 
+from contracts.models import SinkRow, SinkValue
 from tools.db import DatabricksSink, content_hash
 from tools.settings import load_databricks_settings
 from tools.warehouse import Warehouse
@@ -19,9 +20,9 @@ _SUPPRESSED_USER_ID: Final[int] = 999001
 _BATCH_SIZE: Final[int] = 2
 
 
-def _user_row(user_id: int, login: str, bio: str) -> dict[str, object]:
+def _user_row(user_id: int, login: str, bio: str) -> SinkRow:
     now = datetime.now(tz=UTC)
-    payload: dict[str, object] = {"login": login, "bio": bio}
+    payload: SinkValue = {"login": login, "bio": bio}
     return {
         "user_id": user_id,
         "login": login,
@@ -36,7 +37,7 @@ def _user_row(user_id: int, login: str, bio: str) -> dict[str, object]:
 
 def _seed_suppression(warehouse: Warehouse) -> None:
     statement = (
-        "MERGE INTO dealflow_dev.ops.erasure_suppression t "  # noqa: S608 - constant test key, no user input
+        "MERGE INTO dealflow_dev.ops.erasure_suppression t "
         f"USING (SELECT 'github' AS source, sha2('{_SUPPRESSED_USER_ID}', 256) AS source_key_hash, "
         "current_timestamp() AS created_at) s "
         "ON t.source = s.source AND t.source_key_hash = s.source_key_hash "
@@ -46,7 +47,7 @@ def _seed_suppression(warehouse: Warehouse) -> None:
     warehouse.execute(statement)
 
 
-def _check(label: str, ok: bool, failures: list[str]) -> None:  # noqa: FBT001 - verdict flag is the whole point
+def _check(label: str, failures: list[str], *, ok: bool) -> None:
     sys.stdout.write(f"{'PASS' if ok else 'FAIL'}  {label}\n")
     if not ok:
         failures.append(label)
@@ -67,18 +68,22 @@ def main() -> int:
     first = sink.upsert(_TABLE, rows, ["user_id"], variant_cols=frozenset({"payload"}))
     second = sink.upsert(_TABLE, rows, ["user_id"], variant_cols=frozenset({"payload"}))
     _check(
-        "double-run inserts 0 and updates 0", (second.inserted, second.updated) == (0, 0), failures
+        "double-run inserts 0 and updates 0",
+        failures,
+        ok=(second.inserted, second.updated) == (0, 0),
     )
     _check(
         "first run inserted or refreshed rows",
-        first.inserted + first.skipped_unchanged == _BATCH_SIZE,
         failures,
+        ok=first.inserted + first.skipped_unchanged == _BATCH_SIZE,
     )
 
     changed = [_user_row(999101, "verify-a", "second"), _user_row(999102, "verify-b", "first")]
     third = sink.upsert(_TABLE, changed, ["user_id"], variant_cols=frozenset({"payload"}))
     _check(
-        "changed-hash row updates exactly once", (third.inserted, third.updated) == (0, 1), failures
+        "changed-hash row updates exactly once",
+        failures,
+        ok=(third.inserted, third.updated) == (0, 1),
     )
 
     _seed_suppression(warehouse)
@@ -89,10 +94,10 @@ def main() -> int:
         variant_cols=frozenset({"payload"}),
     )
     count_rows = warehouse.execute(
-        f"SELECT count(*) FROM dealflow_dev.{_TABLE} WHERE user_id = {_SUPPRESSED_USER_ID}"  # noqa: S608 - constant test key, no user input
+        f"SELECT count(*) FROM dealflow_dev.{_TABLE} WHERE user_id = {_SUPPRESSED_USER_ID}"
     )
     absent = int(str(count_rows[0][0])) == 0
-    _check("suppressed key is blocked and absent", blocked.suppressed == 1 and absent, failures)
+    _check("suppressed key is blocked and absent", failures, ok=blocked.suppressed == 1 and absent)
 
     return 1 if failures else 0
 

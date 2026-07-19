@@ -3,14 +3,32 @@
 """Validate semi-structured payloads against the frozen JSON Schemas."""
 
 import json
+from collections.abc import Callable, Iterator
 from functools import cache
 from pathlib import Path
-from typing import Final, cast
+from typing import Final, Protocol, cast
 
-from jsonschema.protocols import Validator
+from jsonschema.exceptions import ValidationError
 from jsonschema.validators import Draft202012Validator
 from referencing import Registry, Resource
 from referencing.jsonschema import Schema, SchemaRegistry
+
+from contracts.models import Json
+
+
+class _ValidatorLike(Protocol):
+    """The one validator method we use, typed for parsed-JSON instances."""
+
+    def iter_errors(self, instance: Json) -> Iterator[ValidationError]:
+        """Yield every violation of the schema by the instance."""
+        ...
+
+
+# The jsonschema stubs type schemas/instances with Any-laced recursive
+# aliases; these two casts are the single laundering seam for that.
+_CHECK_SCHEMA: Final[Callable[[dict[str, Json]], None]] = cast(
+    "Callable[[dict[str, Json]], None]", Draft202012Validator.check_schema
+)
 
 SCHEMA_DIR: Final[Path] = Path(__file__).resolve().parent / "schemas"
 
@@ -35,7 +53,7 @@ def schema_path(name: str) -> Path:
     return SCHEMA_DIR / f"{name}.schema.json"
 
 
-def load_schema(name: str) -> dict[str, object]:
+def load_schema(name: str) -> dict[str, Json]:
     """Load one schema document.
 
     Args:
@@ -47,10 +65,10 @@ def load_schema(name: str) -> dict[str, object]:
     Raises:
         TypeError: If the schema file is not a JSON object.
     """
-    parsed: object = json.loads(schema_path(name).read_text(encoding="utf-8"))
+    parsed: Json = json.loads(schema_path(name).read_text(encoding="utf-8"))
     if not isinstance(parsed, dict):
         raise TypeError(name)
-    return cast("dict[str, object]", parsed)
+    return parsed
 
 
 def check_schema(name: str) -> None:
@@ -59,8 +77,7 @@ def check_schema(name: str) -> None:
     Args:
         name: Schema name without extension.
     """
-    schema: Schema = load_schema(name)
-    Draft202012Validator.check_schema(schema)  # pyright: ignore[reportUnknownMemberType] - jsonschema classmethod is loosely typed
+    _CHECK_SCHEMA(load_schema(name))
 
 
 @cache
@@ -73,7 +90,7 @@ def _registry() -> SchemaRegistry:
     return registry
 
 
-def validator_for(name: str) -> Validator:
+def validator_for(name: str) -> _ValidatorLike:
     """Build a validator with cross-schema references resolvable.
 
     Args:
@@ -82,10 +99,10 @@ def validator_for(name: str) -> Validator:
     Returns:
         A Draft 2020-12 validator for the schema.
     """
-    return Draft202012Validator(load_schema(name), registry=_registry())
+    return cast("_ValidatorLike", Draft202012Validator(load_schema(name), registry=_registry()))
 
 
-def payload_errors(name: str, payload: object) -> list[str]:
+def payload_errors(name: str, payload: Json) -> list[str]:
     """Collect human-readable validation errors for a payload.
 
     Args:
@@ -98,5 +115,5 @@ def payload_errors(name: str, payload: object) -> list[str]:
     validator = validator_for(name)
     return [
         f"{'/'.join(str(p) for p in error.absolute_path) or '<root>'}: {error.message}"
-        for error in validator.iter_errors(payload)  # pyright: ignore[reportArgumentType] - dynamic JSON cannot satisfy the stub's recursive alias
+        for error in validator.iter_errors(payload)
     ]

@@ -24,7 +24,7 @@ There is **no** compliant "GitHub → LinkedIn magic resolver" — vendors that 
 - `arxiv_author`: PSR per `(arxiv_id, position)` only for papers with no OpenAlex coverage (fallback spine).
 - `zefix_officer`: PSR per `(uid, name_norm)` from company payload + SOGC text (no registry person-id — a known Swiss-registry limitation).
 - `hacknation`: PSR per Hack Nation `user_id` (from the people list + each project's `authorProfile` + `team[]`); carries `linkedin_url`, `cv_url`, university→`org_norm`, `field_of_study`/`techStack`→`keywords`, country/city. Feeds D7 (LinkedIn) and D8 (project `githubUrl`).
-- Normalizers in `tools/norm.py`, unit-tested: `name_norm` (lower, strip diacritics/titles), `email_norm` (+ generic-inbox blacklist info@/admin@…), `org_norm` (strip AG/GmbH/SA/Sàrl; alias table folds ETHZ/ETH Zürich/Swiss Federal Institute of Technology → `eth zurich`, same EPFL/UZH), `url_norm`.
+- Normalizers in `tools/norm.py`, unit-tested: `name_norm` (lower, strip diacritics/titles), `email_norm` (+ generic-inbox blacklist info@/admin@…), `org_key` (mechanical: strip AG/GmbH/SA/Sàrl), `url_norm`. Semantic folding (`org_norm`: ETHZ/ETH Zürich/Swiss Federal Institute of Technology → `eth zurich`, same EPFL/UZH/MIT/KTH…) lives in `tools/institutions.py`, backed by the CC0 ROR alias data in `data/institutions/` — canonical form is the ROR display name, never a hardcoded table.
 
 **Stage 1 — Artifact cross-links** (high-precision priors, before person matching): regex arXiv ids out of READMEs → `project.arxiv_ids_in_readme`; GitHub URLs out of OpenAlex/S2 metadata → `publication.code_urls`; also the PwC-archive `bronze.paper_code_links`. Each repo↔paper pair generates candidate person pairs (top contributors × authors).
 

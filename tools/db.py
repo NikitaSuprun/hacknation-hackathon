@@ -13,14 +13,18 @@ import contextlib
 import hashlib
 import io
 import json
+import re
 import uuid
+from collections.abc import Iterable
 from dataclasses import dataclass
 from typing import Final
 
 from databricks.sdk import WorkspaceClient
+from databricks.sdk.errors.base import DatabricksError
 
-from contracts.models import UpsertResult
-from tools._arrow import RowShapeError, parquet_bytes, stage_table
+from contracts.models import SinkRow, UpsertResult
+from tools._arrow import RowShapeError, arrow_schema, parquet_bytes, stage_table
+from tools.ddl_registry import table_schema
 from tools.settings import DatabricksSettings
 from tools.warehouse import Warehouse
 
@@ -30,15 +34,32 @@ __all__ = [
     "MergeSpec",
     "RowShapeError",
     "SuppressionRule",
+    "UnsafeIdentifierError",
     "build_merge_sql",
     "build_suppressed_count_sql",
     "canonical_json",
-    "classify_complex",
     "content_hash",
     "parquet_bytes",
     "prepare_rows",
     "stage_table",
 ]
+
+_IDENTIFIER: Final[re.Pattern[str]] = re.compile(r"^[A-Za-z0-9_.]+$")
+
+
+class UnsafeIdentifierError(ValueError):
+    """Raised when a table or column name is not a plain SQL identifier."""
+
+    def __init__(self, name: str) -> None:
+        """Quote the offending name."""
+        super().__init__(f"not a safe SQL identifier: {name!r}")
+
+
+def _require_identifiers(names: Iterable[str]) -> None:
+    """Reject any name that could not have come from the DDL contract."""
+    for name in names:
+        if _IDENTIFIER.fullmatch(name) is None:
+            raise UnsafeIdentifierError(name)
 
 
 @dataclass(frozen=True, slots=True)
@@ -82,9 +103,7 @@ def content_hash(payload: object) -> str:
     return hashlib.sha256(canonical_json(payload).encode("utf-8")).hexdigest()
 
 
-def prepare_rows(
-    rows: list[dict[str, object]], variant_cols: frozenset[str]
-) -> list[dict[str, object]]:
+def prepare_rows(rows: list[SinkRow], variant_cols: frozenset[str]) -> list[SinkRow]:
     """Encode VARIANT columns as canonical-JSON strings for Parquet staging.
 
     Args:
@@ -94,7 +113,7 @@ def prepare_rows(
     Returns:
         New rows with variant values stringified (None passes through).
     """
-    prepared: list[dict[str, object]] = []
+    prepared: list[SinkRow] = []
     for row in rows:
         encoded = dict(row)
         for column in variant_cols:
@@ -105,28 +124,10 @@ def prepare_rows(
     return prepared
 
 
-def classify_complex(rows: list[dict[str, object]], keys: list[str]) -> frozenset[str]:
-    """Columns holding lists or maps (compared via to_json, never directly).
-
-    Args:
-        rows: Prepared rows (variant columns already strings).
-        keys: Key columns, excluded from the result.
-
-    Returns:
-        The complex non-key column names.
-    """
-    complex_cols: set[str] = set()
-    for row in rows:
-        for column, value in row.items():
-            if column not in keys and isinstance(value, list | dict):
-                complex_cols.add(column)
-    return frozenset(complex_cols)
-
-
 def _suppression_predicate(catalog: str, rule: SuppressionRule, alias: str) -> str:
     source_expr = f"'{rule.source}'" if rule.source is not None else f"{alias}.{rule.source_col}"
     return (
-        f"NOT EXISTS (SELECT 1 FROM {catalog}.ops.erasure_suppression es "  # noqa: S608 - identifiers come from the frozen DDL contract, not user input
+        f"NOT EXISTS (SELECT 1 FROM {catalog}.ops.erasure_suppression es "
         f"WHERE es.source = {source_expr} "
         f"AND es.source_key_hash = sha2(CAST({alias}.{rule.key_col} AS STRING), 256))"
     )
@@ -189,7 +190,7 @@ def build_merge_sql(spec: MergeSpec) -> str:
     inserts = ", ".join(spec.columns)
     values = ", ".join(f"s.{c}" for c in spec.columns)
     return (
-        f"MERGE INTO {spec.catalog}.{spec.table} t\n"  # noqa: S608 - identifiers come from the frozen DDL contract, not user input
+        f"MERGE INTO {spec.catalog}.{spec.table} t\n"
         f"USING (SELECT {projection} FROM parquet.`{spec.staged_path}` src{where}) s\n"
         f"ON {on}\n"
         f"WHEN MATCHED AND ({changed}) THEN UPDATE SET {updates}\n"
@@ -209,7 +210,7 @@ def build_suppressed_count_sql(catalog: str, staged_path: str, rule: Suppression
         A COUNT statement over the staged file.
     """
     predicate = _suppression_predicate(catalog, rule, "src")
-    return f"SELECT count(*) FROM parquet.`{staged_path}` src WHERE NOT ({predicate})"  # noqa: S608 - identifiers come from the frozen DDL contract, not user input
+    return f"SELECT count(*) FROM parquet.`{staged_path}` src WHERE NOT ({predicate})"
 
 
 def _as_int(value: object) -> int:
@@ -246,7 +247,7 @@ class DatabricksSink:
 
     def _cleanup(self, path: str) -> None:
         # Staging leftovers are harmless; never fail a completed merge over cleanup.
-        with contextlib.suppress(Exception):
+        with contextlib.suppress(DatabricksError):
             self._workspace().files.delete(path)
 
     def _run_merge(
@@ -272,7 +273,7 @@ class DatabricksSink:
     def upsert(
         self,
         table: str,
-        rows: list[dict[str, object]],
+        rows: list[SinkRow],
         keys: list[str],
         *,
         variant_cols: frozenset[str] = frozenset(),
@@ -295,8 +296,11 @@ class DatabricksSink:
             return UpsertResult(
                 table=table, inserted=0, updated=0, skipped_unchanged=0, suppressed=0
             )
+        schema = table_schema(table)
         prepared = prepare_rows(rows, variant_cols)
-        arrow_table, columns = stage_table(prepared, table)
+        columns = list(prepared[0].keys())
+        _require_identifiers([table, *keys, *columns])
+        arrow_table = stage_table(prepared, arrow_schema(schema, columns), table)
         staged_path = self._staged_path(table)
         merge_sql = build_merge_sql(
             MergeSpec(
@@ -306,7 +310,7 @@ class DatabricksSink:
                 keys=keys,
                 staged_path=staged_path,
                 variant_cols=variant_cols,
-                complex_cols=classify_complex(prepared, keys),
+                complex_cols=schema.complex_cols,
                 hash_col=hash_col,
             )
         )

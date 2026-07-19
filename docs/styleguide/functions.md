@@ -5,3 +5,6 @@
 - Keep top-level callers at orchestration altitude; push metric/log bookkeeping
   into `record_*` helpers.
 - Expected recoverable outcomes are returned as values, not raised.
+- Never `except Exception`: catch the typed base (e.g. `WarehouseError`,
+  `DatabricksError`) or, when failure is ignorable, use
+  `contextlib.suppress(TypedError)`.
