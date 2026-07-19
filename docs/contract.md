@@ -169,4 +169,8 @@ WHEN MATCHED THEN UPDATE SET w_market = :w_market, updated_at = current_timestam
   `databricks-claude-opus-4-8` resolves (plus `databricks-gte-large-en`);
   live runs set `DATABRICKS_LLM_ENDPOINT=databricks-claude-opus-4-8` so every
   ai_query completion reroutes there. The Anthropic-API fallback stays
-  inactive until an `ANTHROPIC_API_KEY` is provisioned.
+  inactive until an `ANTHROPIC_API_KEY` is provisioned; `LLM_BACKEND=claude-code`
+  is the credit-free alternative for Stage B, running the deep dive through a
+  signed-in `claude` CLI so it bills a Claude subscription instead. Check it
+  with `claude -p "ping"` before the demo, then
+  `LLM_BACKEND=claude-code uv run poe scoring -- stage-b --venture-id <id>`.

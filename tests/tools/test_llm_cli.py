@@ -11,6 +11,7 @@ from typing import Final
 import pytest
 
 from contracts.models import Json
+from scoring.deps import build_scoring_deps
 from tools.llm_cli import (
     ClaudeCodeEnvelopeError,
     ClaudeCodeExitError,
@@ -18,6 +19,7 @@ from tools.llm_cli import (
     ClaudeCodeUnavailableError,
     UnsupportedLLMOperationError,
 )
+from tools.settings import MissingConfigError
 
 SCHEMA: Final[dict[str, Json]] = {
     "type": "object",
@@ -225,20 +227,17 @@ def test_real_subprocess_reports_a_non_zero_exit(tmp_path: Path) -> None:
 def test_backend_env_selects_the_client_without_an_api_key(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    from scoring.deps import _live_llm  # noqa: PLC0415 - imported here to keep the patch local
-
     monkeypatch.setenv("LLM_BACKEND", "claude-code")
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
 
-    assert isinstance(_live_llm(stage_b=True), ClaudeCodeLLMClient)
+    deps = build_scoring_deps(fixtures=False, dry_run=True, stage_b=True)
+
+    assert isinstance(deps.llm, ClaudeCodeLLMClient)
 
 
 def test_backend_env_unset_still_demands_the_api_key(monkeypatch: pytest.MonkeyPatch) -> None:
-    from scoring.deps import _live_llm  # noqa: PLC0415 - imported here to keep the patch local
-    from tools.settings import MissingConfigError  # noqa: PLC0415 - ditto
-
     monkeypatch.delenv("LLM_BACKEND", raising=False)
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
 
     with pytest.raises(MissingConfigError):
-        _live_llm(stage_b=True)
+        build_scoring_deps(fixtures=False, dry_run=True, stage_b=True)

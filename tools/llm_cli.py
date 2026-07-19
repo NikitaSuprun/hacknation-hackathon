@@ -137,7 +137,7 @@ def _run_subprocess(argv: Sequence[str], stdin_text: str) -> str:
     return completed.stdout
 
 
-def _envelope_text(stdout: str) -> tuple[str, Mapping[str, Json]]:
+def _envelope_text(stdout: str) -> tuple[str, dict[str, Json]]:
     """The CLI envelope's result text and usage block.
 
     Args:
@@ -147,7 +147,9 @@ def _envelope_text(stdout: str) -> tuple[str, Mapping[str, Json]]:
         The result text and the usage mapping (empty when absent).
 
     Raises:
-        ClaudeCodeEnvelopeError: If stdout is not a success envelope.
+        ClaudeCodeEnvelopeError: If the CLI reported an error in the envelope.
+        UnreadableEnvelopeError: If stdout is not JSON.
+        MissingResultError: If the envelope carries no result text.
     """
     try:
         decoded: object = json.loads(stdout)
@@ -173,7 +175,7 @@ def _strip_fence(text: str) -> str:
     return "\n".join(lines).strip()
 
 
-def _web_searches(usage: Mapping[str, Json]) -> int:
+def _web_searches(usage: dict[str, Json]) -> int:
     return get_int(as_mapping(usage.get(SERVER_TOOL_USE)), "web_search_requests") or 0
 
 
@@ -257,8 +259,8 @@ class ClaudeCodeLLMClient:
             rendering of `parsed`, matching AnthropicHttpClient.
 
         Raises:
-            ClaudeCodeEnvelopeError: If a schema was requested and the answer
-                did not parse as a JSON object.
+            SchemaResponseError: If a schema was requested and the answer did
+                not parse as a JSON object.
         """
         stdin_text = prompt
         if schema is not None:
@@ -298,11 +300,9 @@ class ClaudeCodeLLMClient:
         Returns:
             A Messages-shaped body with one text block.
         """
-        prompt = _flatten(as_list(payload.get("messages")))
-        stdout = self._runner(
-            self._argv(model=get_str(payload, "model"), tools=True),
-            prompt,
-        )
+        request = as_mapping(payload)
+        prompt = _flatten(as_list(request.get("messages")))
+        stdout = self._runner(self._argv(model=get_str(request, "model"), tools=True), prompt)
         result, usage = _envelope_text(stdout)
         content: list[Json] = [
             {"type": SERVER_TOOL_USE, "name": WEB_SEARCH_TOOL_NAME}
