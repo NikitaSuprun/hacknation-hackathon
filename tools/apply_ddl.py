@@ -43,6 +43,23 @@ def render(sql_text: str, catalog: str) -> str:
     return sql_text.replace("${catalog}", catalog)
 
 
+def _strip_line_comments(sql_text: str) -> str:
+    """Drop `--` line comments so semicolons inside them cannot split statements.
+
+    Args:
+        sql_text: SQL text, possibly with line comments.
+
+    Returns:
+        The text with every `--`-to-end-of-line span removed. Our DDL files
+        never place `--` inside a string literal, so a plain scan is safe.
+    """
+    lines: list[str] = []
+    for line in sql_text.splitlines():
+        index = line.find("--")
+        lines.append(line if index < 0 else line[:index].rstrip())
+    return "\n".join(lines)
+
+
 def split_statements(sql_text: str) -> list[str]:
     """Split a DDL file into executable statements.
 
@@ -50,13 +67,12 @@ def split_statements(sql_text: str) -> list[str]:
         sql_text: SQL text, possibly with line comments.
 
     Returns:
-        Non-empty statements, comment-only chunks dropped.
+        Non-empty statements with comments stripped.
     """
     statements: list[str] = []
-    for chunk in sql_text.split(";"):
+    for chunk in _strip_line_comments(sql_text).split(";"):
         stripped = chunk.strip()
-        lines = [line for line in stripped.splitlines() if line.strip()]
-        if any(not line.lstrip().startswith("--") for line in lines):
+        if stripped:
             statements.append(stripped)
     return statements
 

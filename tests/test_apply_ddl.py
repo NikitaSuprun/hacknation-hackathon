@@ -17,9 +17,23 @@ def test_split_drops_comment_only_chunks() -> None:
     assert statements[1].endswith("CREATE SCHEMA y")
 
 
-def test_split_keeps_inline_comments() -> None:
+def test_split_strips_inline_comments() -> None:
     text = "CREATE TABLE t (\n  a STRING -- key\n);"
-    assert split_statements(text) == ["CREATE TABLE t (\n  a STRING -- key\n)"]
+    assert split_statements(text) == ["CREATE TABLE t (\n  a STRING\n)"]
+
+
+def test_semicolon_inside_comment_does_not_split() -> None:
+    # Regression: bronze._rejects carries "…never crash a run; they land here"
+    # in its comment, which used to truncate the statement mid-parenthesis.
+    text = (
+        "CREATE TABLE IF NOT EXISTS bronze._rejects (  -- never crash a run; they land here\n"
+        "  source STRING, ingested_at TIMESTAMP\n"
+        ");"
+    )
+    statements = split_statements(text)
+    assert len(statements) == 1
+    assert statements[0].endswith(")")
+    assert "source STRING" in statements[0]
 
 
 def test_all_ddl_files_split_cleanly() -> None:

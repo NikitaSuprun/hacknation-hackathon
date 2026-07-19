@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS gold.thesis (             -- VC inputs, editable in U
   updated_by    STRING,
   updated_at    TIMESTAMP NOT NULL,
   CONSTRAINT pk_thesis PRIMARY KEY (thesis_id)
-);
+) TBLPROPERTIES (delta.feature.allowColumnDefaults = 'supported');  -- exclude_corporate_oss DEFAULT
 
 CREATE TABLE IF NOT EXISTS gold.candidate_pool (     -- materialized per thesis
   thesis_id       STRING NOT NULL,
