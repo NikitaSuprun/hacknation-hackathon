@@ -210,7 +210,7 @@ class AiQueryLLMClient:
             the text parsed as a JSON object.
 
         Raises:
-            LLMTransportError: If the statement returned no row.
+            EmptyAiQueryResultError: If the statement returned no row.
         """
         endpoint = model or self._default_model
         rows = self._runner.execute(
@@ -232,8 +232,7 @@ class AiQueryLLMClient:
             The unit-norm 1024-dim vector.
 
         Raises:
-            LLMTransportError: If the statement returned no row or a
-                wrong-sized vector.
+            EmptyAiQueryResultError: If the statement returned no row.
         """
         rows = self._runner.execute(
             f"SELECT ai_query({_sql_quote(self._embedding_model)}, {_sql_quote(text)})"
@@ -288,7 +287,7 @@ class AnthropicHttpClient:
             The decoded response body.
 
         Raises:
-            LLMTransportError: On any non-2xx status.
+            AnthropicStatusError: On any non-2xx status.
         """
         response = self._client.post(ANTHROPIC_API_URL, json=payload)
         if response.is_success:
@@ -338,6 +337,9 @@ class AnthropicHttpClient:
 
         Args:
             text: Ignored.
+
+        Returns:
+            Never returns.
 
         Raises:
             UnsupportedLLMOperationError: Always.
