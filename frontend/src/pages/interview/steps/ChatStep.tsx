@@ -13,7 +13,7 @@ import type { ChatMessage, InterviewBootstrap } from "@/lib/domain/types";
 import { useStreamingChat } from "@/hooks/useStreamingChat";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
+import { AutoGrowTextarea } from "@/components/ui/auto-grow-textarea";
 import { cn } from "@/lib/utils";
 
 function timeOf(iso: string): string {
@@ -158,7 +158,7 @@ export function ChatStep({
               </Button>
               {finish.isError ? (
                 <p className="mt-3 text-small text-danger">
-                  That didn't go through — try again in a moment.
+                  That didn't go through. Try again in a moment.
                 </p>
               ) : null}
             </Card>
@@ -169,7 +169,7 @@ export function ChatStep({
       {!chat.ended ? (
         <footer className="hairline-t demo-safe-bottom shrink-0 px-gutter py-4">
           <div className="mx-auto flex w-full max-w-[680px] items-end gap-3">
-            <Textarea
+            <AutoGrowTextarea
               data-demo-id="chat-input"
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
@@ -179,9 +179,9 @@ export function ChatStep({
                   handleSend();
                 }
               }}
-              placeholder="Write your answer — Enter to send, Shift+Enter for a new line"
-              rows={1}
-              className="min-h-[44px] max-h-40 flex-1 resize-none rounded-warm"
+              placeholder="Write your answer. Enter sends, Shift+Enter starts a new line"
+              maxRows={5}
+              className="min-h-[44px] flex-1 rounded-warm"
             />
             <Button data-demo-id="btn-chat-send" disabled={!canSend} onClick={handleSend}>
               Send

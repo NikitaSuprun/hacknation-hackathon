@@ -11,6 +11,7 @@ import type { ChatMessage } from "@/lib/domain/types";
 
 export type ScenarioId =
   | "initial"
+  | "thesis-ready"
   | "outreach-sent"
   | "consented"
   | "candidacy-complete"
@@ -18,6 +19,7 @@ export type ScenarioId =
 
 export const SCENARIO_ORDER: ScenarioId[] = [
   "initial",
+  "thesis-ready",
   "outreach-sent",
   "consented",
   "candidacy-complete",
@@ -88,6 +90,11 @@ function fullTranscript(): ChatMessage[] {
 }
 
 const STEPS: Record<Exclude<ScenarioId, "initial">, () => void> = {
+  "thesis-ready": () =>
+    mutate((db) => {
+      db.thesisIntake.stage = "confirmed";
+      db.thesisIntake.source = "https://fund.example/investment-thesis";
+    }),
   "outreach-sent": () =>
     mutate((db) => {
       db.outreach = db.outreach.filter((o) => o.venture_id !== GRASPLAB_ID);
@@ -142,5 +149,6 @@ export function currentScenarioGuess(): ScenarioId {
   if (db.interview.consented) return "consented";
   if (db.outreach.some((o) => o.venture_id === GRASPLAB_ID && o.status !== "draft"))
     return "outreach-sent";
+  if (db.thesisIntake.stage === "confirmed") return "thesis-ready";
   return "initial";
 }

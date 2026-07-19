@@ -1,9 +1,9 @@
 /**
- * Track E — the 14-beat demo script as data.
+ * Track E. the 14-beat demo script as data.
  *
- * Beats 1–6 are the partner side (login → thesis → ranking → memo → weights →
- * outreach send); 7–11 the founder side (consent → candidacy → interview);
- * 12–14 the payoff (board moved, memo re-scored, final ranking).
+ * Beats 1-6 are the partner side (login → thesis → ranking → memo → weights →
+ * outreach send); 7-11 the founder side (consent → candidacy → interview);
+ * 12-14 the payoff (board moved, memo re-scored, final ranking).
  *
  * The interview beat (B10) is generated from INTERVIEW_SCRIPT so a longer
  * Track-A script expands the autopilot automatically.
@@ -51,7 +51,7 @@ function interviewerCount(): number {
   return getDB().interview.transcript.filter((m) => m.role === "interviewer").length;
 }
 
-/** Beat 10 — one wait/type/send triplet per scripted founder reply. */
+/** Beat 10. one wait/type/send triplet per scripted founder reply. */
 function interviewSteps(): DemoStep[] {
   const steps: DemoStep[] = [];
   INTERVIEW_SCRIPT.forEach((turn, i) => {
@@ -91,7 +91,7 @@ function interviewSteps(): DemoStep[] {
 }
 
 export const DEMO_STEPS: DemoStep[] = [
-  // ——— B1 · Login ————————————————————————————————————————————————
+  // --- B1 · Login ------------------------------------------------
   {
     id: "b1-login",
     beat: 1,
@@ -108,7 +108,7 @@ export const DEMO_STEPS: DemoStep[] = [
     dwellMs: 900,
   },
 
-  // ——— B2 · Thesis ———————————————————————————————————————————————
+  // --- B2 · Thesis -----------------------------------------------
   {
     id: "b2-thesis",
     beat: 2,
@@ -119,7 +119,7 @@ export const DEMO_STEPS: DemoStep[] = [
     dwellMs: 4_600,
   },
 
-  // ——— B3 · Ranking ——————————————————————————————————————————————
+  // --- B3 · Ranking ----------------------------------------------
   {
     id: "b3-ranking",
     beat: 3,
@@ -132,28 +132,28 @@ export const DEMO_STEPS: DemoStep[] = [
   { id: "b3-scroll-down", beat: 3, action: { kind: "scroll", to: "bottom" }, dwellMs: 1_800 },
   { id: "b3-scroll-up", beat: 3, action: { kind: "scroll", to: "top" }, dwellMs: 1_000 },
 
-  // ——— B4 · GraspLab memo ————————————————————————————————————————
+  // --- B4 · GraspLab memo ----------------------------------------
   {
     id: "b4-open-grasplab",
     beat: 4,
     route: ranking,
     checkpoint: "initial",
     action: { kind: "click", target: `venture-row-${GRASPLAB_ID}` },
-    caption: "Every claim cited — and here's what we don't know. No hallucinated conviction.",
+    caption: "Every claim cited. and here's what we don't know. No hallucinated conviction.",
     dwellMs: 2_200,
   },
   { id: "b4-open-evidence", beat: 4, action: { kind: "click", target: "evidence-chip" }, dwellMs: 2_800 },
   { id: "b4-close-evidence", beat: 4, action: { kind: "key", key: "Escape" }, dwellMs: 700 },
   { id: "b4-spot-gaps", beat: 4, action: { kind: "spotlight", target: "memo-gaps" }, dwellMs: 3_200 },
 
-  // ——— B5 · Weights ——————————————————————————————————————————————
+  // --- B5 · Weights ----------------------------------------------
   {
     id: "b5-weights",
     beat: 5,
     route: weights,
     checkpoint: "initial",
     action: { kind: "navigate" },
-    caption: "One slider — instant re-rank. GraspLab takes #1.",
+    caption: "One slider. instant re-rank. GraspLab takes #1.",
     dwellMs: 1_800,
   },
   {
@@ -163,14 +163,14 @@ export const DEMO_STEPS: DemoStep[] = [
     dwellMs: 3_000,
   },
 
-  // ——— B6 · Choose GraspLab (the send happens live) ———————————————
+  // --- B6 · Choose GraspLab (the send happens live) ---------------
   {
     id: "b6-ranking",
     beat: 6,
     route: ranking,
     checkpoint: "initial",
     action: { kind: "navigate" },
-    caption: "We choose GraspLab. The email says exactly why — provenance and opt-out included.",
+    caption: "We choose GraspLab. The email says exactly why. provenance and opt-out included.",
     dwellMs: 1_600,
   },
   {
@@ -182,7 +182,7 @@ export const DEMO_STEPS: DemoStep[] = [
   { id: "b6-send", beat: 6, action: { kind: "click", target: "btn-send-outreach" }, dwellMs: 2_000 },
   { id: "b6-confirm", beat: 6, action: { kind: "click", target: "btn-confirm-send" }, dwellMs: 3_800 },
 
-  // ——— B7 · Persona flip ——————————————————————————————————————————
+  // --- B7 · Persona flip ------------------------------------------
   {
     id: "b7-flip",
     beat: 7,
@@ -194,7 +194,7 @@ export const DEMO_STEPS: DemoStep[] = [
   },
   { id: "b7-founder-link", beat: 7, action: { kind: "navigate" }, route: interview, dwellMs: 2_200 },
 
-  // ——— B8 · Consent ——————————————————————————————————————————————
+  // --- B8 · Consent ----------------------------------------------
   {
     id: "b8-agree",
     beat: 8,
@@ -206,7 +206,7 @@ export const DEMO_STEPS: DemoStep[] = [
   },
   { id: "b8-continue", beat: 8, action: { kind: "click", target: "btn-consent-continue" }, dwellMs: 1_800 },
 
-  // ——— B9 · Candidacy (file drops are presenter-only — synthetic files can't drop) ———
+  // --- B9 · Candidacy (file drops are presenter-only. synthetic files can't drop) ---
   {
     id: "b9-linkedin",
     beat: 9,
@@ -218,7 +218,7 @@ export const DEMO_STEPS: DemoStep[] = [
       text: "https://www.linkedin.com/in/lena-fischer-robotics",
       cps: 28,
     },
-    caption: "She's already chosen — she's just completing her candidacy.",
+    caption: "She's already chosen. she's just completing her candidacy.",
     dwellMs: 500,
   },
   {
@@ -234,10 +234,10 @@ export const DEMO_STEPS: DemoStep[] = [
   },
   { id: "b9-continue", beat: 9, action: { kind: "click", target: "btn-continue-interview" }, dwellMs: 1_400 },
 
-  // ——— B10 · Interview (generated from INTERVIEW_SCRIPT) ——————————
+  // --- B10 · Interview (generated from INTERVIEW_SCRIPT) ----------
   ...interviewSteps(),
 
-  // ——— B11 · Interview done ———————————————————————————————————————
+  // --- B11 · Interview done ---------------------------------------
   {
     id: "b11-wait-final",
     beat: 11,
@@ -252,7 +252,7 @@ export const DEMO_STEPS: DemoStep[] = [
   },
   { id: "b11-done", beat: 11, action: { kind: "click", target: "btn-interview-done" }, dwellMs: 2_800 },
 
-  // ——— B12 · Board moved ——————————————————————————————————————————
+  // --- B12 · Board moved ------------------------------------------
   {
     id: "b12-board",
     beat: 12,
@@ -269,7 +269,7 @@ export const DEMO_STEPS: DemoStep[] = [
     dwellMs: 3_400,
   },
 
-  // ——— B13 · Re-scored memo ———————————————————————————————————————
+  // --- B13 · Re-scored memo ---------------------------------------
   {
     id: "b13-venture",
     beat: 13,
@@ -277,7 +277,7 @@ export const DEMO_STEPS: DemoStep[] = [
     checkpoint: "interview-done",
     action: { kind: "navigate" },
     caption:
-      "Same memo, four minutes later. Traction 46 → 71, every new claim cited to her own words — with consent on record.",
+      "Same memo, four minutes later. Traction 46 → 71, every new claim cited to her own words. with consent on record.",
     dwellMs: 2_000,
   },
   {
@@ -289,7 +289,7 @@ export const DEMO_STEPS: DemoStep[] = [
   { id: "b13-toggle-pre", beat: 13, action: { kind: "click", target: "memo-version-toggle" }, dwellMs: 2_400 },
   { id: "b13-toggle-post", beat: 13, action: { kind: "click", target: "memo-version-toggle" }, dwellMs: 2_400 },
 
-  // ——— B14 · Payoff ———————————————————————————————————————————————
+  // --- B14 · Payoff -----------------------------------------------
   {
     id: "b14-ranking",
     beat: 14,
@@ -307,7 +307,7 @@ export function firstStepIndexOfBeat(beat: number): number {
   return index === -1 ? 0 : index;
 }
 
-/** Entry route for a beat jump — first routed step of the beat, else "/login". */
+/** Entry route for a beat jump. first routed step of the beat, else "/login". */
 export function beatEntryRoute(beat: number, ctx: DemoCtx): string {
   const step = DEMO_STEPS.find((s) => s.beat === beat && s.route);
   return step?.route ? step.route(ctx) : "/login";

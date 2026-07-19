@@ -38,6 +38,25 @@ export interface InterviewState {
   transcript: ChatMessage[];
 }
 
+/** The investor's thesis-intake journey (upload -> extraction -> review -> confirmed). */
+export type ThesisIntakeStage = "empty" | "extracting" | "review" | "confirmed";
+
+export interface ThesisIntakeState {
+  stage: ThesisIntakeStage;
+  /** What the committee provided: a website link or an uploaded file name. */
+  source: string | null;
+  /** Field names the mock "extraction" could not fill; the form marks them red. */
+  missingFields: string[];
+}
+
+/** Thesis fields the scripted extraction cannot fill from a link or PDF. */
+export const INTAKE_MISSING_FIELDS = [
+  "check_size_min_chf",
+  "check_size_max_chf",
+  "require_no_prior_vc",
+  "exclude_corporate_oss",
+] as const;
+
 export interface PostInterviewPatch {
   ventureId: string;
   /** Category scores confirmed/raised by the interview. */
@@ -62,6 +81,9 @@ export interface MockDB {
   outreach: OutreachRow[];
   ideal: IdealCandidateProfile;
   interview: InterviewState;
+  thesisIntake: ThesisIntakeState;
+  /** Ventures the committee kicked off the investment process for (mock-only). */
+  investmentProcess: string[];
   postInterviewPatch: PostInterviewPatch | null;
 }
 
@@ -84,6 +106,12 @@ function buildDB(seed: SeedDB): MockDB {
       structured: null,
       transcript: [],
     },
+    thesisIntake: {
+      stage: "empty",
+      source: null,
+      missingFields: [...INTAKE_MISSING_FIELDS],
+    },
+    investmentProcess: [],
     postInterviewPatch: seed.postInterviewPatch,
   };
 }

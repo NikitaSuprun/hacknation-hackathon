@@ -304,7 +304,8 @@ export interface IdealCandidateProfile {
 
 export interface ChatMessage {
   id: string;
-  role: "interviewer" | "founder";
+  /** interviewer = the AI; investor = a follow-up from the investment team. */
+  role: "interviewer" | "founder" | "investor";
   text: string;
   at: string;
 }

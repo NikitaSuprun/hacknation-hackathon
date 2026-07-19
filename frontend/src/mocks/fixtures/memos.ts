@@ -1,9 +1,9 @@
 /**
  * Hand-authored memo sections (memo.schema.json, schema_version 1).
  *
- * - GraspLab PRE: the memo as scored from public data only — the five gap
+ * - GraspLab PRE: the memo as scored from public data only, the five gap
  *   fields appear as `missing: true` bullets and TAM/SAM/SOM stay null.
- * - GraspLab POST: the same memo after the consent-based interview — every
+ * - GraspLab POST: the same memo after the consent-based interview, every
  *   gap is filled by an interview-cited bullet (source_type "interview").
  * - Axonode / TactiSense: full public-data memos for the two runners-up.
  *
@@ -44,7 +44,7 @@ const GL_FORUM = "https://news.ycombinator.com/item?id=fixture";
 const GL_MARKET = "https://example.com/market-report";
 
 // ---------------------------------------------------------------------------
-// GraspLab — PRE-interview memo (public data only; five gaps open)
+// GraspLab, PRE-interview memo (public data only; five gaps open)
 // ---------------------------------------------------------------------------
 
 export const GRASPLAB_MEMO_PRE_SECTIONS: MemoSections = {
@@ -60,7 +60,7 @@ export const GRASPLAB_MEMO_PRE_SECTIONS: MemoSections = {
         ev("Commit shares 0.62 / 0.38 on grasp-anything.", GL_REPO, "github"),
       ),
       cite(
-        "Ships GraspFM, an open foundation model for robotic grasping — 8,200-star repository plus a peer-visible paper.",
+        "Ships GraspFM, an open foundation model for robotic grasping, 8,200-star repository plus a peer-visible paper.",
         ev("grasp-anything: 8,200 stars, 410 forks.", GL_REPO, "github"),
         ev("GraspFM: A Foundation Model for Robotic Grasping (2026).", GL_PAPER, "arxiv"),
       ),
@@ -69,7 +69,7 @@ export const GRASPLAB_MEMO_PRE_SECTIONS: MemoSections = {
   investment_hypotheses: {
     bullets: [
       cite(
-        "Grasp reliability is the operational bottleneck in warehouse automation — solving it unlocks stalled picking deployments.",
+        "Grasp reliability is the operational bottleneck in warehouse automation, solving it unlocks stalled picking deployments.",
         ev("Recurring practitioner complaints about grasping reliability.", GL_FORUM, "web"),
       ),
       cite(
@@ -85,11 +85,11 @@ export const GRASPLAB_MEMO_PRE_SECTIONS: MemoSections = {
   swot: {
     bullets: [
       cite(
-        "Strength: 8,200-star repository in 4 months plus the GraspFM paper — top-decile open-source and research signal.",
+        "Strength: 8,200-star repository in 4 months plus the GraspFM paper, top-decile open-source and research signal.",
         ev("8,200 stars in 4 months.", GL_REPO, "github"),
         ev("GraspFM paper, June 2026.", GL_PAPER, "arxiv"),
       ),
-      gap("Weakness: no verified revenue — paying-pilot status unknown from public data.", "traction.revenue"),
+      gap("Weakness: no verified revenue, paying-pilot status unknown from public data.", "traction.revenue"),
       cite(
         "Opportunity: the DACH 3PL segment retrofits existing warehouses and is underserved by arm-vendor software.",
         ev("DACH 3PLs cited as an underserved retrofit segment.", GL_MARKET, "web"),
@@ -103,7 +103,7 @@ export const GRASPLAB_MEMO_PRE_SECTIONS: MemoSections = {
   team_and_history: {
     bullets: [
       cite(
-        "Léna Fischer: 62% of commits on grasp-anything and first author on GraspFM — the technical center of gravity.",
+        "Léna Fischer: 62% of commits on grasp-anything and first author on GraspFM, the technical center of gravity.",
         ev("Contribution share 0.62; first-author on GraspFM.", GL_REPO, "github"),
         ev("GraspFM author list, position 1.", GL_PAPER, "arxiv"),
       ),
@@ -112,7 +112,7 @@ export const GRASPLAB_MEMO_PRE_SECTIONS: MemoSections = {
         ev("Contribution share 0.38, weekly commit cadence.", GL_REPO, "github"),
       ),
       cite(
-        "Fischer and Zhang share a paper and a repository across 4 months — verified prior collaboration, not a hackathon pairing.",
+        "Fischer and Zhang share a paper and a repository across 4 months, verified prior collaboration, not a hackathon pairing.",
         ev("Shared paper and repo across 4 months.", GL_OPENALEX, "openalex"),
       ),
     ],
@@ -124,11 +124,11 @@ export const GRASPLAB_MEMO_PRE_SECTIONS: MemoSections = {
         ev("Recurring complaints about grasping reliability in warehouse automation.", GL_FORUM, "web"),
       ),
       cite(
-        "Warehouses pay for manual workarounds today — exception handlers re-picking what grippers drop — which is budget a software fix can capture.",
+        "Warehouses pay for manual workarounds today, exception handlers re-picking what grippers drop, which is budget a software fix can capture.",
         ev("Manual exception handling cited as standard practice in picking cells.", GL_MARKET, "web"),
       ),
       cite(
-        "GraspFM is their own foundation model with a published training recipe — not a wrapper over someone else's API.",
+        "GraspFM is their own foundation model with a published training recipe, not a wrapper over someone else's API.",
         ev("Model architecture and training recipe published.", GL_PAPER, "arxiv"),
       ),
     ],
@@ -136,15 +136,15 @@ export const GRASPLAB_MEMO_PRE_SECTIONS: MemoSections = {
   technology_and_defensibility: {
     bullets: [
       cite(
-        "Training recipe is published and reproduced by third parties — credibility, plus a data flywheel from deployments the paper cannot commoditize.",
+        "Training recipe is published and reproduced by third parties, credibility, plus a data flywheel from deployments the paper cannot commoditize.",
         ev("Training recipe published with reference implementation.", GL_PAPER, "arxiv"),
       ),
       cite(
-        "Licensing splits a permissive core from commercial production weights — adoption and monetization are structurally separated.",
+        "Licensing splits a permissive core from commercial production weights, adoption and monetization are structurally separated.",
         ev("Permissive core + commercial weights licensing.", GL_REPO, "github"),
       ),
       gap(
-        "How the ETH research IP is licensed to the company is unconfirmed — spin-off terms can range from benign to encumbering.",
+        "How the ETH research IP is licensed to the company is unconfirmed, spin-off terms can range from benign to encumbering.",
         "tech.ip_licensing",
       ),
     ],
@@ -159,11 +159,11 @@ export const GRASPLAB_MEMO_PRE_SECTIONS: MemoSections = {
     ],
     bullets: [
       cite(
-        "Robotic manipulation demand is growing with named competitors investing — the category is real even before bottom-up sizing.",
+        "Robotic manipulation demand is growing with named competitors investing, the category is real even before bottom-up sizing.",
         ev("Robotic manipulation TAM growing with named competitors.", GL_MARKET, "web"),
       ),
       gap(
-        "Bottom-up TAM/SAM/SOM not yet computed — the first customer segment and its size are unconfirmed.",
+        "Bottom-up TAM/SAM/SOM not yet computed, the first customer segment and its size are unconfirmed.",
         "market.tam",
       ),
     ],
@@ -175,7 +175,7 @@ export const GRASPLAB_MEMO_PRE_SECTIONS: MemoSections = {
         ev("Competes with in-house grasping stacks at large robotics vendors.", GL_MARKET, "web"),
       ),
       cite(
-        "GreifTech Systems (Munich) bundles a proprietary grasp planner with its arms — strong in automotive, weak in mixed-SKU 3PL.",
+        "GreifTech Systems (Munich) bundles a proprietary grasp planner with its arms, strong in automotive, weak in mixed-SKU 3PL.",
         ev("GreifTech grasp planner ships only with GreifTech arms.", GL_MARKET, "web"),
       ),
       cite(
@@ -187,18 +187,18 @@ export const GRASPLAB_MEMO_PRE_SECTIONS: MemoSections = {
   traction_and_kpis: {
     bullets: [
       cite(
-        "8,200 GitHub stars in 4 months (top-decile for robotics OSS) and 410 forks — adoption signal is unusually strong.",
+        "8,200 GitHub stars in 4 months (top-decile for robotics OSS) and 410 forks, adoption signal is unusually strong.",
         ev("8,200 stars, 410 forks on grasp-anything.", GL_REPO, "github"),
       ),
       gap("Revenue and paying-pilot status unverified from public data.", "traction.revenue"),
       gap("Founder full-time commitment unconfirmed.", "team.commitment"),
-      gap("No prior venture funding found — needs confirmation from the team.", "funding.history_verified"),
+      gap("No prior venture funding found, needs confirmation from the team.", "funding.history_verified"),
     ],
   },
 };
 
 // ---------------------------------------------------------------------------
-// GraspLab — POST-interview memo (gaps filled with interview-cited bullets)
+// GraspLab, POST-interview memo (gaps filled with interview-cited bullets)
 // ---------------------------------------------------------------------------
 
 export const GRASPLAB_MEMO_POST_SECTIONS: MemoSections = {
@@ -208,12 +208,12 @@ export const GRASPLAB_MEMO_POST_SECTIONS: MemoSections = {
   swot: {
     bullets: [
       cite(
-        "Strength: 8,200-star repository in 4 months plus the GraspFM paper — top-decile open-source and research signal.",
+        "Strength: 8,200-star repository in 4 months plus the GraspFM paper, top-decile open-source and research signal.",
         ev("8,200 stars in 4 months.", GL_REPO, "github"),
         ev("GraspFM paper, June 2026.", GL_PAPER, "arxiv"),
       ),
       interviewCite(
-        "Weakness: revenue is real but early and concentrated — three paid pilots, all warehouse logistics, ~CHF 12k MRR.",
+        "Weakness: revenue is real but early and concentrated, three paid pilots, all warehouse logistics, ~CHF 12k MRR.",
         "Three paid pilots at CHF 4,000/month each (~CHF 12k MRR), all in warehouse logistics.",
       ),
       cite(
@@ -239,11 +239,11 @@ export const GRASPLAB_MEMO_POST_SECTIONS: MemoSections = {
   technology_and_defensibility: {
     bullets: [
       cite(
-        "Training recipe is published and reproduced by third parties — credibility, plus a data flywheel from deployments the paper cannot commoditize.",
+        "Training recipe is published and reproduced by third parties, credibility, plus a data flywheel from deployments the paper cannot commoditize.",
         ev("Training recipe published with reference implementation.", GL_PAPER, "arxiv"),
       ),
       cite(
-        "Licensing splits a permissive core from commercial production weights — adoption and monetization are structurally separated.",
+        "Licensing splits a permissive core from commercial production weights, adoption and monetization are structurally separated.",
         ev("Permissive core + commercial weights licensing.", GL_REPO, "github"),
       ),
       interviewCite(
@@ -253,9 +253,9 @@ export const GRASPLAB_MEMO_POST_SECTIONS: MemoSections = {
     ],
   },
   market_tam_sam_som: {
-    tam: "CHF 2.1B — global software for robotic picking and grasping (2030 projection)",
-    sam: "CHF 480M — European mid-size warehouse-automation retrofits",
-    som: "CHF 115M — 1,900 DACH mid-size 3PL sites × CHF 60k/yr",
+    tam: "CHF 2.1B, global software for robotic picking and grasping (2030 projection)",
+    sam: "CHF 480M, European mid-size warehouse-automation retrofits",
+    som: "CHF 115M, 1,900 DACH mid-size 3PL sites × CHF 60k/yr",
     assumptions: [
       "1,900 mid-size 3PL sites in DACH (founder estimate, interview 2026-07-16).",
       "CHF 60k average contract value per site per year at current pilot pricing.",
@@ -263,11 +263,11 @@ export const GRASPLAB_MEMO_POST_SECTIONS: MemoSections = {
     ],
     bullets: [
       cite(
-        "Robotic manipulation demand is growing with named competitors investing — the category is real even before bottom-up sizing.",
+        "Robotic manipulation demand is growing with named competitors investing, the category is real even before bottom-up sizing.",
         ev("Robotic manipulation TAM growing with named competitors.", GL_MARKET, "web"),
       ),
       interviewCite(
-        "First segment confirmed in interview: mid-size 3PL warehouses in DACH — roughly 1,900 sites, ≈ CHF 115M serviceable before the rest of Europe.",
+        "First segment confirmed in interview: mid-size 3PL warehouses in DACH, roughly 1,900 sites, ≈ CHF 115M serviceable before the rest of Europe.",
         "First segment: mid-size DACH 3PL warehouses; ~1,900 sites × CHF 60k/yr ≈ CHF 115M SOM.",
       ),
     ],
@@ -276,7 +276,7 @@ export const GRASPLAB_MEMO_POST_SECTIONS: MemoSections = {
   traction_and_kpis: {
     bullets: [
       cite(
-        "8,200 GitHub stars in 4 months (top-decile for robotics OSS) and 410 forks — adoption signal is unusually strong.",
+        "8,200 GitHub stars in 4 months (top-decile for robotics OSS) and 410 forks, adoption signal is unusually strong.",
         ev("8,200 stars, 410 forks on grasp-anything.", GL_REPO, "github"),
       ),
       interviewCite(
@@ -284,7 +284,7 @@ export const GRASPLAB_MEMO_POST_SECTIONS: MemoSections = {
         "3 paid pilots, CHF 4,000/month each; lead pilot 96.3% pick success; conversions scheduled for December.",
       ),
       interviewCite(
-        "Funding history confirmed: no prior equity of any kind — a CHF 150k non-dilutive grant plus pilot fees; runway ≈ 11 months at CHF 14k/month burn.",
+        "Funding history confirmed: no prior equity of any kind, a CHF 150k non-dilutive grant plus pilot fees; runway ≈ 11 months at CHF 14k/month burn.",
         "No prior equity funding; CHF 150k non-dilutive grant; ~11 months runway at CHF 14k/month burn.",
       ),
       interviewCite(
@@ -296,7 +296,7 @@ export const GRASPLAB_MEMO_POST_SECTIONS: MemoSections = {
 };
 
 // ---------------------------------------------------------------------------
-// Axonode — public-data memo
+// Axonode, public-data memo
 // ---------------------------------------------------------------------------
 
 const AX_REPO = "https://github.com/axonode-ai/spikeflow";
@@ -310,7 +310,7 @@ export const AXONODE_MEMO_SECTIONS: MemoSections = {
   company_snapshot: {
     bullets: [
       cite(
-        "Axonode SA registered in Lausanne in May 2026 (Zefix CHE-214.882.331) — an EPFL-adjacent neuromorphic-computing venture.",
+        "Axonode SA registered in Lausanne in May 2026 (Zefix CHE-214.882.331), an EPFL-adjacent neuromorphic-computing venture.",
         ev("Axonode SA registered 2026-05-12, seat Lausanne.", AX_ZEFIX, "registry"),
       ),
       cite(
@@ -326,7 +326,7 @@ export const AXONODE_MEMO_SECTIONS: MemoSections = {
   investment_hypotheses: {
     bullets: [
       cite(
-        "On-board inference under 5 W is the unlock for beyond-line-of-sight drone autonomy — cloud round-trips are physically disqualifying.",
+        "On-board inference under 5 W is the unlock for beyond-line-of-sight drone autonomy, cloud round-trips are physically disqualifying.",
         ev("OEMs cite connectivity limits for BVLOS autonomy.", AX_PRESS, "press"),
       ),
       cite(
@@ -343,7 +343,7 @@ export const AXONODE_MEMO_SECTIONS: MemoSections = {
         ev("Two European drone OEMs in paid evaluations (June 2026).", AX_PRESS, "press"),
       ),
       cite(
-        "Weakness: the founders first worked together in April 2026 — three months of shared history.",
+        "Weakness: the founders first worked together in April 2026, three months of shared history.",
         ev("First co-commit on spikeflow dated 2026-04-08.", AX_REPO, "github"),
       ),
       cite(
@@ -360,7 +360,7 @@ export const AXONODE_MEMO_SECTIONS: MemoSections = {
     bullets: [
       cite(
         "Ricci: three first-author neuromorphic-inference papers and primary maintainer of spikeflow.",
-        ev("First-author record on event-driven inference (2024–2026).", AX_OPENALEX, "openalex"),
+        ev("First-author record on event-driven inference (2024-2026).", AX_OPENALEX, "openalex"),
         ev("Top committer on spikeflow.", AX_REPO, "github"),
       ),
       cite(
@@ -369,7 +369,7 @@ export const AXONODE_MEMO_SECTIONS: MemoSections = {
       ),
       cite(
         "Collaboration is young: no shared papers or repositories before April 2026.",
-        ev("No co-authored works found for Ricci–Lindqvist before 2026.", AX_OPENALEX, "openalex"),
+        ev("No co-authored works found for Ricci-Lindqvist before 2026.", AX_OPENALEX, "openalex"),
       ),
     ],
   },
@@ -392,17 +392,17 @@ export const AXONODE_MEMO_SECTIONS: MemoSections = {
         ev("Open runtime, closed scheduler split documented.", AX_REPO, "github"),
       ),
       cite(
-        "Dependence on third-party silicon roadmaps is the structural risk — mitigated by supporting three vendors.",
+        "Dependence on third-party silicon roadmaps is the structural risk, mitigated by supporting three vendors.",
         ev("Three supported chip targets as of v0.9.", AX_REPO, "github"),
       ),
     ],
   },
   market_tam_sam_som: {
-    tam: "CHF 3.4B — edge-AI compute software for uncrewed systems (2030 projection)",
-    sam: "CHF 620M — European drone OEMs and autonomy integrators",
-    som: "CHF 55M — inspection and delivery fleets in DACH + Nordics, per-airframe licensing",
+    tam: "CHF 3.4B, edge-AI compute software for uncrewed systems (2030 projection)",
+    sam: "CHF 620M, European drone OEMs and autonomy integrators",
+    som: "CHF 55M, inspection and delivery fleets in DACH + Nordics, per-airframe licensing",
     assumptions: [
-      "Per-airframe software licensing at CHF 400–900/yr depending on fleet size.",
+      "Per-airframe software licensing at CHF 400-900/yr depending on fleet size.",
       "European BVLOS approvals continue expanding through 2028.",
     ],
     bullets: [
@@ -419,11 +419,11 @@ export const AXONODE_MEMO_SECTIONS: MemoSections = {
   competition: {
     bullets: [
       cite(
-        "Chip vendors' bundled SDKs are the incumbent path — deep on one chip, useless across vendors.",
+        "Chip vendors' bundled SDKs are the incumbent path, deep on one chip, useless across vendors.",
         ev("Vendor SDKs cover single-chip targets only.", AX_PRESS, "press"),
       ),
       cite(
-        "Drone OEM in-house autonomy teams optimize GPUs rather than neuromorphic parts — a power ceiling Axonode sidesteps.",
+        "Drone OEM in-house autonomy teams optimize GPUs rather than neuromorphic parts, a power ceiling Axonode sidesteps.",
         ev("OEM stacks remain GPU-based in published teardowns.", AX_PRESS, "press"),
       ),
     ],
@@ -444,7 +444,7 @@ export const AXONODE_MEMO_SECTIONS: MemoSections = {
 };
 
 // ---------------------------------------------------------------------------
-// TactiSense — public-data memo
+// TactiSense, public-data memo
 // ---------------------------------------------------------------------------
 
 const TS_REPO = "https://github.com/tactisense/skinprint";
@@ -463,7 +463,7 @@ export const TACTISENSE_MEMO_SECTIONS: MemoSections = {
       ),
       cite(
         "Founders Dr. Priya Nair and Jonas Wyss come from the same co-supervised ETH lab and have published together for three years.",
-        ev("Nair–Wyss co-authorship record, 2023–2026.", TS_OPENALEX, "openalex"),
+        ev("Nair-Wyss co-authorship record, 2023-2026.", TS_OPENALEX, "openalex"),
       ),
       cite(
         "Product: screen-printable capacitive skins that retrofit force and slip sensing onto existing robot grippers.",
@@ -478,7 +478,7 @@ export const TACTISENSE_MEMO_SECTIONS: MemoSections = {
         ev("Integrators report damage rates on force-blind picking.", TS_PRESS, "press"),
       ),
       cite(
-        "Printing sensors instead of assembling them collapses unit cost — the process know-how is the moat, not the sensor design.",
+        "Printing sensors instead of assembling them collapses unit cost, the process know-how is the moat, not the sensor design.",
         ev("Screen-printing process described at device level only.", TS_PAPER, "arxiv"),
       ),
     ],
@@ -486,11 +486,11 @@ export const TACTISENSE_MEMO_SECTIONS: MemoSections = {
   swot: {
     bullets: [
       cite(
-        "Strength: three years of co-supervised lab collaboration between the founders — an unusually verified team signal.",
+        "Strength: three years of co-supervised lab collaboration between the founders, an unusually verified team signal.",
         ev("Four shared papers and a shared fabrication repo.", TS_OPENALEX, "openalex"),
       ),
       cite(
-        "Weakness: traction is lab pilots, not deployments — no revenue signal in public data.",
+        "Weakness: traction is lab pilots, not deployments, no revenue signal in public data.",
         ev("Two gripper-maker lab pilots, no commercial terms disclosed.", TS_PRESS, "press"),
       ),
       cite(
@@ -515,18 +515,18 @@ export const TACTISENSE_MEMO_SECTIONS: MemoSections = {
       ),
       cite(
         "The pair share four papers and a fabrication repository across three years in the same co-supervised ETH lab.",
-        ev("Nair–Wyss shared outputs, 2023–2026.", TS_OPENALEX, "openalex"),
+        ev("Nair-Wyss shared outputs, 2023-2026.", TS_OPENALEX, "openalex"),
       ),
     ],
   },
   problem_and_product: {
     bullets: [
       cite(
-        "Grippers without touch crush produce, drop deformables, and run slow safety margins — measured cost, not anecdote.",
+        "Grippers without touch crush produce, drop deformables, and run slow safety margins, measured cost, not anecdote.",
         ev("Damage and slowdown costs quantified by integrators.", TS_PRESS, "press"),
       ),
       cite(
-        "TactiSense skins print onto flexible substrates and calibrate in software — retrofit in hours on standard parallel grippers.",
+        "TactiSense skins print onto flexible substrates and calibrate in software, retrofit in hours on standard parallel grippers.",
         ev("Retrofit procedure documented for two gripper families.", TS_REPO, "github"),
       ),
     ],
@@ -538,17 +538,17 @@ export const TACTISENSE_MEMO_SECTIONS: MemoSections = {
         ev("Process windows withheld from publication.", TS_PAPER, "arxiv"),
       ),
       cite(
-        "A calibration dataset across gripper geometries compounds with every retrofit — the data moat mirrors the hardware one.",
+        "A calibration dataset across gripper geometries compounds with every retrofit, the data moat mirrors the hardware one.",
         ev("Calibration models per gripper family in skinprint.", TS_REPO, "github"),
       ),
     ],
   },
   market_tam_sam_som: {
-    tam: "CHF 1.8B — robot end-effector sensing worldwide (2030 projection)",
-    sam: "CHF 310M — European installed grippers eligible for tactile retrofit",
+    tam: "CHF 1.8B, robot end-effector sensing worldwide (2030 projection)",
+    sam: "CHF 310M, European installed grippers eligible for tactile retrofit",
     som: null,
     assumptions: [
-      "Retrofit pricing at CHF 1,200–2,400 per gripper plus a software subscription.",
+      "Retrofit pricing at CHF 1,200-2,400 per gripper plus a software subscription.",
       "Serviceable share limited to parallel-jaw fleets in the first two years.",
     ],
     bullets: [
@@ -556,17 +556,17 @@ export const TACTISENSE_MEMO_SECTIONS: MemoSections = {
         "End-effector sensing grows with e-commerce picking; retrofits address the installed base OEM sensing cannot reach.",
         ev("Retrofit segment sizing, May 2026 industry note.", TS_PRESS, "press"),
       ),
-      gap("Obtainable-share estimate needs pilot conversion data — SOM not yet computed.", "market.som"),
+      gap("Obtainable-share estimate needs pilot conversion data, SOM not yet computed.", "market.som"),
     ],
   },
   competition: {
     bullets: [
       cite(
-        "Research-grade tactile sensors exist but cost hundreds of francs per fingertip — TactiSense competes on printable unit economics.",
+        "Research-grade tactile sensors exist but cost hundreds of francs per fingertip, TactiSense competes on printable unit economics.",
         ev("Price comparison vs research-grade sensors.", TS_PRESS, "press"),
       ),
       cite(
-        "Gripper OEMs ship force-torque options at the wrist, not the finger surface — complementary today, competitive if they move down.",
+        "Gripper OEMs ship force-torque options at the wrist, not the finger surface, complementary today, competitive if they move down.",
         ev("Wrist-mounted sensing positioned as the OEM default.", TS_PRESS, "press"),
       ),
     ],

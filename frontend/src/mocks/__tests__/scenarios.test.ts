@@ -47,18 +47,18 @@ describe("applyScenario replay", () => {
     expect(structured.traction_notes).toContain("41 companies");
   });
 
-  it("interview-done replays the full 10-turn transcript and completes the interview", () => {
+  it("interview-done replays the full scripted transcript and completes the interview", () => {
     applyScenario("interview-done");
     const db = getDB();
     expect(db.interview.stage).toBe("completed");
 
     const interviewer = db.interview.transcript.filter((m) => m.role === "interviewer");
     const founder = db.interview.transcript.filter((m) => m.role === "founder");
-    expect(interviewer).toHaveLength(10);
+    expect(interviewer).toHaveLength(INTERVIEW_SCRIPT.length);
     // The closing turn has no founder reply.
-    expect(founder).toHaveLength(9);
+    expect(founder).toHaveLength(INTERVIEW_SCRIPT.length - 1);
     expect(interviewer[0]?.text).toBe(INTERVIEW_SCRIPT[0]?.ai);
-    expect(interviewer[9]?.text).toBe(INTERVIEW_SCRIPT[9]?.ai);
+    expect(interviewer.at(-1)?.text).toBe(INTERVIEW_SCRIPT.at(-1)?.ai);
 
     expect(db.outreach.find((o) => o.venture_id === GRASPLAB_ID)?.status).toBe("interviewed");
     expect(db.memos[GRASPLAB_ID]?.memo_id).toBe("memo-grasplab-post");

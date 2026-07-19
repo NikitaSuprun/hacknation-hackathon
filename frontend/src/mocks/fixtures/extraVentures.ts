@@ -2,7 +2,7 @@
  * The 9 hand-authored ventures that join GraspLab in the ranked list, plus
  * their teams, the GraspLab gap plan (replaces the generated fixture gaps),
  * and full memos for the two runners-up (Axonode, TactiSense). Other extras
- * intentionally have no memo — the UI shows its branded "no memo yet" state.
+ * intentionally have no memo, the UI shows its branded "no memo yet" state.
  *
  * All companies, people, outlets, and URLs are fictional. Category scores
  * satisfy rerank.computeFinalScore arithmetic exactly (the client recomputes
@@ -20,7 +20,7 @@ import {
 } from "@/lib/domain/types";
 import { AXONODE_MEMO_SECTIONS, TACTISENSE_MEMO_SECTIONS } from "./memos";
 
-/** Same value as seed.GRASPLAB_ID — duplicated locally to avoid a cyclic import. */
+/** Same value as seed.GRASPLAB_ID, duplicated locally to avoid a cyclic import. */
 const GRASPLAB = "81963541-592e-5edf-8b82-9fe0b26b4555";
 const THESIS_ID = "aaaaaaaa-0000-4000-8000-000000000001";
 
@@ -144,7 +144,7 @@ const axonode = buildVenture({
       rationale:
         "Ricci first-authored three neuromorphic-inference papers and is primary maintainer of the 2,900-star spikeflow runtime. Lindqvist shipped flight-controller firmware in two drone programs.",
       evidence: [
-        ev("Three first-author papers on event-driven inference, 2024–2026.", AX_OPENALEX, "openalex"),
+        ev("Three first-author papers on event-driven inference, 2024-2026.", AX_OPENALEX, "openalex"),
         ev("Ricci is top committer on spikeflow (2,900 stars).", AX_REPO, "github"),
       ],
     },
@@ -152,7 +152,7 @@ const axonode = buildVenture({
       score: 90,
       confidence: 0.85,
       rationale:
-        "EPFL postdoc plus a KTH embedded-systems MSc — both top-tier engineering programs on record.",
+        "EPFL postdoc plus a KTH embedded-systems MSc, both top-tier engineering programs on record.",
       evidence: [ev("Affiliations: EPFL (Ricci), KTH (Lindqvist).", AX_OPENALEX, "openalex")],
     },
     network_ties: {
@@ -244,7 +244,7 @@ const tactisense = buildVenture({
       score: 92,
       confidence: 0.85,
       rationale:
-        "Both founders from the same co-supervised ETH Zurich lab — max school tier across members.",
+        "Both founders from the same co-supervised ETH Zurich lab, max school tier across members.",
       evidence: [ev("ETH Zurich affiliation for Nair and Wyss.", TS_OPENALEX, "openalex")],
     },
     network_ties: {
@@ -260,7 +260,7 @@ const tactisense = buildVenture({
       rationale:
         "Nair and Wyss share four papers and a fabrication repository across three years in the same co-supervised ETH lab.",
       evidence: [
-        ev("Four shared papers, 2023–2026.", TS_OPENALEX, "openalex"),
+        ev("Four shared papers, 2023-2026.", TS_OPENALEX, "openalex"),
         ev("Shared commits on skinprint since 2023.", TS_REPO, "github"),
       ],
     },
@@ -275,7 +275,7 @@ const tactisense = buildVenture({
       score: 76,
       confidence: 0.7,
       rationale:
-        "Papers cover device physics while printing process windows and the calibration dataset stay proprietary — a process moat that compounds per retrofit.",
+        "Papers cover device physics while printing process windows and the calibration dataset stay proprietary, a process moat that compounds per retrofit.",
       evidence: [
         ev("Process parameters withheld from publication.", TS_PAPER, "arxiv"),
         ev("Per-gripper calibration models in skinprint.", TS_REPO, "github"),
@@ -292,7 +292,7 @@ const tactisense = buildVenture({
       score: 50,
       confidence: 0.6,
       rationale:
-        "Lab pilots with two European gripper makers; 340 stars on tooling — no revenue signal yet.",
+        "Lab pilots with two European gripper makers; 340 stars on tooling, no revenue signal yet.",
       evidence: [
         ev("Two gripper-maker lab pilots, no commercial terms disclosed.", TS_PRESS, "press"),
         ev("340 stars on skinprint.", TS_REPO, "github"),
@@ -335,7 +335,7 @@ const fastsim = buildVenture({
       score: null,
       confidence: 0,
       rationale:
-        "No degree or institutional affiliation on public record for the sole known member — category excluded and its weight redistributed.",
+        "No degree or institutional affiliation on public record for the sole known member, category excluded and its weight redistributed.",
       evidence: [],
     },
     network_ties: {
@@ -349,7 +349,7 @@ const fastsim = buildVenture({
       score: null,
       confidence: 0,
       rationale:
-        "Single known member — the prior-collaboration signal is undefined; weight redistributed.",
+        "Single known member, the prior-collaboration signal is undefined; weight redistributed.",
       evidence: [],
     },
     problem_realness: {
@@ -365,7 +365,7 @@ const fastsim = buildVenture({
       rationale:
         "Gradient-through-contact solver outperforms open baselines in the published benchmark; core solver open, differentiation kernels closed.",
       evidence: [
-        ev("Benchmark: 3–8x faster convergence vs open baselines.", FS_PAPER, "arxiv"),
+        ev("Benchmark: 3-8x faster convergence vs open baselines.", FS_PAPER, "arxiv"),
         ev("Closed differentiation kernels noted in the license file.", FS_REPO, "github"),
       ],
     },
@@ -414,14 +414,14 @@ const wayline = buildVenture({
       rationale:
         "Steiner led intralogistics automation projects for eight years at Bern UAS; Kaya published on multi-agent coordination at TU Munich.",
       evidence: [
-        ev("Steiner: applied intralogistics project record, 2018–2026.", WL_OPENALEX, "openalex"),
+        ev("Steiner: applied intralogistics project record, 2018-2026.", WL_OPENALEX, "openalex"),
         ev("Kaya: multi-agent coordination publications.", WL_OPENALEX, "openalex"),
       ],
     },
     schools: {
       score: 75,
       confidence: 0.7,
-      rationale: "Bern UAS and TU Munich on record — strong applied programs, below the top research tier.",
+      rationale: "Bern UAS and TU Munich on record, strong applied programs, below the top research tier.",
       evidence: [ev("Affiliations: Bern UAS (Steiner), TU Munich (Kaya).", WL_OPENALEX, "openalex")],
     },
     network_ties: {
@@ -549,7 +549,7 @@ const ceresbot = buildVenture({
       score: 54,
       confidence: 0.55,
       rationale:
-        "Paid trials on three farms this season. An Amtsblatt capital-increase publication suggests possible prior funding — flagged, not confirmed.",
+        "Paid trials on three farms this season. An Amtsblatt capital-increase publication suggests possible prior funding, flagged, not confirmed.",
       evidence: [
         ev("Three farm trials in the 2026 season.", CB_PRESS, "press"),
         ev("Capital increase published for Ceresbot AG.", CB_AMTSBLATT, "registry"),
@@ -594,7 +594,7 @@ const perisurg = buildVenture({
     schools: {
       score: 80,
       confidence: 0.75,
-      rationale: "UNIGE faculty plus ETH Zurich — strong academic pedigree across both members.",
+      rationale: "UNIGE faculty plus ETH Zurich, strong academic pedigree across both members.",
       evidence: [ev("Affiliations: UNIGE (Marchand), ETH (Gruber).", PS_OPENALEX, "openalex")],
     },
     network_ties: {
@@ -607,7 +607,7 @@ const perisurg = buildVenture({
       score: 75,
       confidence: 0.75,
       rationale: "Five co-authored papers across four years between the founders' groups.",
-      evidence: [ev("Five Marchand–Gruber co-authored papers, 2022–2026.", PS_OPENALEX, "openalex")],
+      evidence: [ev("Five Marchand-Gruber co-authored papers, 2022-2026.", PS_OPENALEX, "openalex")],
     },
     problem_realness: {
       score: 70,
@@ -620,7 +620,7 @@ const perisurg = buildVenture({
       score: 72,
       confidence: 0.65,
       rationale:
-        "Magnetic steering approach with filed IP and in-vivo data — hard to replicate without the fabrication line.",
+        "Magnetic steering approach with filed IP and in-vivo data, hard to replicate without the fabrication line.",
       evidence: [
         ev("Priority patent filing referenced in the April press note.", PS_PRESS, "press"),
         ev("In-vivo steering results published.", PS_PAPER, "arxiv"),
@@ -630,7 +630,7 @@ const perisurg = buildVenture({
       score: 48,
       confidence: 0.55,
       rationale:
-        "Endovascular instruments are a large market, but the regulatory path pushes revenue years out — the near-term serviceable market is narrow.",
+        "Endovascular instruments are a large market, but the regulatory path pushes revenue years out, the near-term serviceable market is narrow.",
       evidence: [ev("CE-marking path estimated at 3+ years.", PS_PRESS, "press")],
     },
     traction: {
@@ -678,7 +678,7 @@ const cairnsight = buildVenture({
     schools: {
       score: 70,
       confidence: 0.65,
-      rationale: "Bern UAS and DTU on record — solid applied engineering programs.",
+      rationale: "Bern UAS and DTU on record, solid applied engineering programs.",
       evidence: [ev("Affiliations: Bern UAS, DTU.", CS_OPENALEX, "openalex")],
     },
     network_ties: {
@@ -736,7 +736,7 @@ const LW_CVR = "https://datacvr.virk.dk/enhed/virksomhed/45219903";
 const loopwise = buildVenture({
   venture_id: LOOPWISE_ID,
   name: "Loopwise",
-  one_liner: "SLAM foundation models from a KTH–DTU paper cluster",
+  one_liner: "SLAM foundation models from a KTH-DTU paper cluster",
   status: "scored",
   quality_tier: "scored",
   market_tags: ["ai", "robotics"],
@@ -750,7 +750,7 @@ const loopwise = buildVenture({
       confidence: 0.5,
       rationale:
         "Patel and Sørensen anchor a well-cited SLAM publication cluster; no shipped systems or maintained repositories on record.",
-      evidence: [ev("Citation-weighted SLAM cluster, 2023–2026.", LW_CLUSTER, "openalex")],
+      evidence: [ev("Citation-weighted SLAM cluster, 2023-2026.", LW_CLUSTER, "openalex")],
     },
     schools: {
       score: 82,
@@ -768,8 +768,8 @@ const loopwise = buildVenture({
       score: 80,
       confidence: 0.6,
       rationale:
-        "Six shared papers across three years in the KTH–DTU cluster — deep, verified research collaboration.",
-      evidence: [ev("Six Patel–Sørensen co-authored papers, 2023–2026.", LW_CLUSTER, "openalex")],
+        "Six shared papers across three years in the KTH-DTU cluster, deep, verified research collaboration.",
+      evidence: [ev("Six Patel-Sørensen co-authored papers, 2023-2026.", LW_CLUSTER, "openalex")],
     },
     problem_realness: {
       score: 62,
@@ -795,7 +795,7 @@ const loopwise = buildVenture({
       score: 30,
       confidence: 0.35,
       rationale:
-        "Preprints only — no public repository or users. A Danish CVR entry for a Loopwise ApS with paid-in capital above the minimum suggests possible prior funding.",
+        "Preprints only, no public repository or users. A Danish CVR entry for a Loopwise ApS with paid-in capital above the minimum suggests possible prior funding.",
       evidence: [
         ev("No public code artifacts found.", LW_PAPER, "arxiv"),
         ev("Loopwise ApS registered with DKK 400k paid-in capital.", LW_CVR, "registry"),
@@ -829,7 +829,7 @@ const otterix = buildVenture({
       score: 40,
       confidence: 0.3,
       rationale:
-        'Sole registry officer "R. Vogel" could not be resolved against GitHub, ORCID, or publication records — no verifiable track record.',
+        'Sole registry officer "R. Vogel" could not be resolved against GitHub, ORCID, or publication records, no verifiable track record.',
       evidence: [ev("Officer R. Vogel listed on incorporation.", OX_ZEFIX, "registry")],
     },
     schools: {
@@ -847,14 +847,14 @@ const otterix = buildVenture({
     prior_collaboration: {
       score: null,
       confidence: 0,
-      rationale: "Single unresolved officer — collaboration signal undefined; weight redistributed.",
+      rationale: "Single unresolved officer, collaboration signal undefined; weight redistributed.",
       evidence: [],
     },
     problem_realness: {
       score: 50,
       confidence: 0.35,
       rationale:
-        "The commercial-register purpose names industrial automation retrofits — a real problem space, but nothing verifiable beyond the filing.",
+        "The commercial-register purpose names industrial automation retrofits, a real problem space, but nothing verifiable beyond the filing.",
       evidence: [ev("Purpose: development of industrial automation systems.", OX_AMTSBLATT, "registry")],
     },
     product_defensibility: {
@@ -996,12 +996,12 @@ export const EXTRA_TEAM: Record<string, VentureTeamMember[]> = {
   [FASTSIM_ID]: [
     member({
       venture_id: FASTSIM_ID,
-      // Reuses the fixture person — Nils Berger exists in generated.ts.
+      // Reuses the fixture person, Nils Berger exists in generated.ts.
       person_id: NILS_BERGER_PERSON_ID,
       full_name: "Nils Berger",
       headline: "Simulation engineer behind FastSim.",
       github_login: "nilsberger",
-      affiliation: null, // no affiliation on record — schools/collab honestly N/A
+      affiliation: null, // no affiliation on record, schools/collab honestly N/A
       role_hint: "founder",
       is_founder_guess: true,
       weight: 1,
@@ -1125,7 +1125,7 @@ export const EXTRA_TEAM: Record<string, VentureTeamMember[]> = {
   [LOOPWISE_ID]: [
     member({
       venture_id: LOOPWISE_ID,
-      // Reuses the fixture person — Aisha Patel exists in generated.ts.
+      // Reuses the fixture person, Aisha Patel exists in generated.ts.
       person_id: AISHA_PATEL_PERSON_ID,
       full_name: "Aisha Patel",
       headline: "SLAM researcher at KTH.",
@@ -1157,7 +1157,7 @@ export const EXTRA_TEAM: Record<string, VentureTeamMember[]> = {
       full_name: "R. Vogel",
       headline: null,
       affiliation: null,
-      avatar_url: null, // unresolved officer — no avatar by design
+      avatar_url: null, // unresolved officer, no avatar by design
       role_hint: "registered officer",
       is_founder_guess: false,
       weight: 1,
@@ -1167,7 +1167,7 @@ export const EXTRA_TEAM: Record<string, VentureTeamMember[]> = {
 };
 
 // ---------------------------------------------------------------------------
-// GraspLab gaps — REPLACES the generated fixture gaps in the seed merge.
+// GraspLab gaps, REPLACES the generated fixture gaps in the seed merge.
 // ---------------------------------------------------------------------------
 
 const GAPS_CREATED_AT = "2026-07-15T09:00:00+00:00";
@@ -1211,14 +1211,14 @@ export const EXTRA_GAPS: Record<string, VentureGap[]> = {
       category: "traction",
       field: "funding.history_verified",
       importance: 0.5,
-      question_text: "Our records show no prior venture funding — is that right?",
+      question_text: "Our records show no prior venture funding, is that right?",
       created_at: GAPS_CREATED_AT,
     },
   ],
 };
 
 // ---------------------------------------------------------------------------
-// Memos — Axonode and TactiSense only; other extras intentionally have none
+// Memos, Axonode and TactiSense only; other extras intentionally have none
 // (the UI shows its branded "no memo yet" state for them).
 // ---------------------------------------------------------------------------
 

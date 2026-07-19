@@ -2,7 +2,7 @@
  * Assembles the typed demo database from the generated contract fixtures
  * (GraspLab + VoiceLab and friends) plus the hand-authored extra ventures.
  * Every fixture venture with a latest score and pool inclusion is assembled
- * generically — GraspLab is then special-cased to its PRE-interview state:
+ * generically, GraspLab is then special-cased to its PRE-interview state:
  * traction/market/defensibility are degraded on exactly the gap fields, and
  * the interview restores the fixture `is_latest` values, so the re-score
  * beat is arithmetically honest.
@@ -57,11 +57,11 @@ const PRE_INTERVIEW_SCORES: Partial<Record<CategoryKey, number>> = {
 
 const PRE_INTERVIEW_RATIONALES: Partial<Record<CategoryKey, string>> = {
   traction:
-    "8,200 stars in 4 months is top-decile OSS adoption, but stars are not users — revenue and pilots unverified; score capped until confirmed in interview.",
+    "8,200 stars in 4 months is top-decile OSS adoption, but stars are not users, revenue and pilots unverified; score capped until confirmed in interview.",
   market:
-    "Warehouse-automation demand signals are strong, but no bottom-up TAM/SAM/SOM computed — first-segment sizing missing.",
+    "Warehouse-automation demand signals are strong, but no bottom-up TAM/SAM/SOM computed, first-segment sizing missing.",
   product_defensibility:
-    "Own foundation model with published training recipe — not an API wrapper. Open question: terms of the ETH IP license.",
+    "Own foundation model with published training recipe, not an API wrapper. Open question: terms of the ETH IP license.",
 };
 
 /** Generic gold.venture + latest gold.venture_score + candidate_pool join (mirrors app/store.py). */
@@ -194,7 +194,7 @@ function grasplabMemo(id: string, sections: MemoSections, generatedAt?: string):
 }
 
 /**
- * The outreach row minted by "Send outreach" — provenance-first body per the
+ * The outreach row minted by "Send outreach", provenance-first body per the
  * GDPR Art. 14 requirement in the reference doc.
  */
 export function buildSentOutreachRow(overrides: Partial<OutreachRow> = {}): OutreachRow {
@@ -218,7 +218,7 @@ export function buildSentOutreachRow(overrides: Partial<OutreachRow> = {}): Outr
     token_expires_at: new Date(Date.now() + 14 * 24 * 3600 * 1000).toISOString(),
     question_plan: {
       // The seed merge replaces GraspLab's generated gaps with the authored
-      // five-question plan — mirror that here so the outreach row agrees.
+      // five-question plan, mirror that here so the outreach row agrees.
       questions: (EXTRA_GAPS[GRASPLAB_ID] ?? fixtureGaps()[GRASPLAB_ID] ?? []).map(
         (gap) => gap.question_text,
       ),
@@ -244,7 +244,7 @@ export interface SeedDB {
   postInterviewPatch: PostInterviewPatch | null;
 }
 
-/** Score snapshot of a venture's CURRENT values — used to seed history. */
+/** Score snapshot of a venture's CURRENT values, used to seed history. */
 export function snapshotOf(venture: RankedVenture, scoreId: string): ScoreSnapshot {
   return {
     score_id: scoreId,
@@ -292,7 +292,7 @@ export function seedDB(): SeedDB {
     gaps: { ...fixtureGaps(), ...EXTRA_GAPS },
     outreach: [],
     ideal: rawIdeal.profile_json as unknown as IdealCandidateProfile,
-    // The interview restores the fixture is_latest values — nothing invented.
+    // The interview restores the fixture is_latest values, nothing invented.
     postInterviewPatch: {
       ventureId: GRASPLAB_ID,
       scores: {
