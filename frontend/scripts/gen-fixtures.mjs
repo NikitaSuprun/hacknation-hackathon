@@ -38,6 +38,18 @@ const tables = {
   candidatePool: read("gold.candidate_pool"),
   idealCandidates,
   persons: read("silver.person"),
+  // Admin/database-overview tables (read-only viz)
+  personConnections: read("silver.person_connection"),
+  personSourceRecords: read("silver.person_source_record"),
+  personSourceLinks: read("silver.person_source_link"),
+  authorships: read("silver.authorship"),
+  contributions: read("silver.contribution"),
+  officers: read("silver.officer"),
+  publications: read("silver.publication"),
+  projects: read("silver.project"),
+  companies: read("silver.company"),
+  personFeatures: read("gold.person_features"),
+  erReviewQueue: read("ops.er_review_queue"),
 };
 
 const body = Object.entries(tables)

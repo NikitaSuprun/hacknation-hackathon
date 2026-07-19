@@ -60,6 +60,17 @@ export function AppShell() {
                     {item.label}
                   </NavLink>
                 ))}
+              <NavLink
+                to="/admin"
+                className={({ isActive }) =>
+                  cn(
+                    "rounded-ctrl px-3 py-1.5 text-small transition-colors duration-120 ease-swift",
+                    isActive ? "bg-wash text-ink" : "text-quiet hover:bg-wash hover:text-ink",
+                  )
+                }
+              >
+                Admin
+              </NavLink>
             </nav>
           </div>
           <div className="flex items-center gap-4">
