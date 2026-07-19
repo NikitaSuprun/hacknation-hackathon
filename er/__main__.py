@@ -97,6 +97,8 @@ def _since_filter(inputs: ErInputs, since: str | None) -> ErInputs:
         openalex_works=keep(inputs.openalex_works),
         zefix_companies=keep(inputs.zefix_companies),
         zefix_sogc=keep(inputs.zefix_sogc),
+        hacknation_people=keep(inputs.hacknation_people),
+        hacknation_projects=keep(inputs.hacknation_projects),
     )
 
 

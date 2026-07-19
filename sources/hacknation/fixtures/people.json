@@ -1,0 +1,97 @@
+{
+  "data": {
+    "people": [
+      {
+        "user_id": "hn-lena-01",
+        "display_name": "Léna Fischer",
+        "first_name": "Léna",
+        "last_name": "Fischer",
+        "avatar_url": "https://cdn.hack-nation.ai/avatars/hn-lena-01.png",
+        "university": "ETH Zürich",
+        "field_of_study": "Robotics",
+        "academic_degree": "PhD",
+        "professional_situation": "PhD candidate",
+        "tagline": "Building grasping foundation models.",
+        "country": "Switzerland",
+        "city": "Zurich"
+      },
+      {
+        "user_id": "hn-noah-01",
+        "display_name": "Noah Brunner",
+        "first_name": "Noah",
+        "last_name": "Brunner",
+        "avatar_url": null,
+        "university": "EPFL",
+        "field_of_study": "Computer Science",
+        "academic_degree": "MSc",
+        "professional_situation": "Student",
+        "tagline": "Voice agents for field technicians.",
+        "country": "Switzerland",
+        "city": "Lausanne"
+      },
+      {
+        "user_id": "hn-mira-01",
+        "display_name": "Mira Kovac",
+        "first_name": "Mira",
+        "last_name": "Kovac",
+        "avatar_url": null,
+        "university": "EPFL",
+        "field_of_study": "Machine Learning",
+        "academic_degree": "MSc",
+        "professional_situation": "Student",
+        "tagline": "Speech models and edge inference.",
+        "country": "Switzerland",
+        "city": "Lausanne"
+      },
+      {
+        "user_id": "hn-extra-01",
+        "display_name": "Sofia Ricci",
+        "first_name": "Sofia",
+        "last_name": "Ricci",
+        "avatar_url": null,
+        "university": "University of Zurich",
+        "field_of_study": "Economics",
+        "academic_degree": "BSc",
+        "professional_situation": "Student",
+        "tagline": null,
+        "country": "Switzerland",
+        "city": "Zurich"
+      },
+      {
+        "user_id": "hn-extra-02",
+        "display_name": "Tomás Alvarez",
+        "first_name": "Tomás",
+        "last_name": "Alvarez",
+        "avatar_url": null,
+        "university": null,
+        "field_of_study": null,
+        "academic_degree": null,
+        "professional_situation": "Engineer",
+        "tagline": "Hardware tinkerer.",
+        "country": "Germany",
+        "city": "Berlin"
+      },
+      {
+        "user_id": "hn-extra-03",
+        "display_name": "Yuki Tanaka",
+        "first_name": "Yuki",
+        "last_name": "Tanaka",
+        "avatar_url": null,
+        "university": "ETH Zürich",
+        "field_of_study": "Data Science",
+        "academic_degree": "MSc",
+        "professional_situation": "Student",
+        "tagline": null,
+        "country": "Switzerland",
+        "city": "Zurich"
+      }
+    ],
+    "contributionsByUserId": {
+      "hn-lena-01": [{ "id": "hnp-grasp-01", "title": "GraspFM Hackathon Demo" }],
+      "hn-noah-01": [{ "id": "hnp-voice-01", "title": "VoiceLab" }],
+      "hn-mira-01": [{ "id": "hnp-voice-01", "title": "VoiceLab" }],
+      "hn-extra-01": [{ "id": "hnp-spa-01", "title": "Ghost Project" }]
+    }
+  },
+  "meta": { "generatedAt": "2026-07-15T08:00:00Z" }
+}

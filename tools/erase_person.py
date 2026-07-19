@@ -99,19 +99,32 @@ def _person_psrs(tables: Mapping[str, list[Row]], psr_ids: frozenset[str]) -> li
     ]
 
 
-def _bronze_deletes(psrs: Sequence[Row]) -> list[DeleteOp]:
-    github_ids = [
+def _source_keys(psrs: Sequence[Row], source: str) -> list[str]:
+    return [
         key
         for row in psrs
-        if row.get("source") == "github" and (key := get_str(row, "source_key")) is not None
+        if row.get("source") == source and (key := get_str(row, "source_key")) is not None
     ]
-    if not github_ids:
-        return []
-    numeric = ", ".join(str(int(key)) for key in sorted(github_ids))
-    return [
-        DeleteOp(table="bronze.github_users_raw", where=f"user_id IN ({numeric})"),
-        DeleteOp(table="bronze.github_commits_raw", where=f"author_user_id IN ({numeric})"),
-    ]
+
+
+def _bronze_deletes(psrs: Sequence[Row]) -> list[DeleteOp]:
+    ops: list[DeleteOp] = []
+    github_ids = _source_keys(psrs, "github")
+    if github_ids:
+        numeric = ", ".join(str(int(key)) for key in sorted(github_ids))
+        ops.append(DeleteOp(table="bronze.github_users_raw", where=f"user_id IN ({numeric})"))
+        ops.append(
+            DeleteOp(table="bronze.github_commits_raw", where=f"author_user_id IN ({numeric})")
+        )
+    hacknation_ids = _source_keys(psrs, "hacknation")
+    if hacknation_ids:
+        ops.append(
+            DeleteOp(
+                table="bronze.hacknation_people_raw",
+                where=_in_clause("user_id", hacknation_ids),
+            )
+        )
+    return ops
 
 
 def _tombstone(person_row: Row, now: datetime) -> SinkRow:
@@ -188,6 +201,7 @@ def plan_erasure(  # noqa: PLR0913 - the erasure decision surface, injected for 
         }
         for row in sorted(psrs, key=lambda item: str(item.get("source_record_id")))
     ]
+    cv_url = get_str(person_row, "cv_url")
     erasure_log: SinkRow = {
         "erasure_id": erasure_id,
         "person_id": person_id,
@@ -200,7 +214,9 @@ def plan_erasure(  # noqa: PLR0913 - the erasure decision surface, injected for 
             op.table: _row_count(tables, op.table, psr_ids, person_id) for op in deletes
         },
         "vacuum_after": None,
-        "notes": None,
+        # The CV file lives in a UC Volume, not a table; the pointer purge is
+        # recorded here so the DPO runbook removes the file alongside the rows.
+        "notes": f"purge CV file from UC Volume: {cv_url}" if cv_url is not None else None,
     }
     upserts: dict[str, list[SinkRow]] = {
         "silver.person": [_tombstone(person_row, now)],
@@ -284,6 +300,7 @@ def _load_person_tables(source: RowSource) -> dict[str, list[Row]]:
         "ops.er_review_queue",
         "bronze.github_users_raw",
         "bronze.github_commits_raw",
+        "bronze.hacknation_people_raw",
     )
     return {table: source.rows(table) for table in tables}
 

@@ -1,0 +1,54 @@
+{
+  "data": {
+    "id": "hnp-voice-01",
+    "title": "VoiceLab",
+    "code": "VOICE",
+    "summary": "Multilingual voice agents for field technicians.",
+    "detail": "Speech-to-action agents that run on-device for field service.",
+    "heroImage": null,
+    "ownerId": "hn-noah-01",
+    "createdAt": "2026-07-11T09:00:00Z",
+    "updatedAt": "2026-07-14T17:00:00Z",
+    "category": "ai",
+    "techStack": ["Python", "Whisper"],
+    "tags": ["ai", "voice"],
+    "eventId": "ev-2026",
+    "eventTitle": "HackNation 2026",
+    "challengeId": "ch-applied-ai",
+    "challengeTitle": "Applied AI Challenge",
+    "companyId": null,
+    "companyName": null,
+    "winner": false,
+    "demoUrl": "https://demo.hack-nation.ai/hnp-voice-01",
+    "githubUrl": null,
+    "media": [],
+    "structured": {
+      "problem": "Field technicians lose time on manual reporting.",
+      "solution": "On-device multilingual voice agents that file reports.",
+      "usp": "Runs offline on commodity handhelds.",
+      "impact": "Cuts report time from minutes to seconds.",
+      "implementation": "Whisper distillation plus a Python agent runtime.",
+      "targetAudience": "Field service organizations.",
+      "jury_scope": "Applied AI"
+    },
+    "programType": "hackathon",
+    "authorProfile": {
+      "user_id": "hn-noah-01",
+      "display_name": "Noah Brunner",
+      "university": "EPFL",
+      "linkedinUrl": null,
+      "cvUrl": "https://cdn.hack-nation.ai/cv/hn-noah-01.pdf"
+    },
+    "team": [
+      {
+        "user_id": "hn-mira-01",
+        "display_name": "Mira Kovac",
+        "university": "EPFL",
+        "role": "ML engineer",
+        "linkedinUrl": "https://linkedin.com/in/mira-kovac",
+        "cvUrl": null
+      }
+    ]
+  },
+  "meta": { "generatedAt": "2026-07-15T08:00:00Z" }
+}

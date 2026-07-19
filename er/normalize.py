@@ -11,17 +11,19 @@ filtered here so a re-run can never resurrect an erased person.
 import hashlib
 import re
 from collections.abc import Iterable, Mapping, Sequence
+from dataclasses import dataclass
 from datetime import datetime
 from typing import Final
 
 from contracts.models import Json, PersonSourceRecord
-from scrapers.common.jsonutil import get_int, get_list, get_map, get_str
+from scrapers.common.jsonutil import as_mapping, get_int, get_list, get_map, get_str
 from tools import ids, institutions, norm
 
 Row = dict[str, Json]
 
 ORCID_URL_PREFIX: Final[str] = "https://orcid.org/"
 OPENALEX_PEOPLE_URL: Final[str] = "https://api.openalex.org/people/"
+HACKNATION_SOURCE: Final[str] = "hacknation"
 
 _EMAIL: Final[re.Pattern[str]] = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}")
 _SOGC_PERSON: Final[re.Pattern[str]] = re.compile(
@@ -83,6 +85,7 @@ def _build(  # noqa: PLR0913 - one keyword per observed identity field, mirrorin
     orcid: str | None = None,
     github_login: str | None = None,
     website_url: str | None = None,
+    linkedin_url: str | None = None,
     twitter_handle: str | None = None,
     affiliation_raw: str | None = None,
     location_raw: str | None = None,
@@ -104,6 +107,8 @@ def _build(  # noqa: PLR0913 - one keyword per observed identity field, mirrorin
         orcid: Bare ORCID (URL prefix stripped by the caller).
         github_login: GitHub login when the source carries one.
         website_url: Raw personal-site URL.
+        linkedin_url: Raw LinkedIn profile URL (stored as observed; D7
+            normalizes at match time).
         twitter_handle: Twitter/X handle.
         affiliation_raw: Affiliation as observed.
         location_raw: Location as observed.
@@ -132,7 +137,7 @@ def _build(  # noqa: PLR0913 - one keyword per observed identity field, mirrorin
         orcid=orcid,
         github_login=github_login,
         website_url_norm=norm.url_norm(website_url) if website_url else None,
-        linkedin_url=None,
+        linkedin_url=linkedin_url,
         twitter_handle=twitter_handle,
         affiliation_raw=affiliation_raw,
         org_norm=institutions.org_norm(affiliation_raw) if affiliation_raw else None,
@@ -168,6 +173,14 @@ def _topic_keywords(commits: Sequence[Row], repos: Sequence[Row], user_id: int) 
         payload = get_map(repo, "payload")
         topics.update(t.lower() for t in get_list(payload, "topics") if isinstance(t, str))
     return tuple(sorted(topics))
+
+
+def _github_linkedin(payload: Row) -> str | None:
+    """The LinkedIn URL from a GitHub profile's socialAccounts, if listed."""
+    for node in get_list(get_map(payload, "socialAccounts"), "nodes"):
+        if isinstance(node, dict) and get_str(node, "provider") == "LINKEDIN":
+            return get_str(node, "url")
+    return None
 
 
 def github_psrs(
@@ -210,6 +223,7 @@ def github_psrs(
                 emails=emails,
                 github_login=get_str(row, "login"),
                 website_url=blog or None,
+                linkedin_url=_github_linkedin(payload),
                 affiliation_raw=get_str(payload, "company"),
                 location_raw=location,
                 country_code=country_from_location(location),
@@ -350,6 +364,164 @@ def zefix_officer_psrs(sogc: Sequence[Row], companies: Sequence[Row]) -> list[Pe
     return records
 
 
+@dataclass(slots=True)
+class _HacknationEnrichment:
+    """Project-side facts accumulated for one Hack Nation participant."""
+
+    linkedin_url: str | None
+    keywords: set[str]
+    entry: Row
+    project_row: Row
+
+
+def hacknation_user_id(entry: Row) -> str | None:
+    """The participant key as a string (the API serves string or int ids)."""
+    value = entry.get("user_id")
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, str | int):
+        return str(value)
+    return None
+
+
+def hacknation_member_entries(payload: Row) -> list[Row]:
+    """The authorProfile plus every team[] entry of one project payload."""
+    entries: list[Row] = []
+    author = get_map(payload, "authorProfile")
+    if author:
+        entries.append(author)
+    entries.extend(as_mapping(item) for item in get_list(payload, "team") if isinstance(item, dict))
+    return entries
+
+
+def hacknation_project_keywords(payload: Row) -> set[str]:
+    """Lowercased techStack plus tags of one project payload."""
+    words = {item.lower() for item in get_list(payload, "techStack") if isinstance(item, str)}
+    words.update(item.lower() for item in get_list(payload, "tags") if isinstance(item, str))
+    return words
+
+
+def _absorb_entry(
+    by_user: dict[str, _HacknationEnrichment], entry: Row, keywords: set[str], project_row: Row
+) -> None:
+    """Fold one author/team entry into the per-user enrichment."""
+    user_id = hacknation_user_id(entry)
+    if user_id is None:
+        return
+    found = by_user.get(user_id)
+    if found is None:
+        found = _HacknationEnrichment(
+            linkedin_url=None, keywords=set(), entry=entry, project_row=project_row
+        )
+        by_user[user_id] = found
+    found.keywords.update(keywords)
+    if found.linkedin_url is None:
+        found.linkedin_url = get_str(entry, "linkedinUrl")
+
+
+def _hacknation_enrichment(projects: Sequence[Row]) -> dict[str, _HacknationEnrichment]:
+    """Per-user project-side enrichment across every project payload."""
+    by_user: dict[str, _HacknationEnrichment] = {}
+    for row in projects:
+        payload = get_map(row, "payload")
+        keywords = hacknation_project_keywords(payload)
+        for entry in hacknation_member_entries(payload):
+            _absorb_entry(by_user, entry, keywords, row)
+    return by_user
+
+
+def _hacknation_location(payload: Row) -> str | None:
+    """'City, Country' as observed (either part optional)."""
+    parts = [part for part in (get_str(payload, "city"), get_str(payload, "country")) if part]
+    return ", ".join(parts) if parts else None
+
+
+def _hacknation_keywords(
+    field_of_study: str | None, extra: _HacknationEnrichment | None
+) -> tuple[str, ...]:
+    """Sorted, deduped, lowercased field_of_study + techStack + tags."""
+    words: set[str] = set(extra.keywords) if extra is not None else set()
+    if field_of_study:
+        words.add(field_of_study.lower())
+    return tuple(sorted(words))
+
+
+def _hacknation_person(
+    row: Row, payload: Row, user_id: str, extra: _HacknationEnrichment | None
+) -> PersonSourceRecord:
+    """One PSR from a people-list row, enriched from the project side."""
+    scraped, ingested = _timestamps(row)
+    location = _hacknation_location(payload)
+    first_last = [
+        part for part in (get_str(payload, "first_name"), get_str(payload, "last_name")) if part
+    ]
+    return _build(
+        HACKNATION_SOURCE,
+        user_id,
+        str(row.get("source_url")),
+        scraped,
+        ingested,
+        bronze_ref=f"bronze.hacknation_people_raw:user_id={user_id}",
+        full_name=get_str(payload, "display_name") or (" ".join(first_last) or None),
+        linkedin_url=extra.linkedin_url if extra is not None else None,
+        affiliation_raw=get_str(payload, "university"),
+        location_raw=location,
+        country_code=country_from_location(location),
+        keywords=_hacknation_keywords(get_str(payload, "field_of_study"), extra),
+        bio=get_str(payload, "tagline"),
+    )
+
+
+def _hacknation_project_only(user_id: str, extra: _HacknationEnrichment) -> PersonSourceRecord:
+    """One PSR for a team member absent from the people list."""
+    row = extra.project_row
+    scraped, ingested = _timestamps(row)
+    project_id = get_str(row, "project_id")
+    return _build(
+        HACKNATION_SOURCE,
+        user_id,
+        str(row.get("source_url")),
+        scraped,
+        ingested,
+        bronze_ref=f"bronze.hacknation_projects_raw:project_id={project_id}",
+        full_name=get_str(extra.entry, "display_name"),
+        linkedin_url=extra.linkedin_url,
+        affiliation_raw=get_str(extra.entry, "university"),
+        keywords=tuple(sorted(extra.keywords)),
+    )
+
+
+def hacknation_psrs(people: Sequence[Row], projects: Sequence[Row]) -> list[PersonSourceRecord]:
+    """One PSR per unique Hack Nation participant.
+
+    People-list rows are the identity spine; the project side (authorProfile,
+    team[]) enriches them with linkedinUrl and techStack/tags keywords, and
+    team members missing from the people list still yield a PSR.
+
+    Args:
+        people: bronze.hacknation_people_raw rows.
+        projects: bronze.hacknation_projects_raw rows.
+
+    Returns:
+        The derived records, people order first, project-only users after.
+    """
+    enrichment = _hacknation_enrichment(projects)
+    records: list[PersonSourceRecord] = []
+    seen: set[str] = set()
+    for row in people:
+        payload = get_map(row, "payload")
+        user_id = hacknation_user_id(payload)
+        if user_id is None:
+            continue
+        seen.add(user_id)
+        records.append(_hacknation_person(row, payload, user_id, enrichment.get(user_id)))
+    records.extend(
+        _hacknation_project_only(user_id, enrichment[user_id])
+        for user_id in sorted(set(enrichment) - seen)
+    )
+    return records
+
+
 def suppressed_keys(suppression_rows: Iterable[Mapping[str, object]]) -> frozenset[tuple[str, str]]:
     """Load the erasure suppression set as (source, source_key_hash) pairs.
 
@@ -421,6 +593,10 @@ def normalize_bronze(
         *zefix_officer_psrs(
             tables.get("bronze.zefix_sogc_raw", []),
             tables.get("bronze.zefix_companies_raw", []),
+        ),
+        *hacknation_psrs(
+            tables.get("bronze.hacknation_people_raw", []),
+            tables.get("bronze.hacknation_projects_raw", []),
         ),
     ]
     return apply_suppression(records, suppressed)

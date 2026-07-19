@@ -15,6 +15,7 @@ from scoring.ventures import (
     VentureBuild,
     build_ventures,
     classify_repo_likeness,
+    hackathon_extras,
     strip_legal_suffix,
 )
 from tests.scoring.conftest import golden_text
@@ -38,8 +39,11 @@ def test_likeness_gate_drops_fastsim_and_noise(
 ) -> None:
     result = built(silver, gold, deps)
     anchor_ids = {str(row["anchor_id"]) for row in result.venture_rows}
-    assert anchor_ids == {build.GRASP_PROJECT}
+    # GraspLab plus the HN-only VoiceLab; the HN GraspFM demo merges into the
+    # repo anchor via its githubUrl instead of anchoring its own venture.
+    assert anchor_ids == {build.GRASP_PROJECT, build.HN_VOICE_PROJECT}
     assert build.FASTSIM_PROJECT not in anchor_ids  # 0.55 < the 0.6 gate
+    assert build.HN_GRASP_PROJECT not in anchor_ids
 
 
 def test_merge_uses_earliest_anchor_and_company_name(
@@ -121,6 +125,8 @@ def test_corporate_oss_projects_are_gated(silver: SilverSnapshot, deps: ScoringD
         persons=silver.persons,
         connections=silver.connections,
         sogc=silver.sogc,
+        hacknation_projects=silver.hacknation_projects,
+        person_links=silver.person_links,
     )
     summary = LLMResponse(text="A venture.", parsed=None, model="scripted")
     llm = ScriptedLLMClient({}, embedder=fake_embedding, default=summary)
@@ -133,4 +139,62 @@ def test_member_rows_round_trip_via_json(
 ) -> None:
     lines = to_jsonl_lines(built(silver, gold, deps).member_rows).splitlines()
     parsed = [json.loads(line) for line in lines]
-    assert [row["person_id"] for row in parsed] == [build.LENA, build.WEI_A]
+    assert [row["person_id"] for row in parsed] == [
+        build.LENA,
+        build.WEI_A,
+        build.NOAH,
+        build.MIRA,
+    ]
+
+
+def test_hackathon_merge_keeps_grasplab_member_set(
+    silver: SilverSnapshot, gold: GoldInputs, deps: ScoringDeps
+) -> None:
+    # HN3 acceptance, merge side: the GraspFM demo project's githubUrl merges
+    # it into the GraspLab repo venture, and because its only member (Lena)
+    # already contributes there the member set stays exactly {Lena, Wei}.
+    result = built(silver, gold, deps)
+    grasp_members = [row for row in result.member_rows if row["venture_id"] == build.GRASP_VENTURE]
+    assert [row["person_id"] for row in grasp_members] == [build.LENA, build.WEI_A]
+    venture_ids = [str(row["venture_id"]) for row in result.venture_rows]
+    assert venture_ids.count(build.GRASP_VENTURE) == 1
+
+
+def test_hackathon_only_project_becomes_its_own_venture(
+    silver: SilverSnapshot, gold: GoldInputs, deps: ScoringDeps
+) -> None:
+    # HN3 acceptance, standalone side: VoiceLab has no repo and anchors a new
+    # hackathon_project venture with its given team resolved through ER links.
+    result = built(silver, gold, deps)
+    (voice,) = [row for row in result.venture_rows if row["venture_id"] == build.HN_VENTURE]
+    assert voice["anchor_type"] == "hackathon_project"
+    assert voice["anchor_id"] == build.HN_VOICE_PROJECT
+    assert voice["name"] == "VoiceLab"
+    assert voice["market_tags"] == ["ai", "python", "voice", "whisper"]
+    assert voice["website_url"] == "https://demo.hack-nation.ai/hnp-voice-01"
+    members = [row for row in result.member_rows if row["venture_id"] == build.HN_VENTURE]
+    noah, mira = members[0], members[1]
+    assert noah["person_id"] == build.NOAH
+    assert noah["role_hint"] == "founder"
+    assert noah["is_founder_guess"] is True
+    assert noah["evidence"] == {"hacknation_role": "author"}
+    assert mira["person_id"] == build.MIRA
+    assert mira["role_hint"] == "ML engineer"
+    assert mira["is_founder_guess"] is False
+    assert noah["weight"] == mira["weight"] == 0.5
+
+
+def test_hackathon_extras_carry_the_structured_pitch(
+    silver: SilverSnapshot, gold: GoldInputs
+) -> None:
+    (voice,) = [row for row in gold.ventures if row["venture_id"] == build.HN_VENTURE]
+    extras = hackathon_extras(silver, voice)
+    assert extras["event_title"] == "HackNation 2026"
+    assert extras["winner"] is False
+    assert extras["universities"] == ["EPFL"]
+    structured = extras["structured"]
+    assert isinstance(structured, dict)
+    assert structured["problem"] == "Field technicians lose time on manual reporting."
+    assert structured["jury_scope"] == "Applied AI"
+    (grasp,) = [row for row in gold.ventures if row["venture_id"] == build.GRASP_VENTURE]
+    assert hackathon_extras(silver, grasp) == {}

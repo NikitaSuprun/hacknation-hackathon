@@ -16,7 +16,9 @@ METHOD_PRIORITY: Final[tuple[str, ...]] = (
     "det_email",
     "det_website",
     "det_handle",
+    "det_linkedin",
     "det_crosslink",
+    "det_github_contrib",
     "splink",
     "llm_adjudication",
 )
@@ -38,6 +40,7 @@ class PsrView:
     orcid: str | None
     github_login: str | None
     website_url_norm: str | None
+    linkedin_url: str | None
     twitter_handle: str | None
     affiliation_raw: str | None
     org_norm: str | None
@@ -88,6 +91,7 @@ def psr_view(row: Mapping[str, object]) -> PsrView:
         orcid=_text(row.get("orcid")),
         github_login=_text(row.get("github_login")),
         website_url_norm=_text(row.get("website_url_norm")),
+        linkedin_url=_text(row.get("linkedin_url")),
         twitter_handle=_text(row.get("twitter_handle")),
         affiliation_raw=_text(row.get("affiliation_raw")),
         org_norm=_text(row.get("org_norm")),

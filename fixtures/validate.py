@@ -348,8 +348,16 @@ def _check_personas(tables: Tables) -> list[str]:
             person = str(row.get("person_id"))
             by_person.setdefault(person, set()).add(psr_source[str(row.get("source_record_id"))])
     lena = "11111111-1111-4111-8111-000000000001"
-    if by_person.get(lena) != {"github", "openalex_author", "zefix_officer"}:
-        errors.append("persona P1: Lena must link exactly github+openalex+zefix sources")
+    # WS-G extends Lena with her Hack Nation identity (D8), on top of the
+    # original P1 github+openalex+zefix triangle.
+    if by_person.get(lena) != {"github", "openalex_author", "zefix_officer", "hacknation"}:
+        errors.append("persona P1: Lena must link github+openalex+zefix+hacknation sources")
+    mira = "88888888-8888-4888-8888-000000000008"
+    if by_person.get(mira) != {"github", "hacknation"}:
+        errors.append("persona WS-G: Mira must link exactly github+hacknation (D7)")
+    noah = "99999999-9999-4999-8999-000000000009"
+    if by_person.get(noah) != {"hacknation"}:
+        errors.append("persona WS-G: Noah must be hacknation-only")
     retracted = [row for row in links if row.get("status") == "retracted"]
     if len(retracted) != 1:
         errors.append("persona P6: expected exactly one retracted link")

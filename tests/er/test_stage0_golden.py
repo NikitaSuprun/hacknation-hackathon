@@ -36,6 +36,8 @@ def _bronze_tables(inputs: ErInputs) -> dict[str, list[dict[str, Json]]]:
         "bronze.openalex_works_raw": inputs.openalex_works,
         "bronze.zefix_companies_raw": inputs.zefix_companies,
         "bronze.zefix_sogc_raw": inputs.zefix_sogc,
+        "bronze.hacknation_people_raw": inputs.hacknation_people,
+        "bronze.hacknation_projects_raw": inputs.hacknation_projects,
     }
 
 
@@ -54,7 +56,8 @@ def test_stage0_reproduces_fixture_psr_bytes(inputs: ErInputs) -> None:
     }
     assert excluded == EXPECTED_EXCLUDED
     assert set(produced) <= set(expected)
-    assert len(produced) == 9
+    # 13 since WS-G: +Mira's GitHub profile, +3 Hack Nation participants.
+    assert len(produced) == 13
     for source_record_id, record in produced.items():
         row = record.to_row()
         # MASK: fixture keyword constants are narrative-authored and not

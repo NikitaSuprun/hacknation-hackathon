@@ -63,6 +63,8 @@ class ErInputs:
     openalex_works: list[Row]
     zefix_companies: list[Row]
     zefix_sogc: list[Row]
+    hacknation_people: list[Row]
+    hacknation_projects: list[Row]
     paper_code_links: list[Row]
     projects: list[Row]
     publications: list[Row]
@@ -113,6 +115,8 @@ def load_inputs(source: RowSource) -> ErInputs:
         openalex_works=source.rows("bronze.openalex_works_raw"),
         zefix_companies=source.rows("bronze.zefix_companies_raw"),
         zefix_sogc=source.rows("bronze.zefix_sogc_raw"),
+        hacknation_people=source.rows("bronze.hacknation_people_raw"),
+        hacknation_projects=source.rows("bronze.hacknation_projects_raw"),
         paper_code_links=source.rows("bronze.paper_code_links"),
         projects=source.rows("silver.project"),
         publications=source.rows("silver.publication"),
@@ -221,6 +225,8 @@ def _bronze_tables(inputs: ErInputs) -> dict[str, list[Row]]:
         "bronze.openalex_works_raw": inputs.openalex_works,
         "bronze.zefix_companies_raw": inputs.zefix_companies,
         "bronze.zefix_sogc_raw": inputs.zefix_sogc,
+        "bronze.hacknation_people_raw": inputs.hacknation_people,
+        "bronze.hacknation_projects_raw": inputs.hacknation_projects,
     }
 
 
@@ -236,6 +242,11 @@ def _run_deterministic(inputs: ErInputs, ordered_views: list[PsrView], state: _M
             state.matches.append(match)
         else:
             state.d6_pairs.append(match)
+    views_by_id = {view.source_record_id: view for view in ordered_views}
+    d8_candidates = rules.hacknation_repo_candidates(
+        inputs.hacknation_projects, inputs.projects, inputs.contributions
+    )
+    state.matches.extend(rules.hacknation_matches(views_by_id, d8_candidates))
 
 
 def _same_component(matches: list[RuleMatch]) -> Callable[[str, str], bool]:
@@ -502,6 +513,7 @@ def _run_survivorship(
         llm=deps.llm,
         clock=deps.clock,
         bronze_users=inputs.github_users,
+        hacknation_projects=inputs.hacknation_projects,
         existing_persons=inputs.person_rows,
     )
     tables["silver.person"] = persons

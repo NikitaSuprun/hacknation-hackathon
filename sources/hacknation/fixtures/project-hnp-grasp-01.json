@@ -1,0 +1,45 @@
+{
+  "data": {
+    "id": "hnp-grasp-01",
+    "title": "GraspFM Hackathon Demo",
+    "code": "GRASP",
+    "summary": "Robotic grasping demo built on grasp-anything.",
+    "detail": "A fine-tuned grasping foundation model demo on real hardware.",
+    "heroImage": null,
+    "ownerId": "hn-lena-01",
+    "createdAt": "2026-07-10T09:00:00Z",
+    "updatedAt": "2026-07-14T18:00:00Z",
+    "category": "robotics",
+    "techStack": ["PyTorch", "ROS"],
+    "tags": ["robotics", "ai"],
+    "eventId": "ev-2026",
+    "eventTitle": "HackNation 2026",
+    "challengeId": "ch-robotics",
+    "challengeTitle": "Robotics Challenge",
+    "companyId": null,
+    "companyName": null,
+    "winner": true,
+    "demoUrl": "https://demo.hack-nation.ai/hnp-grasp-01",
+    "githubUrl": "https://github.com/grasplab/grasp-anything",
+    "media": [],
+    "structured": {
+      "problem": "Grasping is unreliable in the field.",
+      "solution": "Fine-tuned grasping foundation model demo.",
+      "usp": "Built on an open foundation model.",
+      "impact": "Faster warehouse automation pilots.",
+      "implementation": "PyTorch + ROS demo stack.",
+      "targetAudience": "Warehouse automation teams.",
+      "jury_scope": "Robotics"
+    },
+    "programType": "hackathon",
+    "authorProfile": {
+      "user_id": "hn-lena-01",
+      "display_name": "Léna Fischer",
+      "university": "ETH Zürich",
+      "linkedinUrl": null,
+      "cvUrl": null
+    },
+    "team": []
+  },
+  "meta": { "generatedAt": "2026-07-15T08:00:00Z" }
+}

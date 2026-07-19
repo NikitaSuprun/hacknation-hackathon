@@ -8,8 +8,11 @@ golden-file requirement (bronze rows normalize byte-exact into these PSRs)
 holds by construction. Personas exercise the ER rules: P1 golden path across
 three sources, P2/P3 the unmergeable name twins, P4 commit-email, P5
 ORCID-only, P6 the retracted-link unmerge shape, plus noise repos for the
-venture-likeness gate. Regenerate with `poe fixtures-build`; drift against the
-committed files fails CI.
+venture-likeness gate. The WS-G Hack Nation personas exercise D7/D8 and the
+hackathon venture path: Lena's HN identity merges via D8 (project githubUrl),
+Mira's HN + GitHub identities merge via D7 (LinkedIn equality), and HN-only
+Noah anchors the standalone VoiceLab hackathon venture. Regenerate with
+`poe fixtures-build`; drift against the committed files fails CI.
 """
 
 import json
@@ -54,6 +57,8 @@ NILS: Final[str] = "44444444-4444-4444-8444-000000000004"
 AISHA: Final[str] = "55555555-5555-4555-8555-000000000005"
 JONAS_DEV: Final[str] = "66666666-6666-4666-8666-000000000006"
 JONAS_LAW: Final[str] = "77777777-7777-4777-8777-000000000007"
+MIRA: Final[str] = "88888888-8888-4888-8888-000000000008"
+NOAH: Final[str] = "99999999-9999-4999-8999-000000000009"
 
 THESIS_ID: Final[str] = "aaaaaaaa-0000-4000-8000-000000000001"
 WEIGHTS_ID: Final[str] = "aaaaaaaa-0000-4000-8000-000000000002"
@@ -92,6 +97,32 @@ PSR_AISHA_OPENALEX: Final[str] = ids.psr_id("openalex_author", "A5000000005")
 PSR_AISHA_ENRICHMENT: Final[str] = ids.psr_id("enrichment", "aisha-patel-site")
 PSR_JONAS_GITHUB: Final[str] = ids.psr_id("github", "501006")
 PSR_JONAS_ZEFIX: Final[str] = ids.psr_id("zefix_officer", f"{KELLER_UID}:keller jonas")
+
+# Hack Nation (WS-G): Lena's HN identity merges into person P1 via D8 (project
+# githubUrl == grasp-anything, name JW 1.0); Mira's HN identity merges with her
+# GitHub identity via D7 (LinkedIn equality across differently written URLs);
+# Noah is HN-only and mints a fresh person on the HN-only VoiceLab venture.
+HN_LENA_KEY: Final[str] = "hn-lena-01"
+HN_NOAH_KEY: Final[str] = "hn-noah-01"
+HN_MIRA_KEY: Final[str] = "hn-mira-01"
+HN_GRASP_PROJECT: Final[str] = "hnp-grasp-01"
+HN_VOICE_PROJECT: Final[str] = "hnp-voice-01"
+HN_VENTURE: Final[str] = ids.venture_id("hackathon_project", HN_VOICE_PROJECT)
+HN_SCORE_ID: Final[str] = "bbbbbbbb-0000-4000-8000-000000000007"
+MIRA_GITHUB_USER_ID: Final[int] = 501007
+MIRA_LINKEDIN_GITHUB: Final[str] = "https://www.linkedin.com/in/mira-kovac/"
+MIRA_LINKEDIN_HACKNATION: Final[str] = "https://linkedin.com/in/mira-kovac"
+NOAH_CV_URL: Final[str] = "https://cdn.hack-nation.ai/cv/hn-noah-01.pdf"
+HN_PEOPLE_URL: Final[str] = (
+    "https://projects.hack-nation.ai/.netlify/functions/bff-public-people-v2?limit=5000"
+)
+HN_PROJECT_URL: Final[str] = (
+    "https://projects.hack-nation.ai/.netlify/functions/bff-projects-public-v2?id="
+)
+PSR_LENA_HACKNATION: Final[str] = ids.psr_id("hacknation", HN_LENA_KEY)
+PSR_NOAH_HACKNATION: Final[str] = ids.psr_id("hacknation", HN_NOAH_KEY)
+PSR_MIRA_HACKNATION: Final[str] = ids.psr_id("hacknation", HN_MIRA_KEY)
+PSR_MIRA_GITHUB: Final[str] = ids.psr_id("github", str(MIRA_GITHUB_USER_ID))
 
 IDEAL_TEXT: Final[str] = (
     "robotics manipulation grasping foundation models hardware founder open source"
@@ -217,6 +248,23 @@ def _github_bronze() -> Tables:
             **_bronze_common(
                 "https://api.github.com/users/jonaskeller",
                 {"name": "Jonas Keller", "email": None, "location": "Berlin"},
+            ),
+        },
+        {
+            "user_id": MIRA_GITHUB_USER_ID,
+            "login": "mirakovac",
+            **_bronze_common(
+                "https://api.github.com/users/mirakovac",
+                {
+                    "name": "Mira Kovac",
+                    "email": None,
+                    "company": None,
+                    "location": "Lausanne",
+                    "bio": "Speech models on the edge.",
+                    "socialAccounts": {
+                        "nodes": [{"provider": "LINKEDIN", "url": MIRA_LINKEDIN_GITHUB}]
+                    },
+                },
             ),
         },
     ]
@@ -424,6 +472,154 @@ def _zefix_bronze() -> Tables:
         }
     ]
     return {"bronze.zefix_companies_raw": companies, "bronze.zefix_sogc_raw": sogc}
+
+
+def _hacknation_bronze() -> Tables:
+    people: list[Row] = [
+        {
+            "user_id": HN_LENA_KEY,
+            **_bronze_common(
+                HN_PEOPLE_URL,
+                {
+                    "user_id": HN_LENA_KEY,
+                    "display_name": "Léna Fischer",
+                    "first_name": "Léna",
+                    "last_name": "Fischer",
+                    "avatar_url": "https://cdn.hack-nation.ai/avatars/hn-lena-01.png",
+                    "university": "ETH Zürich",
+                    "field_of_study": "Robotics",
+                    "academic_degree": "PhD",
+                    "professional_situation": "PhD candidate",
+                    "tagline": "Building grasping foundation models.",
+                    "country": "Switzerland",
+                    "city": "Zurich",
+                },
+            ),
+        },
+        {
+            "user_id": HN_NOAH_KEY,
+            **_bronze_common(
+                HN_PEOPLE_URL,
+                {
+                    "user_id": HN_NOAH_KEY,
+                    "display_name": "Noah Brunner",
+                    "first_name": "Noah",
+                    "last_name": "Brunner",
+                    "avatar_url": None,
+                    "university": "EPFL",
+                    "field_of_study": "Computer Science",
+                    "academic_degree": "MSc",
+                    "professional_situation": "Student",
+                    "tagline": "Voice agents for field technicians.",
+                    "country": "Switzerland",
+                    "city": "Lausanne",
+                },
+            ),
+        },
+        {
+            "user_id": HN_MIRA_KEY,
+            **_bronze_common(
+                HN_PEOPLE_URL,
+                {
+                    "user_id": HN_MIRA_KEY,
+                    "display_name": "Mira Kovac",
+                    "first_name": "Mira",
+                    "last_name": "Kovac",
+                    "avatar_url": None,
+                    "university": "EPFL",
+                    "field_of_study": "Machine Learning",
+                    "academic_degree": "MSc",
+                    "professional_situation": "Student",
+                    "tagline": "Speech models and edge inference.",
+                    "country": "Switzerland",
+                    "city": "Lausanne",
+                },
+            ),
+        },
+    ]
+    grasp_detail: Row = {
+        "id": HN_GRASP_PROJECT,
+        "title": "GraspFM Hackathon Demo",
+        "summary": "Robotic grasping demo built on grasp-anything.",
+        "category": "robotics",
+        "techStack": ["PyTorch", "ROS"],
+        "tags": ["robotics", "ai"],
+        "eventTitle": "HackNation 2026",
+        "challengeTitle": "Robotics Challenge",
+        "winner": True,
+        "demoUrl": "https://demo.hack-nation.ai/hnp-grasp-01",
+        "githubUrl": "https://github.com/grasplab/grasp-anything",
+        "structured": {
+            "problem": "Grasping is unreliable in the field.",
+            "solution": "Fine-tuned grasping foundation model demo.",
+            "usp": "Built on an open foundation model.",
+            "impact": "Faster warehouse automation pilots.",
+            "implementation": "PyTorch + ROS demo stack.",
+            "targetAudience": "Warehouse automation teams.",
+            "jury_scope": "Robotics",
+        },
+        "authorProfile": {
+            "user_id": HN_LENA_KEY,
+            "display_name": "Léna Fischer",
+            "university": "ETH Zürich",
+            "linkedinUrl": None,
+            "cvUrl": None,
+        },
+        "team": [],
+    }
+    voice_detail: Row = {
+        "id": HN_VOICE_PROJECT,
+        "title": "VoiceLab",
+        "summary": "Multilingual voice agents for field technicians.",
+        "category": "ai",
+        "techStack": ["Python", "Whisper"],
+        "tags": ["ai", "voice"],
+        "eventTitle": "HackNation 2026",
+        "challengeTitle": "Applied AI Challenge",
+        "winner": False,
+        "demoUrl": "https://demo.hack-nation.ai/hnp-voice-01",
+        "githubUrl": None,
+        "structured": {
+            "problem": "Field technicians lose time on manual reporting.",
+            "solution": "On-device multilingual voice agents that file reports.",
+            "usp": "Runs offline on commodity handhelds.",
+            "impact": "Cuts report time from minutes to seconds.",
+            "implementation": "Whisper distillation plus a Python agent runtime.",
+            "targetAudience": "Field service organizations.",
+            "jury_scope": "Applied AI",
+        },
+        "authorProfile": {
+            "user_id": HN_NOAH_KEY,
+            "display_name": "Noah Brunner",
+            "university": "EPFL",
+            "linkedinUrl": None,
+            "cvUrl": NOAH_CV_URL,
+        },
+        "team": [
+            {
+                "user_id": HN_MIRA_KEY,
+                "display_name": "Mira Kovac",
+                "university": "EPFL",
+                "role": "ML engineer",
+                "linkedinUrl": MIRA_LINKEDIN_HACKNATION,
+                "cvUrl": None,
+            }
+        ],
+    }
+    projects: list[Row] = [
+        {
+            "project_id": HN_GRASP_PROJECT,
+            **_bronze_common(f"{HN_PROJECT_URL}{HN_GRASP_PROJECT}", grasp_detail),
+        },
+        {
+            "project_id": HN_VOICE_PROJECT,
+            **_bronze_common(f"{HN_PROJECT_URL}{HN_VOICE_PROJECT}", voice_detail),
+        },
+    ]
+    return {
+        "bronze.hacknation_people_raw": people,
+        "bronze.hacknation_projects_raw": projects,
+    }
 
 
 @dataclass(frozen=True, slots=True)
@@ -642,6 +838,63 @@ def _person_source_records() -> list[Row]:
                 source_url=f"https://www.zefix.admin.ch/api/v1/company/uid/{KELLER_UID}",
             )
         ),
+        make_psr(
+            PsrSeed(
+                source="github",
+                source_key=str(MIRA_GITHUB_USER_ID),
+                bronze_ref=f"bronze.github_users_raw:user_id={MIRA_GITHUB_USER_ID}",
+                full_name="Mira Kovac",
+                github_login="mirakovac",
+                linkedin_url=MIRA_LINKEDIN_GITHUB,
+                location_raw="Lausanne",
+                country_code="CH",
+                bio="Speech models on the edge.",
+                source_url="https://api.github.com/users/mirakovac",
+            )
+        ),
+        make_psr(
+            PsrSeed(
+                source="hacknation",
+                source_key=HN_LENA_KEY,
+                bronze_ref=f"bronze.hacknation_people_raw:user_id={HN_LENA_KEY}",
+                full_name="Léna Fischer",
+                affiliation_raw="ETH Zürich",
+                location_raw="Zurich, Switzerland",
+                country_code="CH",
+                keywords=("ai", "pytorch", "robotics", "ros"),
+                bio="Building grasping foundation models.",
+                source_url=HN_PEOPLE_URL,
+            )
+        ),
+        make_psr(
+            PsrSeed(
+                source="hacknation",
+                source_key=HN_NOAH_KEY,
+                bronze_ref=f"bronze.hacknation_people_raw:user_id={HN_NOAH_KEY}",
+                full_name="Noah Brunner",
+                affiliation_raw="EPFL",
+                location_raw="Lausanne, Switzerland",
+                country_code="CH",
+                keywords=("ai", "computer science", "python", "voice", "whisper"),
+                bio="Voice agents for field technicians.",
+                source_url=HN_PEOPLE_URL,
+            )
+        ),
+        make_psr(
+            PsrSeed(
+                source="hacknation",
+                source_key=HN_MIRA_KEY,
+                bronze_ref=f"bronze.hacknation_people_raw:user_id={HN_MIRA_KEY}",
+                full_name="Mira Kovac",
+                linkedin_url=MIRA_LINKEDIN_HACKNATION,
+                affiliation_raw="EPFL",
+                location_raw="Lausanne, Switzerland",
+                country_code="CH",
+                keywords=("ai", "machine learning", "python", "voice", "whisper"),
+                bio="Speech models and edge inference.",
+                source_url=HN_PEOPLE_URL,
+            )
+        ),
     ]
 
 
@@ -744,6 +997,27 @@ def _persons() -> list[Row]:
             location="Zug",
             country_code="CH",
             headline="Corporate advisor in Zug.",
+            data_quality_score=0.5,
+        ),
+        _person(
+            MIRA,
+            "Mira Kovac",
+            github_login="mirakovac",
+            linkedin_url=MIRA_LINKEDIN_GITHUB,
+            affiliation="EPFL",
+            location="Lausanne",
+            country_code="CH",
+            headline="Speech ML engineer building on-device voice agents.",
+            data_quality_score=0.7,
+        ),
+        _person(
+            NOAH,
+            "Noah Brunner",
+            affiliation="EPFL",
+            location="Lausanne, Switzerland",
+            country_code="CH",
+            cv_url=NOAH_CV_URL,
+            headline="Voice-agent builder for field service teams.",
             data_quality_score=0.5,
         ),
     ]
@@ -856,6 +1130,28 @@ def _links() -> list[Row]:
             0.95,
             {"rule": "unmerge correction", "reviewer_note": "SHAB officer is the Zug advisor"},
         ),
+        _link(
+            LENA,
+            PSR_LENA_HACKNATION,
+            "det_github_contrib",
+            0.9,
+            {"rule": "D8", "github_url": "github.com/grasplab/grasp-anything", "name_jw": 1.0},
+        ),
+        _link(
+            MIRA,
+            PSR_MIRA_GITHUB,
+            "det_linkedin",
+            0.97,
+            {"rule": "D7", "linkedin": "linkedin.com/in/mira-kovac"},
+        ),
+        _link(
+            MIRA,
+            PSR_MIRA_HACKNATION,
+            "det_linkedin",
+            0.97,
+            {"rule": "D7", "linkedin": "linkedin.com/in/mira-kovac"},
+        ),
+        _link(NOAH, PSR_NOAH_HACKNATION, "seed_fixture", 0.95, {"rule": "fixture seed"}),
     ]
 
 
@@ -1358,6 +1654,43 @@ def _breakdown() -> Row:
     }
 
 
+def _hn_breakdown() -> Row:
+    """A sparse-but-valid breakdown for the hackathon venture (thin data)."""
+    schools_claim = "EPFL across both members"
+    traction_claim = "HackNation 2026 Applied AI entry with a working on-device demo"
+    return {
+        "schema_version": 1,
+        "categories": {
+            "schools": {
+                "score": 93.0,
+                "method": "deterministic",
+                "rationale": schools_claim,
+                "confidence": 0.7,
+                "evidence": [
+                    {
+                        "claim": schools_claim,
+                        "source_url": HN_PEOPLE_URL,
+                        "source_type": "fixture",
+                    }
+                ],
+            },
+            "traction": {
+                "score": 40.0,
+                "method": "hybrid",
+                "rationale": traction_claim,
+                "confidence": 0.5,
+                "evidence": [
+                    {
+                        "claim": traction_claim,
+                        "source_url": "https://demo.hack-nation.ai/hnp-voice-01",
+                        "source_type": "fixture",
+                    }
+                ],
+            },
+        },
+    }
+
+
 def _memo_sections() -> Row:
     def cited(text: str, url: str) -> Row:
         return {
@@ -1459,6 +1792,23 @@ def _gold() -> Tables:
         "created_at": T_UPDATED,
         "updated_at": T_UPDATED,
     }
+    # The HN GraspFM demo project (githubUrl == grasp-anything) auto-merges
+    # into the repo venture without changing its member set: its only member,
+    # Lena, already contributes. VoiceLab has no repo and stands alone.
+    hn_venture: Row = {
+        "venture_id": HN_VENTURE,
+        "anchor_type": "hackathon_project",
+        "anchor_id": HN_VOICE_PROJECT,
+        "name": "VoiceLab",
+        "one_liner": "Multilingual voice agents for field technicians.",
+        "summary_ai": "Hackathon-born multilingual voice agents for field technicians.",
+        "market_tags": ["ai", "python", "voice", "whisper"],
+        "website_url": "https://demo.hack-nation.ai/hnp-voice-01",
+        "quality_tier": None,
+        "status": "sourced",
+        "created_at": T_UPDATED,
+        "updated_at": T_UPDATED,
+    }
     members: list[Row] = [
         {
             "venture_id": GRASP_VENTURE,
@@ -1477,6 +1827,26 @@ def _gold() -> Tables:
             "is_founder_guess": False,
             "weight": 0.38,
             "evidence": {"contribution_share": 0.38},
+            "added_by": "pipeline",
+            "added_at": T_UPDATED,
+        },
+        {
+            "venture_id": HN_VENTURE,
+            "person_id": NOAH,
+            "role_hint": "founder",
+            "is_founder_guess": True,
+            "weight": 0.5,
+            "evidence": {"hacknation_role": "author"},
+            "added_by": "pipeline",
+            "added_at": T_UPDATED,
+        },
+        {
+            "venture_id": HN_VENTURE,
+            "person_id": MIRA,
+            "role_hint": "ML engineer",
+            "is_founder_guess": False,
+            "weight": 0.5,
+            "evidence": {"hacknation_role": "ML engineer"},
             "added_by": "pipeline",
             "added_at": T_UPDATED,
         },
@@ -1544,6 +1914,14 @@ def _gold() -> Tables:
         "funding_signal": "none_found",
         "pool_built_at": T_UPDATED,
     }
+    hn_pool: Row = {
+        "thesis_id": THESIS_ID,
+        "venture_id": HN_VENTURE,
+        "included": True,
+        "exclusion_reasons": [],
+        "funding_signal": "none_found",
+        "pool_built_at": T_UPDATED,
+    }
     score_common: Row = {
         "venture_id": GRASP_VENTURE,
         "thesis_id": THESIS_ID,
@@ -1577,6 +1955,28 @@ def _gold() -> Tables:
             "final_score": 74.1,
             "confidence": 0.7,
             "is_latest": False,
+        },
+        {
+            "score_id": HN_SCORE_ID,
+            "venture_id": HN_VENTURE,
+            "thesis_id": THESIS_ID,
+            "weights_id": WEIGHTS_ID,
+            "profile_id": IDEAL_ID,
+            "model_version": "fixture-scorer-1",
+            "s_individual_experience": 55.0,
+            "s_schools": 93.0,
+            "s_network_ties": 30.0,
+            "s_prior_collaboration": 45.0,
+            "s_problem_realness": 70.0,
+            "s_product_defensibility": 52.0,
+            "s_market": 58.0,
+            "s_traction": 40.0,
+            "ideal_match": 48.0,
+            "breakdown": _hn_breakdown(),
+            "scored_at": T_UPDATED,
+            "final_score": 54.9,
+            "confidence": 0.55,
+            "is_latest": True,
         },
     ]
     features: list[Row] = [
@@ -1692,12 +2092,12 @@ def _gold() -> Tables:
         "updated_at": T_UPDATED,
     }
     return {
-        "gold.venture": [venture],
+        "gold.venture": [venture, hn_venture],
         "gold.venture_member": members,
         "gold.thesis": [thesis],
         "gold.score_weights": [weights],
         "gold.ideal_candidate": [ideal],
-        "gold.candidate_pool": [pool],
+        "gold.candidate_pool": [pool, hn_pool],
         "gold.venture_score": scores,
         "gold.person_features": features,
         "gold.venture_gaps": gaps,
@@ -1823,6 +2223,7 @@ def build_tables() -> Tables:
         _github_bronze(),
         _papers_bronze(),
         _zefix_bronze(),
+        _hacknation_bronze(),
         {"silver.person": _persons()},
         {"silver.person_source_record": _person_source_records()},
         {"silver.person_source_link": _links()},

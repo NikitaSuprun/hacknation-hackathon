@@ -42,6 +42,8 @@ class SilverSnapshot:
     persons: tuple[Row, ...]
     connections: tuple[Row, ...]
     sogc: tuple[Row, ...]
+    hacknation_projects: tuple[Row, ...]
+    person_links: tuple[Row, ...]
 
 
 @dataclass(frozen=True, slots=True)
@@ -97,6 +99,8 @@ def load_silver(data_dir: Path) -> SilverSnapshot:
         persons=load_table(data_dir, "silver.person"),
         connections=load_table(data_dir, "silver.person_connection"),
         sogc=load_table(data_dir, "bronze.zefix_sogc_raw"),
+        hacknation_projects=load_table(data_dir, "bronze.hacknation_projects_raw"),
+        person_links=load_table(data_dir, "silver.person_source_link"),
     )
 
 

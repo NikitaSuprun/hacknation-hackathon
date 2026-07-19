@@ -1,11 +1,13 @@
 # Copyright (c) 2026 Maschmeyer's Chosen Portfolio. All rights reserved.
 # Proprietary and confidential. See LICENSE.
-"""Stages 1-2: artifact cross-links and the deterministic match rules D1-D6.
+"""Stages 1-2: artifact cross-links and the deterministic match rules D1-D8.
 
 Stage 1 links artifacts (repo<->paper<->company) through high-precision signals
 observed in the artifacts themselves; each linked pair generates candidate
 person pairs (top contributors x authors/officers). Stage 2 then matches PSR
 pairs on independent identifiers; name-plus-org alone (D6) never auto-links.
+D7 matches LinkedIn URLs across sources; D8 pairs Hack Nation project members
+with the core contributors of the repo their project's githubUrl names.
 """
 
 from collections.abc import Iterable, Mapping, Sequence
@@ -16,19 +18,23 @@ from rapidfuzz.distance import JaroWinkler
 
 from contracts.models import Json
 from er.models import PsrView, RuleMatch
-from scrapers.common.jsonutil import get_list, get_str
-from tools import norm
+from er.normalize import HACKNATION_SOURCE, hacknation_member_entries, hacknation_user_id
+from scrapers.common.jsonutil import get_list, get_map, get_str
+from tools import ids, norm
 
 Row = dict[str, Json]
 
 TOP_CONTRIBUTOR_SHARE: Final[float] = 0.5
 NAME_JW_THRESHOLD: Final[float] = 0.92
+NAME_JW_D8: Final[float] = 0.90
 
 _CONF_ORCID: Final[float] = 0.99
 _CONF_EMAIL: Final[float] = 0.98
 _CONF_WEBSITE: Final[float] = 0.95
 _CONF_HANDLE: Final[float] = 0.95
+_CONF_LINKEDIN: Final[float] = 0.97
 _CONF_CROSSLINK: Final[float] = 0.92
+_CONF_GITHUB_CONTRIB: Final[float] = 0.90
 _CONF_NAME_ORG: Final[float] = 0.85
 
 
@@ -248,8 +254,41 @@ def _name_jw(a: PsrView, b: PsrView) -> float:
     return JaroWinkler.similarity(a.name_norm, b.name_norm)
 
 
+def linkedin_norm(url: str | None) -> str | None:
+    """Canonicalize a LinkedIn URL for D7 equality.
+
+    Args:
+        url: The URL as observed at the source.
+
+    Returns:
+        Scheme-less, www-less, lowercased URL without trailing slash or
+        query; None for empty input.
+    """
+    if url is None:
+        return None
+    normalized = norm.url_norm(url)
+    return normalized.lower() if normalized is not None else None
+
+
+def _d7_match(a: PsrView, b: PsrView) -> RuleMatch | None:
+    """D7: LinkedIn-URL equality between one pair (normalized both sides)."""
+    linkedin = linkedin_norm(a.linkedin_url)
+    if linkedin is None or linkedin != linkedin_norm(b.linkedin_url):
+        return None
+    left, right = _ordered(a.source_record_id, b.source_record_id)
+    return RuleMatch(
+        left,
+        right,
+        "D7",
+        "det_linkedin",
+        _CONF_LINKEDIN,
+        auto=True,
+        evidence={"rule": "D7", "linkedin": linkedin},
+    )
+
+
 def _identifier_matches(a: PsrView, b: PsrView) -> list[RuleMatch]:
-    """D1-D4: independent-identifier equality between one pair."""
+    """D1-D4 plus D7: independent-identifier equality between one pair."""
     matches: list[RuleMatch] = []
     left, right = _ordered(a.source_record_id, b.source_record_id)
     if a.orcid is not None and a.orcid == b.orcid:
@@ -296,6 +335,9 @@ def _identifier_matches(a: PsrView, b: PsrView) -> list[RuleMatch]:
         matches.append(
             RuleMatch(left, right, "D4", "det_handle", _CONF_HANDLE, auto=True, evidence=evidence)
         )
+    linkedin = _d7_match(a, b)
+    if linkedin is not None:
+        matches.append(linkedin)
     return matches
 
 
@@ -341,6 +383,99 @@ def deterministic_matches(
                     evidence=evidence,
                 )
             )
+    return matches
+
+
+def _repo_project_by_url(projects: Sequence[Row]) -> dict[str, str]:
+    """Normalized repo URL to silver.project id."""
+    by_url: dict[str, str] = {}
+    for project in projects:
+        project_id = get_str(project, "project_id")
+        full_name = get_str(project, "full_name")
+        if project_id is None or full_name is None:
+            continue
+        for url in _github_repo_urls(full_name):
+            by_url.setdefault(url, project_id)
+    return by_url
+
+
+def hacknation_repo_candidates(
+    hacknation_projects: Sequence[Row],
+    projects: Sequence[Row],
+    contributions: Sequence[Row],
+) -> dict[tuple[str, str], str]:
+    """D8 candidates: HN project members x core contributors of its githubUrl repo.
+
+    Args:
+        hacknation_projects: bronze.hacknation_projects_raw rows.
+        projects: silver.project rows.
+        contributions: silver.contribution rows.
+
+    Returns:
+        Sorted PSR-id pairs mapped to the shared normalized repo URL.
+    """
+    top = _top_contributors(contributions)
+    by_url = _repo_project_by_url(projects)
+    pairs: dict[tuple[str, str], str] = {}
+    for row in hacknation_projects:
+        payload = get_map(row, "payload")
+        github_url = get_str(payload, "githubUrl")
+        repo_url = norm.url_norm(github_url) if github_url is not None else None
+        project_id = by_url.get(repo_url) if repo_url is not None else None
+        if repo_url is None or project_id is None:
+            continue
+        member_psrs = [
+            ids.psr_id(HACKNATION_SOURCE, user_id)
+            for entry in hacknation_member_entries(payload)
+            if (user_id := hacknation_user_id(entry)) is not None
+        ]
+        _cross_url_pairs(pairs, member_psrs, top.get(project_id, []), repo_url)
+    return pairs
+
+
+def _cross_url_pairs(
+    pairs: dict[tuple[str, str], str], left: Sequence[str], right: Sequence[str], url: str
+) -> None:
+    """Add every distinct cross pair with the shared repo URL as evidence."""
+    for a in left:
+        for b in right:
+            if a != b:
+                pairs.setdefault(_ordered(a, b), url)
+
+
+def hacknation_matches(
+    views: Mapping[str, PsrView], candidates: Mapping[tuple[str, str], str]
+) -> list[RuleMatch]:
+    """D8: gate the Hack Nation repo candidates on a strong name match.
+
+    Args:
+        views: PSR views keyed by source_record_id.
+        candidates: D8 candidate pairs mapped to their shared repo URL.
+
+    Returns:
+        Auto matches at confidence 0.90 (method det_github_contrib).
+    """
+    matches: list[RuleMatch] = []
+    for (left, right), url in sorted(candidates.items()):
+        a = views.get(left)
+        b = views.get(right)
+        if a is None or b is None:
+            continue
+        jw = _name_jw(a, b)
+        if jw < NAME_JW_D8:
+            continue
+        evidence: dict[str, Json] = {"rule": "D8", "github_url": url, "name_jw": round(jw, 2)}
+        matches.append(
+            RuleMatch(
+                left,
+                right,
+                "D8",
+                "det_github_contrib",
+                _CONF_GITHUB_CONTRIB,
+                auto=True,
+                evidence=evidence,
+            )
+        )
     return matches
 
 

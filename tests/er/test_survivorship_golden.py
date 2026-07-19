@@ -18,13 +18,15 @@ EXPECTED_SCORES: Final[dict[str, float]] = {
     fx.AISHA: 0.6,
     fx.JONAS_DEV: 0.5,
     fx.JONAS_LAW: 0.5,
+    fx.MIRA: 0.7,
+    fx.NOAH: 0.5,
 }
 
 
 def test_person_rows_reproduce_fixture_bytes(scratch_outputs: ErOutputs) -> None:
     produced = list(scratch_outputs.tables["silver.person"])
     expected = fixture_lines("silver.person")
-    assert len(produced) == len(expected) == 7
+    assert len(produced) == len(expected) == 9
     for produced_row, line in zip(produced, expected, strict=True):
         row = dict(produced_row)
         if row["person_id"] == fx.WEI_A:
@@ -35,7 +37,7 @@ def test_person_rows_reproduce_fixture_bytes(scratch_outputs: ErOutputs) -> None
         assert render(row) == line
 
 
-def test_all_seven_data_quality_scores(scratch_outputs: ErOutputs) -> None:
+def test_all_nine_data_quality_scores(scratch_outputs: ErOutputs) -> None:
     scores = {
         str(row["person_id"]): row["data_quality_score"]
         for row in scratch_outputs.tables["silver.person"]

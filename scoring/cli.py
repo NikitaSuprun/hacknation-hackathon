@@ -49,7 +49,7 @@ from scoring.stage_a import (
     run_stage_a,
     venture_view,
 )
-from scoring.ventures import build_ventures
+from scoring.ventures import build_ventures, hackathon_extras
 from scrapers.common.jsonutil import get_list, get_map, get_str
 from scrapers.common.log import configure_logging
 from scrapers.common.sink import DEFAULT_CATALOG
@@ -161,6 +161,7 @@ def _stage_a_context(
     member_ids = _member_ids(gold, venture_id)
     extras: dict[str, Json] = dict(collab_extras(silver, member_ids))
     extras["website_url"] = get_str(dict(venture_row), "website_url")
+    extras.update(hackathon_extras(silver, venture_row))
     weights_row = _active_row(gold.weights, "gold.score_weights")
     ideal = _active_row(gold.ideals, "gold.ideal_candidate")
     return StageAContext(

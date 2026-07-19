@@ -259,6 +259,11 @@ def fixture_scripts() -> dict[str, LLMResponse]:
             parsed=None,
             model=SCRIPT_MODEL,
         ),
+        f"TASK:venture_summary venture={build.HN_VENTURE}": LLMResponse(
+            text="Hackathon-born multilingual voice agents for field technicians.",
+            parsed=None,
+            model=SCRIPT_MODEL,
+        ),
         f"TASK:memo venture={venture}": _response(fixture_memo_sections()),
         f"TASK:product_defensibility venture={venture}": _response(
             {

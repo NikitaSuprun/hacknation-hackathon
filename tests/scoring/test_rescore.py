@@ -33,7 +33,7 @@ from scoring.stage_a import (
     venture_view,
 )
 from scrapers.common.jsonutil import as_mapping
-from tests.scoring.conftest import MEMBER_IDS, golden_text
+from tests.scoring.conftest import MEMBER_IDS, golden_lines, golden_text
 
 
 def make_context(
@@ -113,7 +113,14 @@ def test_interview_reproduces_the_two_row_fixture_history(
     outcome = ingest(silver, gold, deps, old_row, (), "run-0001")
     assert outcome.status == "ok"
     # New latest first, flipped pre-interview row second - the fixture bytes.
-    assert to_jsonl_lines(list(outcome.score_rows)) == golden_text("gold.venture_score")
+    # The rescore touches only the GraspLab venture, so the WS-G hackathon
+    # venture's score row (same file) is filtered out of the expectation.
+    grasp_score_lines = "".join(
+        line
+        for line in golden_lines("gold.venture_score")
+        if json.loads(line)["venture_id"] == build.GRASP_VENTURE
+    )
+    assert to_jsonl_lines(list(outcome.score_rows)) == grasp_score_lines
     assert to_jsonl_lines(list(outcome.memo_rows)) == golden_text("gold.memo")
     assert outcome.funding_signal == "none_found"
     assert outcome.run_row["status"] == "ok"

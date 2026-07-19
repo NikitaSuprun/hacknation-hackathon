@@ -17,6 +17,7 @@ from typing import Final
 from contracts.interfaces import LLMClient
 from contracts.models import Json, SinkRow, SinkValue
 from er.models import PsrView, psr_view
+from er.normalize import HACKNATION_SOURCE, hacknation_member_entries, hacknation_user_id
 from scrapers.common.jsonutil import as_sink, get_map, get_str
 from tools.llm import prompt_tag
 
@@ -149,6 +150,36 @@ def _avatar_url(ranked: Sequence[PsrView], bronze_users: Sequence[dict[str, Json
     return None
 
 
+def hacknation_cv_urls(hacknation_projects: Sequence[dict[str, Json]]) -> dict[str, str]:
+    """cv_url pointer per Hack Nation user id (authorProfile + team entries).
+
+    Args:
+        hacknation_projects: bronze.hacknation_projects_raw rows.
+
+    Returns:
+        user_id to cvUrl for entries that carry one (first observation wins).
+    """
+    urls: dict[str, str] = {}
+    for row in hacknation_projects:
+        for entry in hacknation_member_entries(get_map(row, "payload")):
+            user_id = hacknation_user_id(entry)
+            cv_url = get_str(entry, "cvUrl")
+            if user_id is not None and cv_url is not None:
+                urls.setdefault(user_id, cv_url)
+    return urls
+
+
+def _cv_url(ranked: Sequence[PsrView], cv_by_user: Mapping[str, str]) -> str | None:
+    """The CV pointer of the best-ranked Hack Nation record, if any."""
+    for view in ranked:
+        if view.source != HACKNATION_SOURCE:
+            continue
+        url = cv_by_user.get(view.source_key)
+        if url is not None:
+            return url
+    return None
+
+
 def _headline(person_id: str, ranked: Sequence[PsrView], llm: LLMClient) -> str | None:
     facts = "; ".join(
         f"{view.source}: {view.full_name or ''} @ {view.affiliation_raw or '?'}" for view in ranked
@@ -180,6 +211,7 @@ def build_person(  # noqa: PLR0913 - the survivorship inputs are irreducible
     llm: LLMClient,
     clock: Callable[[], datetime],
     bronze_users: Sequence[dict[str, Json]],
+    cv_by_user: Mapping[str, str],
     created_at: datetime | None,
 ) -> tuple[SinkRow, list[FieldConflict]]:
     """Derive one golden silver.person row from its linked PSRs.
@@ -190,6 +222,8 @@ def build_person(  # noqa: PLR0913 - the survivorship inputs are irreducible
         llm: Headline synthesizer.
         clock: Injected time source.
         bronze_users: bronze.github_users_raw rows (avatar lookup).
+        cv_by_user: Hack Nation user_id to cvUrl pointer (see
+            hacknation_cv_urls).
         created_at: Existing created_at to preserve, if the person exists.
 
     Returns:
@@ -209,8 +243,8 @@ def build_person(  # noqa: PLR0913 - the survivorship inputs are irreducible
         "github_login": _first(view.github_login for view in ranked),
         "orcid": _first(view.orcid for view in ranked),
         "website_url": f"https://{website}" if website is not None else None,
-        "linkedin_url": None,
-        "cv_url": None,
+        "linkedin_url": _first(view.linkedin_url for view in ranked),
+        "cv_url": _cv_url(ranked, cv_by_user),
         "twitter_handle": _first(view.twitter_handle for view in ranked),
         "affiliation": _most_recent_affiliation(ranked),
         "location": _first(view.location_raw for view in ranked),
@@ -233,6 +267,7 @@ def build_persons(  # noqa: PLR0913 - the survivorship inputs are irreducible
     llm: LLMClient,
     clock: Callable[[], datetime],
     bronze_users: Sequence[dict[str, Json]],
+    hacknation_projects: Sequence[dict[str, Json]],
     existing_persons: Sequence[dict[str, Json]],
 ) -> tuple[list[SinkRow], list[FieldConflict]]:
     """Rebuild every golden person that holds at least one active link.
@@ -243,6 +278,8 @@ def build_persons(  # noqa: PLR0913 - the survivorship inputs are irreducible
         llm: Headline synthesizer.
         clock: Injected time source.
         bronze_users: bronze.github_users_raw rows (avatar lookup).
+        hacknation_projects: bronze.hacknation_projects_raw rows (cv_url
+            pointer lookup).
         existing_persons: Current silver.person rows (created_at preserved).
 
     Returns:
@@ -262,6 +299,7 @@ def build_persons(  # noqa: PLR0913 - the survivorship inputs are irreducible
             created[person] = datetime.fromisoformat(stamp)
     persons: list[SinkRow] = []
     conflicts: list[FieldConflict] = []
+    cv_by_user = hacknation_cv_urls(hacknation_projects)
     for person_id in sorted(views_by_person):
         row_built, found = build_person(
             person_id,
@@ -269,6 +307,7 @@ def build_persons(  # noqa: PLR0913 - the survivorship inputs are irreducible
             llm=llm,
             clock=clock,
             bronze_users=bronze_users,
+            cv_by_user=cv_by_user,
             created_at=created.get(person_id),
         )
         persons.append(row_built)

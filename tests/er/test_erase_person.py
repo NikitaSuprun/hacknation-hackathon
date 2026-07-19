@@ -70,6 +70,7 @@ def _person_tables() -> dict[str, list[dict[str, Json]]]:
         "ops.er_review_queue",
         "bronze.github_users_raw",
         "bronze.github_commits_raw",
+        "bronze.hacknation_people_raw",
     )
     return {table: list(fixture_rows(table)) for table in tables}
 
@@ -94,6 +95,9 @@ def test_plan_covers_all_four_schemas_and_hashes_keys() -> None:
     assert ("github", source_key_hash("501001")) in hashes
     assert ("openalex_author", source_key_hash("A5000000001")) in hashes
     assert ("zefix_officer", source_key_hash(f"{fx.GRASP_UID}:fischer lena")) in hashes
+    assert ("hacknation", source_key_hash(fx.HN_LENA_KEY)) in hashes
+    hacknation_ops = [op for op in plan.deletes if op.table == "bronze.hacknation_people_raw"]
+    assert [op.where for op in hacknation_ops] == [f"user_id IN ('{fx.HN_LENA_KEY}')"]
     # The fixture suppression row proves the exact hash derivation.
     assert source_key_hash("999001") == fx.SUPPRESSED_KEY_HASH
     (tombstone,) = plan.upserts["silver.person"]
@@ -131,6 +135,8 @@ def test_stage0_rerun_resurrects_nothing(inputs: ErInputs) -> None:
             "bronze.openalex_works_raw": inputs.openalex_works,
             "bronze.zefix_companies_raw": inputs.zefix_companies,
             "bronze.zefix_sogc_raw": inputs.zefix_sogc,
+            "bronze.hacknation_people_raw": inputs.hacknation_people,
+            "bronze.hacknation_projects_raw": inputs.hacknation_projects,
         },
         suppressed=suppressed,
     )
@@ -138,8 +144,30 @@ def test_stage0_rerun_resurrects_nothing(inputs: ErInputs) -> None:
     assert ("github", "501001") not in keys
     assert ("openalex_author", "A5000000001") not in keys
     assert ("zefix_officer", f"{fx.GRASP_UID}:fischer lena") not in keys
+    assert ("hacknation", fx.HN_LENA_KEY) not in keys
     # Everyone else survives.
     assert ("github", "501003") in keys
+    assert ("hacknation", fx.HN_NOAH_KEY) in keys
+
+
+def test_hacknation_person_erasure_notes_the_cv_pointer() -> None:
+    plan = plan_erasure(
+        fx.NOAH,
+        _person_tables(),
+        scope="full",
+        clock=frozen_clock,
+        actor="dpo",
+        erasure_id=ERASURE_ID,
+    )
+    hacknation_ops = [op for op in plan.deletes if op.table == "bronze.hacknation_people_raw"]
+    assert [op.where for op in hacknation_ops] == [f"user_id IN ('{fx.HN_NOAH_KEY}')"]
+    suppression = plan.upserts["ops.erasure_suppression"]
+    hashes = {(str(row["source"]), str(row["source_key_hash"])) for row in suppression}
+    assert ("hacknation", source_key_hash(fx.HN_NOAH_KEY)) in hashes
+    (log_row,) = plan.upserts["ops.erasure_log"]
+    assert log_row["notes"] == f"purge CV file from UC Volume: {fx.NOAH_CV_URL}"
+    (tombstone,) = plan.upserts["silver.person"]
+    assert tombstone["cv_url"] is None
 
 
 def test_unknown_person_raises() -> None:
