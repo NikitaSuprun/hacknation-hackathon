@@ -48,5 +48,5 @@ addopts = "-q"
 style = "google"
 arg-type-hints-in-docstring = false
 check-return-types = false
-skip-checking-private-function-args = true
+check-yield-types = false
 allow-init-docstring = true
