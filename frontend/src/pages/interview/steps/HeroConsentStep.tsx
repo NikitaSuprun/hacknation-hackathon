@@ -69,10 +69,11 @@ export function HeroConsentStep({
   return (
     <div className="relative min-h-screen overflow-hidden bg-paper">
       <PaintPoster />
-      <main className="relative z-10 mx-auto flex min-h-screen w-full max-w-grid flex-col items-center justify-center px-gutter py-16">
+      <main className="relative z-10 mx-auto flex min-h-screen w-full max-w-grid flex-col items-center justify-center px-gutter py-12">
         <div className="text-center">
           <p className="mono-label animate-fade-in">A message from {session.fund_name}</p>
-          <h1 className="mt-6 font-display text-display-xl text-ink">
+          {/* Sized so the consent decision stays above the fold on a laptop. */}
+          <h1 className="mt-5 font-display text-[clamp(2.75rem,6vw,4.5rem)] font-medium leading-[1.02] tracking-[-0.02em] text-ink">
             {HEADLINE_WORDS.map((word, i) => (
               <span
                 key={word}
@@ -85,7 +86,7 @@ export function HeroConsentStep({
             ))}
           </h1>
           <p
-            className="mx-auto mt-6 max-w-measure animate-fade-up text-h4 font-normal text-quiet"
+            className="mx-auto mt-5 max-w-measure animate-fade-up text-h4 font-normal text-quiet"
             style={{ animationDelay: "420ms" }}
           >
             {session.fund_name} reviewed your public work on {session.venture_name}. Nothing here
@@ -94,7 +95,7 @@ export function HeroConsentStep({
         </div>
 
         <Card
-          className="mt-12 w-full max-w-[560px] animate-fade-up rounded-warm border-line bg-paper p-7 text-left shadow-lift"
+          className="mt-8 w-full max-w-[560px] animate-fade-up rounded-warm border-line bg-paper p-7 text-left shadow-lift"
           style={{ animationDelay: "560ms" }}
         >
           <section>

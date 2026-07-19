@@ -15,15 +15,15 @@ export function QualityChip({
 }) {
   if (tier === "needs_more_data") {
     return (
-      <Badge variant="dashed" className={className}>
-        needs more data
+      <Badge variant="dashed" className={className} title="Not enough signal to score this venture">
+        needs data
       </Badge>
     );
   }
   if (tier === null) {
     return (
-      <Badge variant="quiet" className={className}>
-        unscored tier
+      <Badge variant="quiet" className={className} title="The pipeline has not tiered this venture yet">
+        untiered
       </Badge>
     );
   }

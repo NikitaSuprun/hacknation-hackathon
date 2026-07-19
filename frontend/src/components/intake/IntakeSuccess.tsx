@@ -8,7 +8,7 @@ import { Card } from "@/components/ui/card";
 export function IntakeSuccess() {
   return (
     <Card className="animate-fade-up rounded-warm p-7">
-      <p className="mono-label text-electric">On the radar</p>
+      <p className="mono-label text-ink">On the radar</p>
       <h2 className="mt-3 font-display text-h2 text-ink">Done — we'll take it from here.</h2>
       <p className="mt-4 text-body text-quiet">
         Our system will read what you shared and score it against every active thesis. If a fund

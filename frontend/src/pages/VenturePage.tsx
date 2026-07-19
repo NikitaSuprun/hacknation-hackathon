@@ -354,7 +354,7 @@ export default function VenturePage() {
           <div className="mt-4 flex flex-wrap items-center gap-2">
             <StatusChip status={venture.status} />
             <QualityChip tier={venture.quality_tier} />
-            <FundingBadge signal={venture.funding_signal} />
+            <FundingBadge signal={venture.funding_signal} dense={false} />
           </div>
         </div>
         <div className="text-right">

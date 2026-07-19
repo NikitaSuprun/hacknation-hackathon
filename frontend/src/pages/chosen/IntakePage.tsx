@@ -17,7 +17,7 @@ export default function IntakePage() {
     <div className="min-h-screen bg-paper">
       {/* Compact hero on the paint poster. */}
       <header className="hairline-b relative overflow-hidden">
-        <PosterBackdrop />
+        <PosterBackdrop mono />
         <div className="relative mx-auto w-full max-w-grid px-gutter pb-12 pt-10">
           <Link
             to="/"

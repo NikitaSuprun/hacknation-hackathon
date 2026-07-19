@@ -12,6 +12,8 @@ import {
   forceLink,
   forceManyBody,
   forceSimulation,
+  forceX,
+  forceY,
   type Simulation,
 } from "d3-force";
 import { getDB, useLiveVersion } from "./data";
@@ -24,6 +26,15 @@ import {
   type GraphNode,
 } from "./graph";
 import { DetailPanel, type GraphSelection } from "./DetailPanel";
+
+/** Keep nodes (and their labels) inside the viewBox — nothing drifts off-canvas. */
+function clampToCanvas(nodes: GraphNode[]): void {
+  for (const node of nodes) {
+    const m = nodeHitRadius(node) + 16;
+    node.x = Math.max(m, Math.min(GRAPH_W - m, node.x ?? GRAPH_W / 2));
+    node.y = Math.max(m, Math.min(GRAPH_H - m - 34, node.y ?? GRAPH_H / 2));
+  }
+}
 
 interface DragState {
   id: string;
@@ -57,12 +68,16 @@ export function GraphView() {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const simRef = useRef<Simulation<GraphNode, GraphEdge> | null>(null);
   const dragRef = useRef<DragState | null>(null);
+  const tickCountRef = useRef(0);
+  const suppressClickRef = useRef(false);
   const [, setFrame] = useState(0);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [focusedId, setFocusedId] = useState<string | null>(null);
   const [selection, setSelection] = useState<GraphSelection>(null);
 
   useEffect(() => {
+    const ticks = tickCountRef;
+    ticks.current = 0;
     const sim = forceSimulation<GraphNode>(model.nodes)
       .force(
         "link",
@@ -73,10 +88,22 @@ export function GraphView() {
       )
       .force("charge", forceManyBody<GraphNode>().strength(-340))
       .force("center", forceCenter<GraphNode>(GRAPH_W / 2, GRAPH_H / 2))
+      // Gentle centering pull keeps the settled layout inside the viewBox;
+      // collide keeps labels legible.
+      .force("x", forceX<GraphNode>(GRAPH_W / 2).strength(0.04))
+      .force("y", forceY<GraphNode>(GRAPH_H / 2).strength(0.04))
       .force("collide", forceCollide<GraphNode>().radius((d) => nodeHitRadius(d) + 24))
       .alphaDecay(0.05)
-      .alphaMin(0.02) // d3 halts its timer below this — the sim settles and stops
-      .on("tick", () => setFrame((f) => f + 1));
+      .alphaMin(0.02) // d3 halts its timer below alphaMin — the layout settles and stops
+      .on("tick", () => {
+        ticks.current += 1;
+        clampToCanvas(model.nodes);
+        // Hard ceiling: alphaDecay 0.05 settles in ~75 ticks; never spin past 300.
+        // (A drag resets the budget so repositioning always re-settles.)
+        if (ticks.current > 300) sim.stop();
+        setFrame((f) => f + 1);
+      })
+      .on("end", () => sim.stop());
     simRef.current = sim;
     return () => {
       sim.stop();
@@ -113,11 +140,15 @@ export function GraphView() {
     if (!drag.dragging) {
       if (Math.hypot(e.clientX - drag.startX, e.clientY - drag.startY) < 3) return;
       drag.dragging = true;
+      tickCountRef.current = 0; // fresh settle budget for the reheat
       simRef.current?.alphaTarget(0.15).restart(); // brief reheat while dragging
     }
     const p = toSvgPoint(e.clientX, e.clientY);
-    node.fx = p.x;
-    node.fy = p.y;
+    const m = nodeHitRadius(node) + 16;
+    node.fx = Math.max(m, Math.min(GRAPH_W - m, p.x));
+    node.fy = Math.max(m, Math.min(GRAPH_H - m - 34, p.y));
+    node.x = node.fx;
+    node.y = node.fy;
     setFrame((f) => f + 1);
   }
 
@@ -129,9 +160,27 @@ export function GraphView() {
       node.fx = null;
       node.fy = null;
       simRef.current?.alphaTarget(0); // alpha decays below alphaMin → auto-stop
-    } else {
-      select(node);
+      suppressClickRef.current = true; // the click that trails a drag is not a select
     }
+    // Selection itself happens in onClick so a synthetic click (demo autopilot)
+    // works as well as a real pointer sequence.
+  }
+
+  function handleClick(node: GraphNode) {
+    if (suppressClickRef.current) {
+      suppressClickRef.current = false;
+      return;
+    }
+    select(node);
+  }
+
+  /** Pointer capture can be lost (window blur, touch cancel) — never leave the sim hot. */
+  function handlePointerCancel(node: GraphNode) {
+    if (dragRef.current?.id !== node.id) return;
+    dragRef.current = null;
+    node.fx = null;
+    node.fy = null;
+    simRef.current?.alphaTarget(0);
   }
 
   function handleKeyDown(e: React.KeyboardEvent<SVGGElement>, node: GraphNode) {
@@ -142,6 +191,8 @@ export function GraphView() {
   }
 
   const hoverNeighbors = hoveredId ? (model.neighbors.get(hoveredId) ?? new Set<string>()) : null;
+  const personCount = model.nodes.filter((n) => n.kind === "person").length;
+  const ventureCount = model.nodes.length - personCount;
 
   return (
     <div className="mt-8 flex h-[640px] animate-fade-up overflow-hidden rounded-none border border-line bg-paper">
@@ -212,6 +263,9 @@ export function GraphView() {
                   onPointerDown={(e) => handlePointerDown(e, node)}
                   onPointerMove={(e) => handlePointerMove(e, node)}
                   onPointerUp={(e) => handlePointerUp(e, node)}
+                  onClick={() => handleClick(node)}
+                  onPointerCancel={() => handlePointerCancel(node)}
+                  onLostPointerCapture={() => handlePointerCancel(node)}
                   onPointerEnter={() => setHoveredId(node.id)}
                   onPointerLeave={() => setHoveredId(null)}
                   onFocus={() => setFocusedId(node.id)}
@@ -323,10 +377,18 @@ export function GraphView() {
             })}
           </g>
         </svg>
-        <p className="pointer-events-none absolute bottom-3 left-4 font-mono text-[11px] text-quiet">
-          ● person · ■ venture · — connection · ┄ membership · drag to reposition, click for
-          provenance
-        </p>
+        <div className="pointer-events-none absolute bottom-3 left-4 right-4 font-mono text-[11px] leading-4 text-quiet">
+          <p>
+            ● person · ■ venture · — connection · ┄ membership — drag to reposition, click for
+            provenance
+          </p>
+          <p className="mt-0.5">
+            {personCount} persons · {ventureCount} ventures drawn
+            {model.unresolvedVentures.length > 0 &&
+              ` · ${model.unresolvedVentures.length} ventures have no resolved person record`}
+            {model.isolatedPersons > 0 && ` · ${model.isolatedPersons} persons unconnected`}
+          </p>
+        </div>
       </div>
       <DetailPanel
         selection={selection}

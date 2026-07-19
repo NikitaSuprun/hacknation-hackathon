@@ -58,7 +58,7 @@ export default function LandingPage() {
               <Link to="/login">I'm investing</Link>
             </Button>
             <Button asChild variant="outline" size="lg">
-              <Link to="/chosen">I was chosen</Link>
+              <Link to="/chosen">Put me on the radar</Link>
             </Button>
           </div>
         </div>

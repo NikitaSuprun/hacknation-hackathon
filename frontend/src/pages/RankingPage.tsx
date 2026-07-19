@@ -13,11 +13,12 @@ import {
   useFlashOnReorder,
   useRanking,
 } from "@/hooks/useInvestorData";
+import { QueryBar, RelevanceTag, useVentureQuery } from "@/components/query";
 import { cn, formatScore } from "@/lib/utils";
 
 /** Shared column template so the mono-label header stays aligned with rows. */
 const ROW_GRID =
-  "grid grid-cols-[2.5rem_minmax(0,1fr)_7.5rem] items-center gap-x-4 px-2 lg:grid-cols-[2.5rem_minmax(0,1fr)_10.5rem_9rem_8.5rem_9.5rem_7.5rem]";
+  "grid grid-cols-[2.5rem_minmax(0,1fr)_7.5rem] items-center gap-x-4 px-2 lg:grid-cols-[2.5rem_minmax(0,1fr)_7rem_7rem_7.5rem_7.5rem_7.5rem]";
 
 function SkeletonRow() {
   return (
@@ -48,8 +49,24 @@ export default function RankingPage() {
   const { thesisId = "" } = useParams();
   const { data: ventures, isLoading, isError, error, refetch } = useRanking(thesisId);
   const coldStart = useColdStartHint(isLoading);
-  const ids = useMemo(() => ventures?.map((v) => v.venture_id), [ventures]);
+
+  // The query bar filters and (with a prompt) relevance-ranks the pool
+  // client-side; with no query it passes the seam's ranking through untouched.
+  const pool = useMemo(() => ventures ?? [], [ventures]);
+  const { query, setQuery, hits, activeCount } = useVentureQuery(pool);
+  const rows = useMemo(() => hits.map((hit) => hit.venture), [hits]);
+  const hitByVenture = useMemo(
+    () => new Map(hits.map((hit) => [hit.venture.venture_id, hit])),
+    [hits],
+  );
+
+  const ids = useMemo(() => rows.map((v) => v.venture_id), [rows]);
   const flashed = useFlashOnReorder(ids);
+
+  const resultLabel =
+    activeCount > 0
+      ? `${hits.length} of ${pool.length} match`
+      : `${String(pool.length).padStart(2, "0")} ventures · ranked under active weights`;
 
   return (
     <div className="py-gutter-lg">
@@ -58,12 +75,20 @@ export default function RankingPage() {
           <p className="mono-label mb-2">Ranked ventures</p>
           <h1 className="font-display text-h1">Ranking</h1>
         </div>
-        {ventures && ventures.length > 0 && (
-          <p className="font-mono text-mono-data tabular text-quiet">
-            {String(ventures.length).padStart(2, "0")} ventures · ranked under active weights
-          </p>
+        {pool.length > 0 && (
+          <p className="font-mono text-mono-data tabular text-quiet">{resultLabel}</p>
         )}
       </div>
+
+      {pool.length > 0 && (
+        <QueryBar
+          className="mt-8"
+          ventures={pool}
+          value={query}
+          onChange={setQuery}
+          resultLabel={activeCount > 0 ? `${hits.length} of ${pool.length}` : undefined}
+        />
+      )}
 
       <div className="mt-8">
         <div className={cn(ROW_GRID, "h-9 border-b border-line-strong")}>
@@ -109,9 +134,19 @@ export default function RankingPage() {
           </div>
         )}
 
-        {ventures?.map((venture, index) => {
+        {pool.length > 0 && rows.length === 0 && (
+          <div className="max-w-measure-narrow py-gutter">
+            <p className="mono-label mb-2">Nothing matches</p>
+            <p className="text-body text-quiet">
+              No venture in the pool matches that query. Loosen a filter or reword the prompt.
+            </p>
+          </div>
+        )}
+
+        {rows.map((venture, index) => {
           const needsMore = venture.quality_tier === "needs_more_data";
           const isFlashed = flashed.has(venture.venture_id);
+          const hit = hitByVenture.get(venture.venture_id);
           return (
             <Link
               key={venture.venture_id}
@@ -119,16 +154,20 @@ export default function RankingPage() {
               data-demo-id={`venture-row-${venture.venture_id}`}
               className={cn(
                 ROW_GRID,
-                "group hairline-b h-14 transition-colors duration-240 ease-swift hover:bg-wash",
+                "group hairline-b transition-colors duration-240 ease-swift hover:bg-wash",
+                hit?.relevance == null ? "h-14" : "min-h-14 py-2",
                 isFlashed && "bg-electric-wash",
               )}
             >
               <span className="font-mono text-mono-data tabular text-quiet">
                 {String(index + 1).padStart(2, "0")}
               </span>
-              <span className="min-w-0 truncate">
-                <span className="text-body font-medium text-ink">{venture.name}</span>
-                <span className="ml-3 text-small text-quiet">{venture.one_liner}</span>
+              <span className="min-w-0">
+                <span className="block truncate">
+                  <span className="text-body font-medium text-ink">{venture.name}</span>
+                  <span className="ml-3 text-small text-quiet">{venture.one_liner}</span>
+                </span>
+                {hit && <RelevanceTag hit={hit} />}
               </span>
               <span className="hidden lg:block">
                 <FundingBadge signal={venture.funding_signal} />

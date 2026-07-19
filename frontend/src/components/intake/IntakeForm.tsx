@@ -233,8 +233,11 @@ export function IntakeForm({ onDone }: { onDone: (record: IntakeSubmission) => v
       </div>
 
       <div className="mt-7">
+        {/* Ink, not electric: the accent is reserved for the fund choosing
+            someone. Raising your hand is a different act. */}
         <Button
           type="button"
+          variant="ink"
           size="lg"
           className="w-full"
           data-demo-id="btn-intake-submit"

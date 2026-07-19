@@ -48,6 +48,13 @@ export interface GraphModel {
   edges: GraphEdge[];
   /** node id -> ids of adjacent nodes (for hover darkening). */
   neighbors: Map<string, Set<string>>;
+  /**
+   * Ventures kept off the canvas because none of their gold.venture_members
+   * resolve to a silver.persons row — an ER coverage gap worth naming.
+   */
+  unresolvedVentures: string[];
+  /** Persons with no connection and no venture membership. */
+  isolatedPersons: number;
 }
 
 function initialsOf(name: string): string {
@@ -87,9 +94,14 @@ export function buildGraphModel(db: MockDB): GraphModel {
   }
   const personIds = new Set(persons.map((p) => String(p.person_id)));
   const memberships: { ventureId: string; personId: string; role: string | null }[] = [];
+  const resolvedVentures = new Set<string>();
+  const unresolvedVentures: string[] = [];
   for (const venture of db.ventures) {
+    let resolved = 0;
     for (const member of db.team[venture.venture_id] ?? []) {
-      if (!personIds.has(member.person_id)) continue; // team rows beyond the fixture persons
+      // Team rows whose person_id has no silver.persons row can't be drawn.
+      if (!personIds.has(member.person_id)) continue;
+      resolved += 1;
       memberships.push({
         ventureId: venture.venture_id,
         personId: member.person_id,
@@ -97,6 +109,8 @@ export function buildGraphModel(db: MockDB): GraphModel {
       });
       bump(member.person_id);
     }
+    if (resolved > 0) resolvedVentures.add(venture.venture_id);
+    else unresolvedVentures.push(venture.name);
   }
 
   const cx = GRAPH_W / 2;
@@ -121,8 +135,9 @@ export function buildGraphModel(db: MockDB): GraphModel {
     };
   });
 
-  const ventureNodes: VentureNode[] = db.ventures.map((v, i) => {
-    const angle = (i / Math.max(db.ventures.length, 1)) * Math.PI * 2 + Math.PI / 4;
+  const drawnVentures = db.ventures.filter((v) => resolvedVentures.has(v.venture_id));
+  const ventureNodes: VentureNode[] = drawnVentures.map((v, i) => {
+    const angle = (i / Math.max(drawnVentures.length, 1)) * Math.PI * 2 + Math.PI / 4;
     return {
       kind: "venture",
       id: v.venture_id,
@@ -177,5 +192,7 @@ export function buildGraphModel(db: MockDB): GraphModel {
     connect(e.targetId, e.sourceId);
   }
 
-  return { nodes, edges, neighbors };
+  const isolatedPersons = personNodes.filter((n) => !neighbors.has(n.id)).length;
+
+  return { nodes, edges, neighbors, unresolvedVentures, isolatedPersons };
 }

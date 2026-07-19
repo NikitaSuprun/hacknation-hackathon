@@ -17,7 +17,6 @@ import {
   num,
   str,
   type PersonDossier,
-  type Raw,
   type SourceRecordEntry,
 } from "./data";
 
@@ -348,8 +347,8 @@ function PersonPanel({
         </>
       )}
 
-      {/* outreach + interview */}
-      {(dossier.outreach.length > 0 || dossier.interviews.length > 0) && (
+      {/* outreach + interview (live store — appears as the demo advances) */}
+      {dossier.outreach.length > 0 && (
         <>
           <SectionLabel>Outreach & interview</SectionLabel>
           <div className="space-y-2">
@@ -376,26 +375,29 @@ function PersonPanel({
                 </span>
               </div>
             )}
-            {dossier.interviews.map((i) => (
-              <div key={String(i.interview_id)} className="border border-line p-3">
-                <div className="flex items-baseline justify-between gap-2">
-                  <span className="font-mono text-mono-data text-ink">gold.interview</span>
-                  <SourceTag>fixture</SourceTag>
+            {/* The fixture gold.interview row is the post-interview state — only
+                show it once the live interview has actually completed. */}
+            {dossier.liveInterviewStage === "completed" &&
+              dossier.interviews.map((i) => (
+                <div key={String(i.interview_id)} className="border border-line p-3">
+                  <div className="flex items-baseline justify-between gap-2">
+                    <span className="font-mono text-mono-data text-ink">gold.interview</span>
+                    <SourceTag>fixture</SourceTag>
+                  </div>
+                  <div className="mt-1">
+                    <Fact label="started" value={fmtDate(i.started_at)} />
+                    <Fact label="completed" value={fmtDate(i.completed_at)} />
+                    <Fact
+                      label="consent"
+                      value={i.consent_confirmed === true ? "confirmed" : "not confirmed"}
+                    />
+                    <Fact
+                      label="turns"
+                      value={arr(i.transcript).length > 0 ? String(arr(i.transcript).length) : null}
+                    />
+                  </div>
                 </div>
-                <div className="mt-1">
-                  <Fact label="started" value={fmtDate(i.started_at)} />
-                  <Fact label="completed" value={fmtDate(i.completed_at)} />
-                  <Fact
-                    label="consent"
-                    value={i.consent_confirmed === true ? "confirmed" : "not confirmed"}
-                  />
-                  <Fact
-                    label="turns"
-                    value={arr(i.transcript).length > 0 ? String(arr(i.transcript).length) : null}
-                  />
-                </div>
-              </div>
-            ))}
+              ))}
           </div>
         </>
       )}
@@ -468,7 +470,7 @@ function VenturePanel({
       <SectionLabel>Open</SectionLabel>
       <Link
         to={`/t/${db.thesis.thesis_id}/venture/${venture.venture_id}`}
-        className="font-mono text-mono-data text-electric underline-offset-4 hover:underline"
+        className="font-mono text-mono-data text-ink underline decoration-line underline-offset-4 transition-colors duration-120 ease-swift hover:decoration-ink"
       >
         /t/…/venture/{venture.venture_id.slice(0, 8)}
       </Link>

@@ -9,6 +9,9 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: "bg-electric text-paper hover:bg-electric-hover",
+        // Monochrome primary — for decisive actions that are NOT the fund
+        // choosing someone (electric is reserved for that moment).
+        ink: "bg-ink text-paper hover:bg-ink/90",
         outline: "border border-line-strong bg-transparent text-ink hover:bg-wash",
         ghost: "text-ink hover:bg-wash",
         link: "text-electric underline-offset-4 hover:underline",

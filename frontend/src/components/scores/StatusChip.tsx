@@ -16,6 +16,13 @@ const DOT: Record<VentureStatus, string> = {
   archived: "bg-ink",
 };
 
+/**
+ * Resting states (sourced/scored) are the norm — they drop the pill outline
+ * and sit as quiet mono text, so a venture that is actually in flight reads
+ * instantly against them.
+ */
+const RESTING: VentureStatus[] = ["sourced", "scored"];
+
 export function StatusChip({
   status,
   className,
@@ -23,10 +30,12 @@ export function StatusChip({
   status: VentureStatus;
   className?: string;
 }) {
+  const resting = RESTING.includes(status);
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-line-strong px-2.5 py-0.5 font-mono text-[11px] uppercase leading-4 tracking-[0.06em] text-ink",
+        "inline-flex items-center gap-1.5 whitespace-nowrap rounded-full py-0.5 font-mono text-[11px] uppercase leading-4 tracking-[0.06em]",
+        resting ? "text-quiet" : "border border-line-strong px-2.5 text-ink",
         className,
       )}
     >
