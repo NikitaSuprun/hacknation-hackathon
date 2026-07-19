@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "company_snapshot": { "bullets": [{ "text": "Claims with no citation and not marked missing" }] },
+  "investment_hypotheses": { "bullets": [] },
+  "swot": { "bullets": [] },
+  "team_and_history": { "bullets": [] },
+  "problem_and_product": { "bullets": [] },
+  "technology_and_defensibility": { "bullets": [] },
+  "market_tam_sam_som": { "bullets": [], "assumptions": [] },
+  "competition": { "bullets": [] },
+  "traction_and_kpis": { "bullets": [] }
+}

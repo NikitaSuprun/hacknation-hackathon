@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dealflow.internal/schemas/breakdown.schema.json",
+  "title": "ScoreBreakdown",
+  "description": "gold.venture_score.breakdown: per-category verdicts with cited evidence.",
+  "type": "object",
+  "required": ["schema_version", "categories"],
+  "properties": {
+    "schema_version": { "type": "integer", "minimum": 1 },
+    "categories": {
+      "type": "object",
+      "properties": {
+        "individual_experience": { "$ref": "#/$defs/category" },
+        "schools": { "$ref": "#/$defs/category" },
+        "network_ties": { "$ref": "#/$defs/category" },
+        "prior_collaboration": { "$ref": "#/$defs/category" },
+        "problem_realness": { "$ref": "#/$defs/category" },
+        "product_defensibility": { "$ref": "#/$defs/category" },
+        "market": { "$ref": "#/$defs/category" },
+        "traction": { "$ref": "#/$defs/category" },
+        "ideal_match": { "$ref": "#/$defs/category" }
+      }
+    }
+  },
+  "$defs": {
+    "category": {
+      "type": "object",
+      "required": ["score", "method", "evidence"],
+      "properties": {
+        "score": { "type": ["number", "null"], "minimum": 0, "maximum": 100 },
+        "method": { "type": "string", "minLength": 1 },
+        "rationale": { "type": ["string", "null"] },
+        "confidence": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+        "evidence": {
+          "type": "array",
+          "items": { "$ref": "https://dealflow.internal/schemas/evidence.schema.json" }
+        }
+      }
+    }
+  }
+}

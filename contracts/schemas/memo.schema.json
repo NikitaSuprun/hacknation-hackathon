@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dealflow.internal/schemas/memo.schema.json",
+  "title": "MemoSections",
+  "description": "gold.memo.sections: nine fixed sections; every bullet is cited or explicitly missing.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "company_snapshot",
+    "investment_hypotheses",
+    "swot",
+    "team_and_history",
+    "problem_and_product",
+    "technology_and_defensibility",
+    "market_tam_sam_som",
+    "competition",
+    "traction_and_kpis"
+  ],
+  "properties": {
+    "schema_version": { "type": "integer", "minimum": 1 },
+    "company_snapshot": { "$ref": "#/$defs/section" },
+    "investment_hypotheses": { "$ref": "#/$defs/section" },
+    "swot": { "$ref": "#/$defs/section" },
+    "team_and_history": { "$ref": "#/$defs/section" },
+    "problem_and_product": { "$ref": "#/$defs/section" },
+    "technology_and_defensibility": { "$ref": "#/$defs/section" },
+    "market_tam_sam_som": {
+      "allOf": [{ "$ref": "#/$defs/section" }],
+      "properties": {
+        "tam": { "type": ["string", "null"] },
+        "sam": { "type": ["string", "null"] },
+        "som": { "type": ["string", "null"] },
+        "assumptions": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "competition": { "$ref": "#/$defs/section" },
+    "traction_and_kpis": { "$ref": "#/$defs/section" }
+  },
+  "$defs": {
+    "section": {
+      "type": "object",
+      "required": ["bullets"],
+      "properties": {
+        "bullets": { "type": "array", "items": { "$ref": "#/$defs/bullet" } }
+      }
+    },
+    "bullet": {
+      "type": "object",
+      "required": ["text"],
+      "properties": {
+        "text": { "type": "string", "minLength": 1 },
+        "evidence": {
+          "type": "array",
+          "items": { "$ref": "https://dealflow.internal/schemas/evidence.schema.json" }
+        },
+        "missing": { "type": "boolean" },
+        "gap_field": { "type": ["string", "null"] }
+      },
+      "anyOf": [
+        { "required": ["missing"], "properties": { "missing": { "const": true } } },
+        { "required": ["evidence"], "properties": { "evidence": { "minItems": 1 } } }
+      ]
+    }
+  }
+}

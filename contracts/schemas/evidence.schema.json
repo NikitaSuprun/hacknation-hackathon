@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dealflow.internal/schemas/evidence.schema.json",
+  "title": "Evidence",
+  "description": "The uniform evidence element cited by category scores and memo bullets.",
+  "type": "object",
+  "required": ["claim", "source_url"],
+  "properties": {
+    "claim": { "type": "string", "minLength": 1 },
+    "source_url": { "type": "string", "minLength": 1 },
+    "source_type": { "type": ["string", "null"] },
+    "snippet": { "type": ["string", "null"] },
+    "weight": { "type": ["number", "null"], "minimum": 0, "maximum": 1 }
+  }
+}

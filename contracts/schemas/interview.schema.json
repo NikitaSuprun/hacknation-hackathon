@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dealflow.internal/schemas/interview.schema.json",
+  "title": "InterviewExtracted",
+  "description": "gold.interview.extracted: consent-based facts filling scored gaps.",
+  "type": "object",
+  "required": ["schema_version"],
+  "properties": {
+    "schema_version": { "type": "integer", "minimum": 1 },
+    "education": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["institution"],
+        "properties": {
+          "institution": { "type": "string", "minLength": 1 },
+          "degree": { "type": ["string", "null"] },
+          "field": { "type": ["string", "null"] },
+          "start_year": { "type": ["integer", "null"] },
+          "end_year": { "type": ["integer", "null"] }
+        }
+      }
+    },
+    "career": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["organization"],
+        "properties": {
+          "organization": { "type": "string", "minLength": 1 },
+          "role": { "type": ["string", "null"] },
+          "start_year": { "type": ["integer", "null"] },
+          "end_year": { "type": ["integer", "null"] }
+        }
+      }
+    },
+    "team_commitment": {
+      "type": "object",
+      "required": ["status"],
+      "properties": {
+        "status": { "enum": ["full_time", "part_time", "exploring", "unknown"] },
+        "notes": { "type": ["string", "null"] }
+      }
+    },
+    "traction_claims": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["metric", "value", "verified"],
+        "properties": {
+          "metric": { "type": "string", "minLength": 1 },
+          "value": { "type": "string", "minLength": 1 },
+          "as_of": { "type": ["string", "null"] },
+          "verified": { "type": "boolean" }
+        }
+      }
+    },
+    "funding_status": {
+      "type": "object",
+      "required": ["raised_before"],
+      "properties": {
+        "raised_before": { "type": ["boolean", "null"] },
+        "details": { "type": ["string", "null"] }
+      }
+    }
+  }
+}
