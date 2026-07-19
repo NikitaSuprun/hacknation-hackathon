@@ -8,11 +8,33 @@ on:
     paths: [pyproject.toml, uv.lock]
 
 jobs:
-  inventory:
+  # PRs (including dependabot) are judged on the allowlist only; the
+  # committed inventory refreshes itself on the merge to main.
+  allowlist:
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
       - run: uv sync --locked
+      - run: uv run poe licenses-check
+
+  refresh:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync --locked
       - run: uv run poe licenses
-      - run: git diff --exit-code THIRD_PARTY_LICENSES.md
+      - name: Commit refreshed inventory
+        run: |
+          if ! git diff --quiet THIRD_PARTY_LICENSES.md; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add THIRD_PARTY_LICENSES.md
+            git commit -m "Refresh third-party license inventory"
+            git push
+          fi
