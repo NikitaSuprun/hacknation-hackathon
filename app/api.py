@@ -9,11 +9,13 @@ Execution semantics) so clients JSON.parse them; the static SPA is served
 from app/static.
 """
 
-from pathlib import Path
+from http import HTTPStatus
+from pathlib import Path, PurePosixPath
 from typing import Final
 
 from starlette.applications import Starlette
 from starlette.datastructures import Headers
+from starlette.exceptions import HTTPException
 from starlette.middleware import Middleware
 from starlette.requests import Request
 from starlette.responses import JSONResponse, PlainTextResponse, Response
@@ -55,6 +57,44 @@ from tools.ddl_registry import table_schema
 from tools.llm import EMBEDDING_MODEL
 
 STATIC_DIR: Final[Path] = Path(__file__).resolve().parent / "static"
+
+
+class SpaStaticFiles(StaticFiles):
+    """Static files with a single-page-app fallback to index.html.
+
+    The React frontend uses BrowserRouter, so paths like /thesis exist only in
+    the client router. Plain StaticFiles 404s them, which breaks refreshes and
+    shared links; falling back to index.html lets the router take over.
+
+    Only extension-less paths fall back. A missing /assets/main.js must stay a
+    404, or the browser parses the HTML shell as JavaScript and reports a
+    syntax error instead of the missing file.
+    """
+
+    async def get_response(self, path: str, scope: Scope) -> Response:
+        """Serve the file, or index.html when the path is a client-side route.
+
+        Args:
+            path: The requested path, relative to the static directory.
+            scope: The ASGI connection scope.
+
+        Returns:
+            The static response, or the SPA shell for unknown routes.
+
+        Raises:
+            HTTPException: On a 404 for an asset path, or any non-404 error.
+        """
+        is_route = not PurePosixPath(path).suffix
+        try:
+            response = await super().get_response(path, scope)
+        except HTTPException as exc:
+            if exc.status_code != HTTPStatus.NOT_FOUND or not is_route:
+                raise
+            return await super().get_response("index.html", scope)
+        if response.status_code == HTTPStatus.NOT_FOUND and is_route:
+            return await super().get_response("index.html", scope)
+        return response
+
 
 # Statement-Execution semantics: VARIANT columns cross /v1 as JSON strings.
 VARIANT_COLUMNS: Final[frozenset[str]] = frozenset(
@@ -588,7 +628,7 @@ def create_app(deps: AppDeps) -> Starlette:
         Route("/v1/interview/{token}/message", handlers.interview_message, methods=["POST"]),
         Route("/v1/interview/{token}/complete", handlers.interview_complete, methods=["POST"]),
         Route("/v1/optout/{token}", handlers.opt_out, methods=["GET"]),
-        Mount("/", app=StaticFiles(directory=STATIC_DIR, html=True), name="static"),
+        Mount("/", app=SpaStaticFiles(directory=STATIC_DIR, html=True), name="static"),
     ]
     middleware = [Middleware(SessionAuthMiddleware, sessions=deps.sessions)]
     return Starlette(routes=routes, middleware=middleware)

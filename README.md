@@ -58,6 +58,37 @@ Warehouse-backed commands (`poe ddl-apply`, `poe fixtures-load`, `poe smoke`)
 need Databricks credentials in `.env` — see
 [docs/runbooks/databricks.md](docs/runbooks/databricks.md).
 
+## Deploy
+
+One container serves everything: the Starlette app mounts the built React
+bundle at `/` and answers `/v1` on the same origin, so there is no CORS layer
+and no second deployment to keep in sync. It must run as a **single long-lived
+process** — sessions live in memory (`app/auth.py`), so a serverless host or a
+second instance would sign users out. `fly.toml` pins one always-on machine;
+do not `fly scale count` above 1.
+
+```sh
+docker build -t venture-hunt .
+docker run -p 8080:8080 --env-file .env venture-hunt   # verify locally first
+
+fly launch --no-deploy        # accepts the committed fly.toml
+fly secrets set \
+  DATABRICKS_HOST=... DATABRICKS_CLIENT_ID=... \
+  DATABRICKS_CLIENT_SECRET=... DATABRICKS_WAREHOUSE_ID=... \
+  DATABRICKS_LLM_ENDPOINT=databricks-claude-opus-4-8 \
+  APP_PASSWORD='<the password you hand out>'
+fly deploy
+```
+
+Omitting `--fixtures` selects the live Databricks path, which makes all four
+`DATABRICKS_*` keys and `APP_PASSWORD` mandatory — the app fails fast at boot
+without them. Reviewers sign in with `APP_PASSWORD` alone; the email field on
+the login page is prefilled decoration.
+
+Note that Databricks Free Edition enforces a **daily compute quota**. Once it
+is spent, every warehouse-backed route returns 500 until the next day, so plan
+demos around it.
+
 ## Implementation & technology
 
 ### Data sources

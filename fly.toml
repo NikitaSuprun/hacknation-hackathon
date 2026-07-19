@@ -1,0 +1,25 @@
+app = "venture-hunt"
+primary_region = "fra"
+
+[build]
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  # Sessions live in process memory (app/auth.py SessionRegistry). A stopped or
+  # second machine would log the jury out or reject their token, so: exactly one
+  # machine, always running. Do not `fly scale count` above 1.
+  auto_stop_machines = false
+  auto_start_machines = true
+  min_machines_running = 1
+
+  [[http_service.checks]]
+    path = "/healthz"
+    interval = "30s"
+    timeout = "5s"
+    grace_period = "20s"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  # pyarrow + duckdb + splink need headroom beyond the 256mb default.
+  memory = "1gb"
