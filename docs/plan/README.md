@@ -1,6 +1,6 @@
 # VC Early-Signal Deal-Sourcing Platform — Plan
 
-A tool for a VC fund to discover **pre-VC teams** (often pre-incorporation) from public signals, link every signal to a golden person record with confidence-scored entity resolution, score teams+ventures against the fund's thesis and an editable "ideal candidate", rank them in a UI, generate investment memos, and run consent-based AI interviews with finalists that fill data gaps and trigger rescoring.
+A tool for a VC fund to discover **pre-VC teams** (often pre-incorporation) from public signals, link every signal to a person record with confidence-scored entity resolution, score teams+ventures against the fund's thesis and an editable "ideal candidate", rank them in a UI, generate investment memos, and run consent-based AI interviews with finalists that fill data gaps and trigger rescoring.
 
 This directory is the **living plan**, split so we can build it iteratively and track progress with checklists. It is not final — we keep refining it.
 
