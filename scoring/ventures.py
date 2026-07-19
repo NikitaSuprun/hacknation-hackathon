@@ -20,12 +20,7 @@ from rapidfuzz import fuzz
 
 from contracts.interfaces import LLMClient
 from contracts.models import Json, SinkRow
-from er.normalize import (
-    HACKNATION_SOURCE,
-    hacknation_member_entries,
-    hacknation_project_keywords,
-    hacknation_user_id,
-)
+from er.normalize import HACKNATION_SOURCE, hacknation_member_entries, hacknation_user_id
 from scoring.snapshot import Row, SilverSnapshot, get_bool, get_float, require_str
 from scrapers.common.jsonutil import as_sink, get_list, get_map, get_str
 from tools import ids
@@ -358,7 +353,10 @@ def _hackathon_members(payload: dict[str, Json], person_of: Mapping[str, str]) -
             weight=weight,
             role_hint="founder" if is_author else (role or "member"),
             is_founder_guess=is_author,
-            evidence={"hacknation_role": "author" if is_author else (role or "member")},
+            evidence={
+                "source": HACKNATION_SOURCE,
+                "role": "author" if is_author else (role or "member"),
+            },
         )
         for person, role, is_author in picked
     ]
@@ -366,32 +364,54 @@ def _hackathon_members(payload: dict[str, Json], person_of: Mapping[str, str]) -
 
 def _hackathon_anchor(row: Row, members: list[MemberSeed]) -> _Anchor:
     """One venture anchor from a Hack Nation project detail payload."""
-    project_id = require_str(row, "project_id")
     payload = get_map(dict(row), "payload")
+    # The anchor is the silver.project row scrapers.hacknation.silver derives
+    # from this payload, so it carries that derived id and the same fields:
+    # market_tags are the pitch tags, while techStack lands in topics there.
+    project_id = ids.hacknation_project_id(require_str(row, "project_id"))
     return _Anchor(
         venture_id=ids.venture_id(ANCHOR_HACKATHON, project_id),
         anchor_type=ANCHOR_HACKATHON,
         anchor_id=project_id,
         name=get_str(payload, "title") or project_id,
         one_liner=get_str(payload, "summary"),
-        market_tags=tuple(sorted(hacknation_project_keywords(payload))),
+        market_tags=tuple(tag for tag in get_list(payload, "tags") if isinstance(tag, str)),
+        # A pitched repo is the storefront when the project ships no demo.
         website_url=get_str(payload, "demoUrl") or get_str(payload, "githubUrl"),
         members=tuple(members),
     )
 
 
-def _absorb_hackathon_members(anchor: _Anchor, members: list[MemberSeed]) -> _Anchor:
-    """Auto-merge on githubUrl: the repo anchor wins; only new persons append.
+def _hackathon_citation(seed: MemberSeed, hn_project_id: str) -> dict[str, Json]:
+    """The pitch provenance one repo member picks up: authorship or team role."""
+    if seed.is_founder_guess:
+        return {"hacknation_author": hn_project_id}
+    return {"hacknation_role": seed.role_hint}
 
-    Repo member rows stay byte-stable (weights untouched); HN members whose
-    person already contributes to the repo add no duplicate row, and the
-    shared-persons merge remains the backstop for everything else.
+
+def _absorb_hackathon_members(
+    anchor: _Anchor, members: list[MemberSeed], hn_project_id: str
+) -> _Anchor:
+    """Auto-merge on githubUrl: the repo anchor wins, cited by the pitch.
+
+    Repo member rows stay byte-stable (weights and role hints untouched) so a
+    merge cannot reshuffle an already-scored venture; a person on both sides
+    keeps the repo seed with the pitch citation folded into its evidence, and
+    only persons the repo does not already carry append. The shared-persons
+    merge remains the backstop for everything else.
     """
+    pitched = {seed.person_id: seed for seed in members}
     existing = {seed.person_id for seed in anchor.members}
+    kept: list[MemberSeed] = []
+    for seed in anchor.members:
+        pitch = pitched.get(seed.person_id)
+        if pitch is None:
+            kept.append(seed)
+            continue
+        citation = _hackathon_citation(pitch, hn_project_id)
+        kept.append(replace(seed, evidence=seed.evidence | citation))
     fresh = [seed for seed in members if seed.person_id not in existing]
-    if not fresh:
-        return anchor
-    return replace(anchor, members=(*anchor.members, *fresh))
+    return replace(anchor, members=(*kept, *fresh))
 
 
 def _repo_anchor_urls(projects: list[Row]) -> dict[str, str]:
@@ -422,6 +442,7 @@ def _extend_with_hackathon(
     }
     ordered = sorted(snapshot.hacknation_projects, key=lambda row: str(row.get("project_id")))
     for row in ordered:
+        hn_project_id = require_str(row, "project_id")
         payload = get_map(dict(row), "payload")
         members = _hackathon_members(payload, person_of)
         github_url = get_str(payload, "githubUrl")
@@ -429,7 +450,7 @@ def _extend_with_hackathon(
         target_project = url_to_project.get(repo_url) if repo_url is not None else None
         target = index_by_project.get(target_project) if target_project is not None else None
         if target is not None:
-            anchors[target] = _absorb_hackathon_members(anchors[target], members)
+            anchors[target] = _absorb_hackathon_members(anchors[target], members, hn_project_id)
         else:
             anchors.append(_hackathon_anchor(row, members))
 
@@ -459,7 +480,10 @@ def hackathon_extras(snapshot: SilverSnapshot, venture_row: Row) -> dict[str, Js
         return {}
     anchor_id = get_str(dict(venture_row), "anchor_id")
     for row in snapshot.hacknation_projects:
-        if row.get("project_id") != anchor_id:
+        # The anchor is a derived silver.project id; bronze stays keyed by the
+        # Hack Nation project key the detail payload was fetched under.
+        project_key = get_str(dict(row), "project_id")
+        if project_key is None or ids.hacknation_project_id(project_key) != anchor_id:
             continue
         payload = get_map(dict(row), "payload")
         return {
