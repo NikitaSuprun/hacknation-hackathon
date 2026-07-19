@@ -13,8 +13,10 @@ from datetime import date, datetime
 type Json = str | int | float | bool | None | list[Json] | dict[str, Json]
 """A parsed JSON value; the honest type for payloads, evidence, and raw rows."""
 
-type SinkValue = Json | datetime | date
-"""One sink cell: JSON plus the typed temporals the DDL columns expect."""
+type SinkValue = (
+    str | int | float | bool | None | datetime | date | list[SinkValue] | dict[str, SinkValue]
+)
+"""One sink cell: JSON shape plus typed temporals, at any nesting depth."""
 
 type SinkRow = dict[str, SinkValue]
 """One row in DDL column shape, as the Sink accepts it."""
@@ -25,7 +27,7 @@ class Cursor:
     """Per-source incremental position, persisted in ops.scrape_state."""
 
     source: str
-    state: Mapping[str, object]
+    state: Mapping[str, Json]
 
 
 @dataclass(frozen=True, slots=True)
@@ -33,7 +35,7 @@ class RawBatch:
     """One fetched batch of raw source payloads."""
 
     source: str
-    items: tuple[Mapping[str, object], ...]
+    items: tuple[Mapping[str, Json], ...]
 
 
 @dataclass(frozen=True, slots=True)
@@ -41,7 +43,7 @@ class BronzeRecord:
     """A validated row destined for one bronze table."""
 
     table: str
-    row: Mapping[str, object]
+    row: Mapping[str, SinkValue]
 
 
 @dataclass(frozen=True, slots=True)
@@ -97,7 +99,7 @@ class PersonSourceRecord:
     scraped_at: datetime
     ingested_at: datetime
 
-    def to_row(self) -> dict[str, object]:
+    def to_row(self) -> SinkRow:
         """Render as a sink-loadable row in DDL column order (tuples become lists).
 
         Returns:
@@ -222,7 +224,7 @@ class VentureView:
     one_liner: str | None
     anchor_type: str
     member_person_ids: tuple[str, ...]
-    extras: Mapping[str, object]
+    extras: Mapping[str, Json]
 
 
 @dataclass(frozen=True, slots=True)
@@ -238,5 +240,5 @@ class LLMResponse:
     """One model completion, parsed when a schema was requested."""
 
     text: str
-    parsed: Mapping[str, object] | None
+    parsed: Mapping[str, Json] | None
     model: str

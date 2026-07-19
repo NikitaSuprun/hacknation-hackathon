@@ -1,13 +1,12 @@
 # Copyright (c) 2026 Maschmeyer's Chosen Portfolio. All rights reserved.
 # Proprietary and confidential. See LICENSE.
-# pyright: basic
 """Validate the fixture JSONL offline: the T4 acceptance gate.
 
 Checks referential integrity, enum/CHECK validity, the one-active-link and
 one-is_latest invariants, unit-norm embeddings, payload-schema conformance,
-bronze-to-PSR derivability through tools.norm, deterministic-id recomputation
-through tools.ids, and the persona shapes each downstream workstream builds
-against. Runs in pyright basic mode: every row is dynamic JSON.
+bronze-to-PSR derivability through the normalizers, deterministic-id
+recomputation through tools.ids, and the persona shapes each downstream
+workstream builds against.
 """
 
 import json
@@ -17,13 +16,31 @@ from collections.abc import Iterable
 from pathlib import Path
 from typing import Final
 
+from contracts.models import Json
 from contracts.validation import payload_errors
 from fixtures.build import DATA_DIR
 from fixtures.fake_embedding import EMBEDDING_DIM, cosine
 from tools import ids, institutions, norm
 
-Row = dict[str, object]
+Row = dict[str, Json]
 Tables = dict[str, list[Row]]
+
+
+class RowShapeError(TypeError):
+    """Raised when a fixture line is not a JSON object."""
+
+    def __init__(self, line: str) -> None:
+        """Quote the offending line."""
+        super().__init__(f"fixture line is not a JSON object: {line[:80]!r}")
+
+
+def _parse_row(line: str) -> Row:
+    """Parse one JSONL line into a row."""
+    parsed: Json = json.loads(line)
+    if not isinstance(parsed, dict):
+        raise RowShapeError(line)
+    return parsed
+
 
 _PERSON_STATUSES: Final[frozenset[str]] = frozenset({"active", "merged", "erased"})
 _LINK_STATUSES: Final[frozenset[str]] = frozenset({"active", "retracted"})
@@ -66,13 +83,13 @@ def load_tables(data_dir: Path = DATA_DIR) -> Tables:
     """
     tables: Tables = {}
     for path in sorted(data_dir.glob("*.jsonl")):
-        rows = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line]
-        tables[path.stem] = rows
+        lines = path.read_text(encoding="utf-8").splitlines()
+        tables[path.stem] = [_parse_row(line) for line in lines if line]
     return tables
 
 
-def _ids_of(tables: Tables, table: str, column: str) -> set[object]:
-    return {row.get(column) for row in tables.get(table, [])}
+def _ids_of(tables: Tables, table: str, column: str) -> set[str]:
+    return {value for row in tables.get(table, []) if isinstance(value := row.get(column), str)}
 
 
 def _check_fk(tables: Tables) -> list[str]:
@@ -86,7 +103,7 @@ def _check_fk(tables: Tables) -> list[str]:
     weights = _ids_of(tables, "gold.score_weights", "weights_id")
     scores = _ids_of(tables, "gold.venture_score", "score_id")
     outreaches = _ids_of(tables, "gold.outreach", "outreach_id")
-    references: list[tuple[str, str, set[object]]] = [
+    references: list[tuple[str, str, set[str]]] = [
         ("silver.person_source_link", "person_id", persons),
         ("silver.person_source_link", "source_record_id", psrs),
         ("silver.contribution", "project_id", projects),
@@ -190,11 +207,11 @@ def _check_link_invariants(tables: Tables) -> list[str]:
     return errors
 
 
-def _floats(values: Iterable[object]) -> list[float]:
+def _floats(values: Iterable[Json]) -> list[float]:
     return [float(v) for v in values if isinstance(v, int | float)]
 
 
-def _embedding_error(table: str, column: str, vector: object) -> str | None:
+def _embedding_error(table: str, column: str, vector: Json) -> str | None:
     if not isinstance(vector, list) or len(vector) != EMBEDDING_DIM:
         return f"{table}.{column}: not a {EMBEDDING_DIM}-dim vector"
     components = _floats(vector)

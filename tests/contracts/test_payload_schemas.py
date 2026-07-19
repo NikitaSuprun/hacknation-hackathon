@@ -8,28 +8,29 @@ from typing import Final
 
 import pytest
 
+from contracts.models import Json
 from contracts.validation import PAYLOAD_SCHEMAS, check_schema, payload_errors
 
 INVALID_DIR: Final[Path] = Path(__file__).resolve().parent / "data" / "invalid"
 
-_EVIDENCE: Final[dict[str, object]] = {
+_EVIDENCE: Final[dict[str, Json]] = {
     "claim": "8,200 stars in 4 months",
     "source_url": "https://github.com/grasplab/grasp-anything",
     "source_type": "github",
 }
 
-_CITED_BULLET: Final[dict[str, object]] = {
+_CITED_BULLET: Final[dict[str, Json]] = {
     "text": "Repo reached 8,200 stars in 4 months.",
     "evidence": [_EVIDENCE],
 }
 
-_MISSING_BULLET: Final[dict[str, object]] = {
+_MISSING_BULLET: Final[dict[str, Json]] = {
     "text": "Revenue unknown.",
     "missing": True,
     "gap_field": "traction.revenue",
 }
 
-_VALID_SAMPLES: Final[dict[str, dict[str, object]]] = {
+_VALID_SAMPLES: Final[dict[str, dict[str, Json]]] = {
     "evidence": _EVIDENCE,
     "breakdown": {
         "schema_version": 1,
@@ -98,5 +99,5 @@ def test_valid_sample_passes(name: str) -> None:
 
 @pytest.mark.parametrize(("name", "filename"), _INVALID_CASES)
 def test_violating_payload_fails(name: str, filename: str) -> None:
-    payload: object = json.loads((INVALID_DIR / filename).read_text(encoding="utf-8"))
+    payload: Json = json.loads((INVALID_DIR / filename).read_text(encoding="utf-8"))
     assert payload_errors(name, payload) != []

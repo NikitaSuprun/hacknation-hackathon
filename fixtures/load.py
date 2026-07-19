@@ -1,6 +1,5 @@
 # Copyright (c) 2026 Maschmeyer's Chosen Portfolio. All rights reserved.
 # Proprietary and confidential. See LICENSE.
-# pyright: basic
 """Load the fixture JSONL into dealflow_dev through the shared sink (T5).
 
 Validates first, coerces every cell to its DDL type via the registry (no
@@ -13,6 +12,7 @@ import sys
 from pathlib import Path
 from typing import Final
 
+from contracts.models import Json, SinkRow
 from fixtures.build import DATA_DIR, LENA
 from fixtures.validate import Tables, load_tables, validate
 from tools.db import DatabricksSink
@@ -39,7 +39,7 @@ _VIEW_QUERIES: Final[tuple[tuple[str, str], ...]] = (
 )
 
 
-def typed_rows(table: str, rows: list[dict[str, object]]) -> list[dict[str, object]]:
+def typed_rows(table: str, rows: list[dict[str, Json]]) -> list[SinkRow]:
     """Coerce JSONL cells to their DDL types (timestamps/dates at any depth).
 
     Args:

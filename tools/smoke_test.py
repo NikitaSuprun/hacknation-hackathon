@@ -7,11 +7,12 @@ records which databricks-claude-* endpoints resolve, so the Anthropic-API
 fallback decision is grounded in observed availability, not the docs.
 """
 
+import contextlib
 import sys
 from typing import Final
 
 from tools.settings import load_databricks_settings
-from tools.warehouse import Warehouse
+from tools.warehouse import Warehouse, WarehouseError
 
 EMBEDDING_MODEL: Final[str] = "databricks-gte-large-en"
 EMBEDDING_DIM: Final[int] = 1024
@@ -38,11 +39,10 @@ def _embedding_dim(warehouse: Warehouse) -> int:
 
 
 def _claude_resolves(warehouse: Warehouse, endpoint: str) -> bool:
-    try:
+    with contextlib.suppress(WarehouseError):
         warehouse.execute(f"SELECT ai_query('{endpoint}', 'Reply with the word OK')")
-    except Exception:  # noqa: BLE001 - any failure means the endpoint is unavailable here
-        return False
-    return True
+        return True
+    return False
 
 
 def main() -> int:

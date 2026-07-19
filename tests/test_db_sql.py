@@ -5,7 +5,7 @@
 from typing import Final
 
 from contracts.interfaces import Sink
-from contracts.models import UpsertResult
+from contracts.models import SinkRow, UpsertResult
 from tools._arrow import arrow_schema
 from tools.db import (
     SUPPRESSION_RULES,
@@ -42,7 +42,7 @@ def test_content_hash_is_stable_and_order_insensitive() -> None:
 
 
 def test_prepare_rows_encodes_variants_only() -> None:
-    rows: list[dict[str, object]] = [{"id": 1, "payload": {"b": 1, "a": 2}, "note": None}]
+    rows: list[SinkRow] = [{"id": 1, "payload": {"b": 1, "a": 2}, "note": None}]
     prepared = prepare_rows(rows, frozenset({"payload", "note"}))
     assert prepared[0]["payload"] == '{"a":2,"b":1}'
     assert prepared[0]["note"] is None
@@ -108,7 +108,7 @@ def test_psr_suppression_uses_per_row_source() -> None:
 
 def test_stage_table_builds_ddl_typed_columns() -> None:
     columns = ["project_id", "stars", "languages", "topics"]
-    rows: list[dict[str, object]] = [
+    rows: list[SinkRow] = [
         {
             "project_id": "p1",
             "stars": 8200,

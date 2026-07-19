@@ -19,11 +19,13 @@ from contracts.models import (
     FeatureBundle,
     FundingStatus,
     InstitutionScore,
+    Json,
     LLMResponse,
     PersonRef,
     PersonSourceRecord,
     RawBatch,
     RunResult,
+    SinkRow,
     UpsertResult,
     VentureView,
 )
@@ -53,7 +55,7 @@ class Sink(Protocol):
     def upsert(
         self,
         table: str,
-        rows: list[dict[str, object]],
+        rows: list[SinkRow],
         keys: list[str],
         *,
         variant_cols: frozenset[str] = frozenset(),
@@ -78,7 +80,7 @@ class LLMClient(Protocol):
         self,
         prompt: str,
         *,
-        schema: Mapping[str, object] | None = None,
+        schema: Mapping[str, Json] | None = None,
         model: str | None = None,
     ) -> LLMResponse:
         """Run one completion, JSON-schema-constrained when a schema is given."""

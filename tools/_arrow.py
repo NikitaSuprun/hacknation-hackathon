@@ -16,6 +16,7 @@ from typing import Final
 import pyarrow as pa
 import pyarrow.parquet as pq
 
+from contracts.models import SinkRow
 from tools.ddl_registry import Array, DdlType, MapType, Scalar, Struct, TableSchema
 
 _SCALAR_ARROW: Final[dict[str, pa.DataType]] = {
@@ -72,7 +73,7 @@ def arrow_schema(schema: TableSchema, columns: Sequence[str]) -> pa.Schema:
     return pa.schema([pa.field(c, arrow_type(schema.column_type(c))) for c in columns])
 
 
-def stage_table(rows: list[dict[str, object]], schema: pa.Schema, table: str) -> pa.Table:
+def stage_table(rows: list[SinkRow], schema: pa.Schema, table: str) -> pa.Table:
     """Build the Arrow table for a prepared batch against an explicit schema.
 
     Args:

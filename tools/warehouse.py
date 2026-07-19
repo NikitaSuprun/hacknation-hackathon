@@ -13,8 +13,13 @@ from typing import Final, Protocol, cast
 import databricks.sql as dbsql  # pyright: ignore[reportMissingTypeStubs] - vendor ships no stubs
 from databricks.sdk.core import Config
 from databricks.sdk.credentials_provider import OAuthCredentialsProvider, oauth_service_principal
+from databricks.sql.exc import (  # pyright: ignore[reportMissingTypeStubs] - vendor ships no stubs
+    Error as WarehouseError,
+)
 
 from tools.settings import DatabricksSettings
+
+__all__ = ["CursorLike", "Warehouse", "WarehouseError"]
 
 
 class CursorLike(Protocol):

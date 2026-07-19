@@ -16,6 +16,8 @@ from functools import cache
 from pathlib import Path
 from typing import Final, Literal, cast
 
+from contracts.models import Json, SinkValue
+
 DDL_DIR: Final[Path] = Path(__file__).resolve().parent.parent / "schemas" / "ddl"
 
 type ScalarKind = Literal[
@@ -284,7 +286,7 @@ def table_schema(table: str) -> TableSchema:
     return found
 
 
-def coerce(value: object, ddl_type: DdlType) -> object:
+def coerce(value: Json, ddl_type: DdlType) -> SinkValue:
     """Convert JSONL cell values to their DDL types, at any nesting depth.
 
     ISO strings become datetime/date for TIMESTAMP/DATE columns - including
@@ -305,25 +307,27 @@ def coerce(value: object, ddl_type: DdlType) -> object:
             parsed = datetime.fromisoformat(value)
             return parsed if kind == "timestamp" else date.fromisoformat(value)
         case Array(element=element) if isinstance(value, list):
-            return _coerce_items(cast("list[object]", value), element)
+            return _coerce_items(value, element)
         case MapType(value=value_type) if isinstance(value, dict):
-            return _coerce_mapping(cast("dict[object, object]", value), value_type)
+            return _coerce_mapping(value, value_type)
         case Struct(fields=fields) if isinstance(value, dict):
-            return _coerce_struct(cast("dict[object, object]", value), fields)
+            return _coerce_struct(value, fields)
         case _:
-            return value
+            # Json is a semantic subset of SinkValue; the cast bridges the
+            # container invariance the type system cannot see through.
+            return cast("SinkValue", value)
 
 
-def _coerce_items(values: Iterable[object], element: DdlType) -> list[object]:
+def _coerce_items(values: Iterable[Json], element: DdlType) -> list[SinkValue]:
     return [coerce(item, element) for item in values]
 
 
-def _coerce_mapping(mapping: Mapping[object, object], value_type: DdlType) -> dict[str, object]:
-    return {str(key): coerce(item, value_type) for key, item in mapping.items()}
+def _coerce_mapping(mapping: Mapping[str, Json], value_type: DdlType) -> dict[str, SinkValue]:
+    return {key: coerce(item, value_type) for key, item in mapping.items()}
 
 
 def _coerce_struct(
-    mapping: Mapping[object, object], fields: tuple[tuple[str, DdlType], ...]
-) -> dict[str, object]:
+    mapping: Mapping[str, Json], fields: tuple[tuple[str, DdlType], ...]
+) -> dict[str, SinkValue]:
     field_types = dict(fields)
-    return {str(key): coerce(item, field_types[str(key)]) for key, item in mapping.items()}
+    return {key: coerce(item, field_types[key]) for key, item in mapping.items()}

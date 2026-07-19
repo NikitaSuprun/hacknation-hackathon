@@ -5,6 +5,7 @@
 from datetime import UTC, date, datetime
 from typing import Final
 
+from contracts.models import Json
 from fixtures.build import DATA_DIR
 from fixtures.validate import load_tables
 from tools._arrow import arrow_schema
@@ -120,7 +121,7 @@ def test_coerce_handles_nested_temporals_and_variant_passthrough() -> None:
     incorporation = table_schema("silver.company").column_type("incorporation_date")
     assert coerce("2026-06-20", incorporation) == date(2026, 6, 20)
     payload_type = table_schema("bronze.github_users_raw").column_type("payload")
-    payload = {"created_at": "2026-01-01T00:00:00+00:00"}
+    payload: Json = {"created_at": "2026-01-01T00:00:00+00:00"}
     assert coerce(payload, payload_type) == payload
 
 

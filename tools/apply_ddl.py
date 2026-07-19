@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import Final
 
 from tools.settings import load_databricks_settings
-from tools.warehouse import CursorLike, Warehouse
+from tools.warehouse import CursorLike, Warehouse, WarehouseError
 
 DDL_DIR: Final[Path] = Path(__file__).resolve().parent.parent / "schemas" / "ddl"
 DEFAULT_CATALOGS: Final[tuple[str, str]] = ("dealflow_dev", "dealflow")
@@ -80,7 +80,7 @@ def _execute_statement(cursor: CursorLike, statement: str) -> bool:
     """Run one statement; report False when skipped as already-applied."""
     try:
         cursor.execute(statement)
-    except Exception as error:
+    except WarehouseError as error:
         if not is_skippable_error(statement, str(error)):
             raise
         return False
