@@ -74,9 +74,20 @@ def test_ai_query_complete_sql_is_golden_and_escaped() -> None:
     runner = FakeRunner([('{"score": 80}',)])
     client = AiQueryLLMClient(runner)
     response = client.complete("It's a test", schema={"type": "object"})
-    assert runner.statements == ["SELECT ai_query('databricks-claude-sonnet-4-6', 'It''s a test')"]
+    # A schema must reach the model as responseFormat, or ai_query answers prose.
+    assert runner.statements == [
+        "SELECT ai_query('databricks-claude-sonnet-4-6', 'It''s a test', "
+        'responseFormat => \'{"type": "json_schema", "json_schema": '
+        '{"name": "response", "schema": {"type": "object"}, "strict": false}}\')'
+    ]
     assert response.parsed == {"score": 80}
     assert response.model == "databricks-claude-sonnet-4-6"
+
+
+def test_ai_query_without_schema_sends_no_response_format() -> None:
+    runner = FakeRunner([("plain",)])
+    AiQueryLLMClient(runner).complete("TASK:x")
+    assert runner.statements == ["SELECT ai_query('databricks-claude-sonnet-4-6', 'TASK:x')"]
 
 
 def test_ai_query_without_schema_leaves_parsed_none() -> None:

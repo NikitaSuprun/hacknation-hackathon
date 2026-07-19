@@ -32,6 +32,9 @@ _CHECK_SCHEMA: Final[Callable[[dict[str, Json]], None]] = cast(
 
 SCHEMA_DIR: Final[Path] = Path(__file__).resolve().parent / "schemas"
 
+_SCHEMA_BASE_URI: Final[str] = "https://dealflow.internal/schemas/"
+_META_KEYS: Final[frozenset[str]] = frozenset({"$schema", "$id"})
+
 PAYLOAD_SCHEMAS: Final[tuple[str, str, str, str, str]] = (
     "evidence",
     "breakdown",
@@ -69,6 +72,41 @@ def load_schema(name: str) -> dict[str, Json]:
     if not isinstance(parsed, dict):
         raise TypeError(name)
     return parsed
+
+
+def bundled_schema(name: str) -> dict[str, Json]:
+    """One payload schema with cross-file $refs inlined.
+
+    Validation resolves `$ref`s through the registry, but consumers that only
+    see the JSON text — notably LLM structured-output APIs — cannot fetch
+    another file, and silently invent the referenced shape. Inlining keeps
+    the single source of truth in contracts/schemas.
+
+    Args:
+        name: The payload schema name.
+
+    Returns:
+        A self-contained schema.
+    """
+    return _inline_refs(load_schema(name))
+
+
+def _inline_refs(node: Json) -> dict[str, Json]:
+    inlined = _walk(node)
+    return inlined if isinstance(inlined, dict) else {}
+
+
+def _walk(node: Json) -> Json:
+    if isinstance(node, list):
+        return [_walk(item) for item in node]
+    if not isinstance(node, dict):
+        return node
+    ref = node.get("$ref")
+    if isinstance(ref, str) and ref.startswith(_SCHEMA_BASE_URI):
+        target = load_schema(ref.removeprefix(_SCHEMA_BASE_URI).removesuffix(".schema.json"))
+        body = {key: value for key, value in target.items() if key not in _META_KEYS}
+        return _walk(cast("Json", body))
+    return {key: _walk(value) for key, value in node.items()}
 
 
 def check_schema(name: str) -> None:

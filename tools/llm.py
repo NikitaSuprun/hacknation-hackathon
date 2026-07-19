@@ -172,6 +172,23 @@ def resolve_endpoint(preferred: str) -> str:
     return os.environ.get(ENDPOINT_OVERRIDE_ENV) or preferred
 
 
+def _response_format(schema: Mapping[str, Json]) -> str:
+    """The ai_query responseFormat envelope for a JSON schema.
+
+    Args:
+        schema: A self-contained JSON schema (inline every $ref first).
+
+    Returns:
+        The JSON string ai_query expects.
+    """
+    return json.dumps(
+        {
+            "type": "json_schema",
+            "json_schema": {"name": "response", "schema": dict(schema), "strict": False},
+        }
+    )
+
+
 def _sql_quote(value: str) -> str:
     return "'" + value.replace("\\", "\\\\").replace("'", "''") + "'"
 
@@ -253,9 +270,10 @@ class AiQueryLLMClient:
             EmptyAiQueryResultError: If the statement returned no row.
         """
         endpoint = resolve_endpoint(model or self._default_model)
-        rows = self._runner.execute(
-            f"SELECT ai_query({_sql_quote(endpoint)}, {_sql_quote(prompt)})"
-        )
+        arguments = f"{_sql_quote(endpoint)}, {_sql_quote(prompt)}"
+        if schema is not None:
+            arguments += f", responseFormat => {_sql_quote(_response_format(schema))}"
+        rows = self._runner.execute(f"SELECT ai_query({arguments})")
         if not rows or rows[0][0] is None:
             raise EmptyAiQueryResultError(endpoint)
         text = str(rows[0][0])

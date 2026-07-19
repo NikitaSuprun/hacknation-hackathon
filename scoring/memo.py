@@ -16,7 +16,7 @@ from typing import Final
 
 from contracts.interfaces import LLMClient
 from contracts.models import Json, SinkRow
-from contracts.validation import load_schema, payload_errors
+from contracts.validation import bundled_schema, payload_errors
 from scoring.snapshot import Row, get_bool
 from scrapers.common.jsonutil import as_list, as_mapping, as_sink, get_str
 from tools.db import canonical_json
@@ -148,7 +148,7 @@ def build_memo(
         "least one source_url or be marked missing with the gap_field that "
         "feeds the interview.\n" + canonical_json(dict(request.context))
     )
-    response = llm.complete(prompt, schema=load_schema("memo"))
+    response = llm.complete(prompt, schema=bundled_schema("memo"))
     if response.parsed is None:
         raise MemoInvalidError([])
     sections: dict[str, Json] = dict(response.parsed)

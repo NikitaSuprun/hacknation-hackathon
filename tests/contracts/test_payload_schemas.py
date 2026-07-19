@@ -9,7 +9,13 @@ from typing import Final
 import pytest
 
 from contracts.models import Json
-from contracts.validation import PAYLOAD_SCHEMAS, check_schema, payload_errors
+from contracts.validation import (
+    PAYLOAD_SCHEMAS,
+    bundled_schema,
+    check_schema,
+    payload_errors,
+)
+from scrapers.common.jsonutil import as_mapping
 
 INVALID_DIR: Final[Path] = Path(__file__).resolve().parent / "data" / "invalid"
 
@@ -101,3 +107,17 @@ def test_valid_sample_passes(name: str) -> None:
 def test_violating_payload_fails(name: str, filename: str) -> None:
     payload: Json = json.loads((INVALID_DIR / filename).read_text(encoding="utf-8"))
     assert payload_errors(name, payload) != []
+
+
+def test_bundled_schema_inlines_cross_file_evidence_refs() -> None:
+    # LLM structured-output APIs cannot fetch another schema file; an
+    # unresolved $ref makes the model invent the evidence shape.
+    bundled = bundled_schema("memo")
+    text = json.dumps(bundled)
+    assert "evidence.schema.json" not in text
+    defs = as_mapping(bundled["$defs"])
+    bullet = as_mapping(defs["bullet"])
+    evidence = as_mapping(as_mapping(bullet["properties"])["evidence"])
+    items = as_mapping(evidence["items"])
+    assert items["required"] == ["claim", "source_url"]
+    assert "$id" not in items
