@@ -1,8 +1,8 @@
 # Copyright (c) 2026 Maschmeyer's Chosen Portfolio. All rights reserved.
 # Proprietary and confidential. See LICENSE.
-"""Normalizer behavior the ER pipeline depends on: diacritics, noreply, aliases."""
+"""Mechanical normalizer behavior: diacritics, noreply bans, suffix stripping."""
 
-from tools.norm import email_domain, email_norm, name_norm, org_norm, url_norm
+from tools.norm import email_domain, email_norm, name_norm, org_key, url_norm
 
 
 def test_name_norm_strips_diacritics_and_titles() -> None:
@@ -37,23 +37,17 @@ def test_email_domain_blocking_key() -> None:
     assert email_domain("info@grasplab.ch") is None
 
 
-def test_org_norm_folds_eth_aliases() -> None:
-    assert org_norm("ETHZ") == "eth zurich"
-    assert org_norm("ETH Zürich") == "eth zurich"
-    assert org_norm("Eidgenössische Technische Hochschule Zürich") == "eth zurich"
-    assert org_norm("Swiss Federal Institute of Technology") == "eth zurich"
+def test_org_key_strips_legal_suffixes_and_accents() -> None:
+    assert org_key("GraspLab AG") == "grasplab"
+    assert org_key("Fluxon Robotics GmbH") == "fluxon robotics"
+    assert org_key("Acme Sàrl") == "acme"
+    assert org_key("ETH Zürich") == "eth zurich"
 
 
-def test_org_norm_strips_legal_suffixes() -> None:
-    assert org_norm("GraspLab AG") == "grasplab"
-    assert org_norm("Fluxon Robotics GmbH") == "fluxon robotics"
-    assert org_norm("Acme Sàrl") == "acme"
-
-
-def test_org_norm_folds_epfl_uzh_mit() -> None:
-    assert org_norm("École Polytechnique Fédérale de Lausanne") == "epfl"
-    assert org_norm("Universität Zürich") == "university of zurich"
-    assert org_norm("Massachusetts Institute of Technology") == "mit"
+def test_org_key_is_mechanical_only() -> None:
+    # Semantic folding (ETHZ -> ETH Zurich) lives in tools.institutions.
+    assert org_key("ETHZ") == "ethz"
+    assert org_key("Universität Zürich") == "universitat zurich"
 
 
 def test_url_norm_equalizes_variants() -> None:

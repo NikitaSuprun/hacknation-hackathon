@@ -17,8 +17,18 @@ from pathlib import Path
 from typing import Final
 
 from fixtures.fake_embedding import fake_embedding
-from tools import ids, norm
+from tools import ids, institutions, norm
 from tools.db import content_hash
+from tools.institutions import InstitutionRecord
+
+
+class MissingInstitutionError(LookupError):
+    """Raised when a fixture institution is absent from the ROR seed."""
+
+    def __init__(self, query: str) -> None:
+        """Name the unresolved institution."""
+        super().__init__(f"{query} does not resolve; extend data/institutions/seed_queries.txt")
+
 
 Row = dict[str, object]
 Tables = dict[str, list[Row]]
@@ -334,7 +344,7 @@ def _papers_bronze() -> Tables:
                             },
                             "institutions": [
                                 {
-                                    "ror": "https://ror.org/026zzn846",
+                                    "ror": "https://ror.org/026vcq606",
                                     "display_name": "KTH Royal Institute of Technology",
                                 }
                             ],
@@ -447,7 +457,7 @@ def _psr(  # noqa: PLR0913 - a PSR row simply has this many contract fields
         "linkedin_url": linkedin_url,
         "twitter_handle": twitter_handle,
         "affiliation_raw": affiliation_raw,
-        "org_norm": norm.org_norm(affiliation_raw) if affiliation_raw else None,
+        "org_norm": institutions.org_norm(affiliation_raw) if affiliation_raw else None,
         "location_raw": location_raw,
         "country_code": country_code,
         "keywords": keywords or [],
@@ -1671,14 +1681,23 @@ def _gold() -> Tables:
     }
 
 
+def _resolved_university(query: str) -> InstitutionRecord:
+    record = institutions.resolve(query)
+    if record is None:
+        raise MissingInstitutionError(query)
+    return record
+
+
 def _institution_scores() -> list[Row]:
+    # ROR ids, canonical names, and aliases come from the resolver seed;
+    # only the calibration numbers are fixture-owned.
     universities = [
-        ("MIT", "https://ror.org/042nb2s44", 1.00, 1.00, 100.0),
-        ("ETH Zurich", "https://ror.org/05a28rw58", 0.95, 0.99, 97.0),
-        ("Stanford University", "https://ror.org/00f54p054", 1.00, 1.00, 100.0),
-        ("EPFL", "https://ror.org/02s376052", 0.90, 0.96, 93.0),
-        ("KTH", "https://ror.org/026zzn846", 0.82, 0.82, 82.0),
-        ("University of Zurich", "https://ror.org/02crff812", 0.75, 0.75, 75.0),
+        ("Massachusetts Institute of Technology", 1.00, 1.00, 100.0),
+        ("ETH Zurich", 0.95, 0.99, 97.0),
+        ("Stanford University", 1.00, 1.00, 100.0),
+        ("EPFL", 0.90, 0.96, 93.0),
+        ("KTH", 0.82, 0.82, 82.0),
+        ("University of Zurich", 0.75, 0.75, 75.0),
     ]
     companies = [
         ("GOOGLE", 0.98, 0.98, 98.0),
@@ -1687,20 +1706,22 @@ def _institution_scores() -> list[Row]:
         ("ABB", 0.55, 0.45, 50.0),
     ]
     rows: list[Row] = []
-    for name, ror, prestige, outcome, score in universities:
+    for query, prestige, outcome, score in universities:
+        record = _resolved_university(query)
+        aliases = sorted({norm.org_key(a) for a in (record.name, *record.aliases)} - {""})
         rows.append(
             {
-                "institution_id": ids.institution_id(ror),
+                "institution_id": ids.institution_id(record.ror_id),
                 "kind": "university",
-                "canonical_name": name,
-                "aliases": [norm.org_norm(name)],
-                "ror_id": ror,
+                "canonical_name": record.name,
+                "aliases": aliases,
+                "ror_id": record.ror_id,
                 "prestige": prestige,
                 "outcome": outcome,
                 "score": score,
                 "provenance": {
                     "seed": "ws0-fixture",
-                    "sources": ["leiden-open-cc0", "hand-curated"],
+                    "sources": ["ror-cc0", "leiden-open-cc0", "hand-curated"],
                 },
                 "updated_at": T_UPDATED,
             }
@@ -1711,7 +1732,7 @@ def _institution_scores() -> list[Row]:
                 "institution_id": ids.institution_id(name),
                 "kind": "company",
                 "canonical_name": name,
-                "aliases": [norm.org_norm(name)],
+                "aliases": [norm.org_key(name)],
                 "ror_id": None,
                 "prestige": prestige,
                 "outcome": outcome,

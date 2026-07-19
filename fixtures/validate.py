@@ -20,7 +20,7 @@ from typing import Final
 from contracts.validation import payload_errors
 from fixtures.build import DATA_DIR
 from fixtures.fake_embedding import EMBEDDING_DIM, cosine
-from tools import ids, norm
+from tools import ids, institutions, norm
 
 Row = dict[str, object]
 Tables = dict[str, list[Row]]
@@ -253,7 +253,9 @@ def _check_bronze_consistency(tables: Tables) -> list[str]:
             if row.get("email_norms") != expected:
                 errors.append(f"psr {source_key}: email_norms do not recompute")
         affiliation = row.get("affiliation_raw")
-        if isinstance(affiliation, str) and row.get("org_norm") != norm.org_norm(affiliation):
+        if isinstance(affiliation, str) and row.get("org_norm") != institutions.org_norm(
+            affiliation
+        ):
             errors.append(f"psr {source_key}: org_norm does not recompute")
     return errors
 

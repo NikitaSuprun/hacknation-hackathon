@@ -10,6 +10,15 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import date, datetime
 
+type Json = str | int | float | bool | None | list[Json] | dict[str, Json]
+"""A parsed JSON value; the honest type for payloads, evidence, and raw rows."""
+
+type SinkValue = Json | datetime | date
+"""One sink cell: JSON plus the typed temporals the DDL columns expect."""
+
+type SinkRow = dict[str, SinkValue]
+"""One row in DDL column shape, as the Sink accepts it."""
+
 
 @dataclass(frozen=True, slots=True)
 class Cursor:

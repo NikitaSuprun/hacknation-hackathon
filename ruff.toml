@@ -25,3 +25,6 @@ runtime-evaluated-decorators = ["dataclasses.dataclass"]
 "tools/db.py" = ["S608"]
 "tools/verify_merge.py" = ["S608"]
 "fixtures/load.py" = ["S608"]
+# S310 audits urlopen schemes; this script only ever calls the fixed https
+# ROR API endpoint.
+"tools/build_institutions.py" = ["S310"]
