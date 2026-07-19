@@ -7,10 +7,12 @@ verify-merge = "uv run python -m tools.verify_merge"
 fixtures-build = "uv run python -m fixtures.build"
 fixtures-validate = "uv run python -m fixtures.validate"
 fixtures-load = "uv run python -m fixtures.load"
+scrape-github = "uv run python -m scrapers.github"
+scrape-papers = "uv run python -m scrapers.papers"
 
 # The allowlist enumerates observed spellings of permissive licenses only;
 # GPL/AGPL/SSPL or non-commercial terms must fail the check.
-licenses-check = "uv run pip-licenses --ignore-packages dealflow '--allow-only=MIT;MIT License;MIT-0;BSD License;3-Clause BSD License;BSD-2-Clause;BSD-3-Clause;BSD-3-Clause AND 0BSD AND MIT AND Zlib AND CC0-1.0;Apache Software License;Apache License 2.0;Apache-2.0;Apache-2.0 OR BSD-2-Clause;Apache-2.0 OR BSD-3-Clause;Apache Software License; BSD License;ISC License (ISCL);ISC;Mozilla Public License 2.0 (MPL 2.0);Python Software Foundation License;The Unlicense (Unlicense);CMU License (MIT-CMU)'"
+licenses-check = "uv run pip-licenses --ignore-packages dealflow '--allow-only=MIT;MIT License;MIT-0;MIT OR Apache-2.0;BSD License;3-Clause BSD License;BSD-2-Clause;BSD-3-Clause;BSD-3-Clause AND 0BSD AND MIT AND Zlib AND CC0-1.0;Apache Software License;Apache License 2.0;Apache-2.0;Apache-2.0 OR BSD-2-Clause;Apache-2.0 OR BSD-3-Clause;Apache Software License; BSD License;ISC License (ISCL);ISC;Mozilla Public License 2.0 (MPL 2.0);Python Software Foundation License;PSF-2.0;The Unlicense (Unlicense);CMU License (MIT-CMU)'"
 
 [tasks.licenses]
 sequence = [
