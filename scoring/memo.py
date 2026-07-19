@@ -33,6 +33,7 @@ MEMO_SECTION_NAMES: Final[tuple[str, ...]] = (
     "traction_and_kpis",
 )
 MEMO_STATUS_DRAFT: Final[str] = "draft"
+REPAIR_ERROR_LIMIT: Final[int] = 12
 
 
 class MemoInvalidError(ValueError):
@@ -121,6 +122,45 @@ def _flip_latest(prior_memos: tuple[Row, ...], venture_id: str) -> tuple[SinkRow
     return tuple(flipped)
 
 
+def _sections_or_errors(prompt: str, llm: LLMClient) -> tuple[dict[str, Json], list[str]]:
+    response = llm.complete(prompt, schema=bundled_schema("memo"))
+    if response.parsed is None:
+        return {}, ["memo response was not a JSON object"]
+    sections: dict[str, Json] = dict(response.parsed)
+    return sections, payload_errors("memo", sections)
+
+
+def _generate_sections(prompt: str, llm: LLMClient) -> dict[str, Json]:
+    """Generate schema-valid sections, repairing one bad response.
+
+    Structured output is enforced but not infallible — models occasionally
+    omit a required property — so a violating answer is sent back with its
+    validation errors once before giving up.
+
+    Args:
+        prompt: The memo prompt.
+        llm: The LLM seam.
+
+    Returns:
+        The validated sections.
+
+    Raises:
+        MemoInvalidError: If the repair attempt still violates the schema.
+    """
+    sections, errors = _sections_or_errors(prompt, llm)
+    if not errors:
+        return sections
+    repair = (
+        f"{prompt}\n\nYour previous answer violated the schema:\n"
+        + "\n".join(errors[:REPAIR_ERROR_LIMIT])
+        + "\nReturn the corrected JSON only."
+    )
+    sections, errors = _sections_or_errors(repair, llm)
+    if errors:
+        raise MemoInvalidError(errors)
+    return sections
+
+
 def build_memo(
     request: MemoRequest,
     *,
@@ -137,10 +177,8 @@ def build_memo(
         id_factory: Injected id source for memo_id.
 
     Returns:
-        The memo row plus is_latest flips of prior memos.
-
-    Raises:
-        MemoInvalidError: If the response violates the memo schema.
+        The memo row plus is_latest flips of prior memos (a response that
+        still violates the schema after one repair raises MemoInvalidError).
     """
     prompt = (
         f"TASK:memo venture={request.venture_id}\n"
@@ -148,13 +186,7 @@ def build_memo(
         "least one source_url or be marked missing with the gap_field that "
         "feeds the interview.\n" + canonical_json(dict(request.context))
     )
-    response = llm.complete(prompt, schema=bundled_schema("memo"))
-    if response.parsed is None:
-        raise MemoInvalidError([])
-    sections: dict[str, Json] = dict(response.parsed)
-    errors = payload_errors("memo", sections)
-    if errors:
-        raise MemoInvalidError(errors)
+    sections = _generate_sections(prompt, llm)
     assert_all_bullets_cited(sections)
     row: SinkRow = {
         "memo_id": id_factory(),

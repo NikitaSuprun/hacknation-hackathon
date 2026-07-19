@@ -78,7 +78,7 @@ def test_ai_query_complete_sql_is_golden_and_escaped() -> None:
     assert runner.statements == [
         "SELECT ai_query('databricks-claude-sonnet-4-6', 'It''s a test', "
         'responseFormat => \'{"type": "json_schema", "json_schema": '
-        '{"name": "response", "schema": {"type": "object"}, "strict": false}}\')'
+        '{"name": "response", "schema": {"type": "object"}, "strict": true}}\')'
     ]
     assert response.parsed == {"score": 80}
     assert response.model == "databricks-claude-sonnet-4-6"

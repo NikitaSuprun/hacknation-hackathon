@@ -175,6 +175,9 @@ def resolve_endpoint(preferred: str) -> str:
 def _response_format(schema: Mapping[str, Json]) -> str:
     """The ai_query responseFormat envelope for a JSON schema.
 
+    Strict mode is on: without it the model treats required properties as
+    advisory and intermittently omits them.
+
     Args:
         schema: A self-contained JSON schema (inline every $ref first).
 
@@ -184,7 +187,7 @@ def _response_format(schema: Mapping[str, Json]) -> str:
     return json.dumps(
         {
             "type": "json_schema",
-            "json_schema": {"name": "response", "schema": dict(schema), "strict": False},
+            "json_schema": {"name": "response", "schema": dict(schema), "strict": True},
         }
     )
 
