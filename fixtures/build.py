@@ -9,7 +9,7 @@ holds by construction. Personas exercise the ER rules: P1 golden path across
 three sources, P2/P3 the unmergeable name twins, P4 commit-email, P5
 ORCID-only, P6 the retracted-link unmerge shape, plus noise repos for the
 venture-likeness gate. The Hack Nation trio (HN5 plug-in proof) replays its
-bronze rows through the real sources.hacknation normalizer and silver builder:
+bronze rows through the real scrapers.hacknation normalizer and silver builder:
 D7 links Lena by LinkedIn, D8 links Wei by the pitched repo, and Selin arrives
 as a new golden person with a parsed CV. Regenerate with `poe fixtures-build`;
 drift against the committed files fails CI.
@@ -24,8 +24,8 @@ from typing import Final, cast
 
 from contracts.models import BronzeRecord, Json, PersonSourceRecord, SinkValue
 from fixtures.fake_embedding import fake_embedding
-from sources.hacknation.normalizer import HacknationNormalizer, merge_psrs, psr_fragment_from_cv
-from sources.hacknation.silver import project_row as hacknation_project_row
+from scrapers.hacknation.normalizer import HacknationNormalizer, merge_psrs, psr_fragment_from_cv
+from scrapers.hacknation.silver import project_row as hacknation_project_row
 from tools import ids, institutions, norm
 from tools.db import content_hash
 from tools.institutions import InstitutionRecord
@@ -232,6 +232,14 @@ def _github_bronze() -> Tables:
                     "location": "Zurich, Switzerland",
                     "bio": "Robotics PhD building foundation models for grasping.",
                     "avatar_url": "https://avatars.example.com/u/501001",
+                    # The github side of the D7 spine: the same profile Lena
+                    # lists on Hack Nation, spelled without the www/trailing
+                    # slash so url_norm has something to reconcile.
+                    "socialAccounts": {
+                        "nodes": [
+                            {"provider": "LINKEDIN", "url": LENA_LINKEDIN_GITHUB_RAW},
+                        ]
+                    },
                 },
             ),
         },
@@ -475,7 +483,7 @@ def _zefix_bronze() -> Tables:
 def _hn_envelope(source_url: str, payload: dict[str, Json]) -> Row:
     """Bronze envelope with typed temporals so rows replay through the normalizer."""
     # Json is a semantic subset of SinkValue; the cast bridges the container
-    # invariance the type system cannot see through (sources.hacknation.bronze
+    # invariance the type system cannot see through (scrapers.hacknation.bronze
     # does the same).
     return {
         "payload": cast("SinkValue", payload),
@@ -625,7 +633,7 @@ def _selin_cv_extracted() -> dict[str, Json]:
 
 
 def _selin_cv_payload() -> dict[str, Json]:
-    """Mirror sources.hacknation.cv.cv_row's payload (parsed, so no raw_response)."""
+    """Mirror scrapers.hacknation.cv.cv_row's payload (parsed, so no raw_response)."""
     return {
         "cv_url": SELIN_CV_URL,
         "volume_path": f"/Volumes/dealflow_dev/ops/cv/hacknation/{HN_SELIN_USER}.pdf",

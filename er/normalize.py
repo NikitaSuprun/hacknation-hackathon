@@ -15,8 +15,19 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Final
 
-from contracts.models import Json, PersonSourceRecord
-from scrapers.common.jsonutil import as_mapping, get_int, get_list, get_map, get_str
+from contracts.models import BronzeRecord, Json, PersonSourceRecord, SinkValue
+from scrapers.common.jsonutil import as_mapping, as_sink, get_int, get_list, get_map, get_str
+from scrapers.hacknation.normalizer import (
+    PEOPLE_TABLE as HACKNATION_PEOPLE_TABLE,
+)
+from scrapers.hacknation.normalizer import (
+    PROJECTS_TABLE as HACKNATION_PROJECTS_TABLE,
+)
+from scrapers.hacknation.normalizer import (
+    HacknationNormalizer,
+    merge_psrs,
+    psr_fragment_from_cv,
+)
 from tools import ids, institutions, norm
 
 Row = dict[str, Json]
@@ -375,8 +386,14 @@ class _HacknationEnrichment:
 
 
 def hacknation_user_id(entry: Row) -> str | None:
-    """The participant key as a string (the API serves string or int ids)."""
+    """The participant key as a string (the API serves string or int ids).
+
+    The people listing spells it user_id while project authorProfile/team
+    entries spell it userId, and this is called with both shapes.
+    """
     value = entry.get("user_id")
+    if value is None:
+        value = entry.get("userId")
     if isinstance(value, bool):
         return None
     if isinstance(value, str | int):
@@ -430,96 +447,69 @@ def _hacknation_enrichment(projects: Sequence[Row]) -> dict[str, _HacknationEnri
     return by_user
 
 
-def _hacknation_location(payload: Row) -> str | None:
-    """'City, Country' as observed (either part optional)."""
-    parts = [part for part in (get_str(payload, "city"), get_str(payload, "country")) if part]
-    return ", ".join(parts) if parts else None
+def _typed_row(row: Row) -> dict[str, SinkValue]:
+    """One bronze row with its ISO temporals promoted back to datetimes.
 
-
-def _hacknation_keywords(
-    field_of_study: str | None, extra: _HacknationEnrichment | None
-) -> tuple[str, ...]:
-    """Sorted, deduped, lowercased field_of_study + techStack + tags."""
-    words: set[str] = set(extra.keywords) if extra is not None else set()
-    if field_of_study:
-        words.add(field_of_study.lower())
-    return tuple(sorted(words))
-
-
-def _hacknation_person(
-    row: Row, payload: Row, user_id: str, extra: _HacknationEnrichment | None
-) -> PersonSourceRecord:
-    """One PSR from a people-list row, enriched from the project side."""
+    The sink hands the scraper typed temporals; replaying the same rows out of
+    JSONL hands us strings, and the source normalizer accepts only the former.
+    """
     scraped, ingested = _timestamps(row)
-    location = _hacknation_location(payload)
-    first_last = [
-        part for part in (get_str(payload, "first_name"), get_str(payload, "last_name")) if part
-    ]
-    return _build(
-        HACKNATION_SOURCE,
-        user_id,
-        str(row.get("source_url")),
-        scraped,
-        ingested,
-        bronze_ref=f"bronze.hacknation_people_raw:user_id={user_id}",
-        full_name=get_str(payload, "display_name") or (" ".join(first_last) or None),
-        linkedin_url=extra.linkedin_url if extra is not None else None,
-        affiliation_raw=get_str(payload, "university"),
-        location_raw=location,
-        country_code=country_from_location(location),
-        keywords=_hacknation_keywords(get_str(payload, "field_of_study"), extra),
-        bio=get_str(payload, "tagline"),
-    )
+    typed: dict[str, SinkValue] = {key: as_sink(value) for key, value in row.items()}
+    typed["scraped_at"] = scraped
+    typed["ingested_at"] = ingested
+    return typed
 
 
-def _hacknation_project_only(user_id: str, extra: _HacknationEnrichment) -> PersonSourceRecord:
-    """One PSR for a team member absent from the people list."""
-    row = extra.project_row
-    scraped, ingested = _timestamps(row)
-    project_id = get_str(row, "project_id")
-    return _build(
-        HACKNATION_SOURCE,
-        user_id,
-        str(row.get("source_url")),
-        scraped,
-        ingested,
-        bronze_ref=f"bronze.hacknation_projects_raw:project_id={project_id}",
-        full_name=get_str(extra.entry, "display_name"),
-        linkedin_url=extra.linkedin_url,
-        affiliation_raw=get_str(extra.entry, "university"),
-        keywords=tuple(sorted(extra.keywords)),
-    )
+def _cv_fragments(cvs: Sequence[Row]) -> list[PersonSourceRecord]:
+    """CV-derived fragments, skipping rows whose extraction never parsed."""
+    fragments: list[PersonSourceRecord] = []
+    for row in cvs:
+        user_id = get_str(row, "user_id")
+        if user_id is None:
+            continue
+        payload = get_map(row, "payload")
+        scraped, ingested = _timestamps(row)
+        fragment = psr_fragment_from_cv(
+            user_id,
+            payload.get("extracted"),
+            source_url=str(row.get("source_url")),
+            scraped_at=scraped,
+            ingested_at=ingested,
+        )
+        if fragment is not None:
+            fragments.append(fragment)
+    return fragments
 
 
-def hacknation_psrs(people: Sequence[Row], projects: Sequence[Row]) -> list[PersonSourceRecord]:
+def hacknation_psrs(
+    people: Sequence[Row], projects: Sequence[Row], cvs: Sequence[Row] = ()
+) -> list[PersonSourceRecord]:
     """One PSR per unique Hack Nation participant.
 
-    People-list rows are the identity spine; the project side (authorProfile,
-    team[]) enriches them with linkedinUrl and techStack/tags keywords, and
-    team members missing from the people list still yield a PSR.
+    Derivation is delegated to the source's own SourceNormalizer so bronze
+    replays through exactly one implementation here and in the scraper. Order
+    is precedence order for the merge: people-list rows are the identity spine,
+    the project side (authorProfile, team[]) enriches them, and a parsed CV
+    folds in last.
 
     Args:
         people: bronze.hacknation_people_raw rows.
         projects: bronze.hacknation_projects_raw rows.
+        cvs: bronze.hacknation_cvs_raw rows, when CV parsing ran.
 
     Returns:
-        The derived records, people order first, project-only users after.
+        The merged records, one per participant, sorted by source_record_id.
     """
-    enrichment = _hacknation_enrichment(projects)
-    records: list[PersonSourceRecord] = []
-    seen: set[str] = set()
-    for row in people:
-        payload = get_map(row, "payload")
-        user_id = hacknation_user_id(payload)
-        if user_id is None:
-            continue
-        seen.add(user_id)
-        records.append(_hacknation_person(row, payload, user_id, enrichment.get(user_id)))
-    records.extend(
-        _hacknation_project_only(user_id, enrichment[user_id])
-        for user_id in sorted(set(enrichment) - seen)
-    )
-    return records
+    normalizer = HacknationNormalizer()
+    fragments: list[PersonSourceRecord] = []
+    for table, rows in (
+        (HACKNATION_PEOPLE_TABLE, people),
+        (HACKNATION_PROJECTS_TABLE, projects),
+    ):
+        for row in rows:
+            fragments.extend(normalizer.to_psr(BronzeRecord(table=table, row=_typed_row(row))))
+    fragments.extend(_cv_fragments(cvs))
+    return merge_psrs(fragments)
 
 
 def suppressed_keys(suppression_rows: Iterable[Mapping[str, object]]) -> frozenset[tuple[str, str]]:
@@ -597,6 +587,7 @@ def normalize_bronze(
         *hacknation_psrs(
             tables.get("bronze.hacknation_people_raw", []),
             tables.get("bronze.hacknation_projects_raw", []),
+            tables.get("bronze.hacknation_cvs_raw", []),
         ),
     ]
     return apply_suppression(records, suppressed)

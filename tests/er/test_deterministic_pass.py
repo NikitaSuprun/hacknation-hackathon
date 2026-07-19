@@ -44,11 +44,14 @@ def test_methods_and_confidences_per_engine(scratch_outputs: ErOutputs) -> None:
     assert by_psr[fx.PSR_NILS_ARXIV]["match_method"] == "det_email"
     assert by_psr[fx.PSR_AISHA_OPENALEX]["match_method"] == "det_orcid"
     assert by_psr[fx.PSR_AISHA_ENRICHMENT]["match_method"] == "det_orcid"
-    # MASK (fixture drift): the fixtures narrate det_email/det_orcid for Lena's
-    # github/openalex links, but the principled engine reaches all three of her
-    # PSRs through the D5 cross-link rule (no shared email or ORCID pair
-    # exists among them). Partition and person bytes are asserted instead.
-    for psr in (fx.PSR_LENA_GITHUB, fx.PSR_LENA_OPENALEX, fx.PSR_LENA_ZEFIX):
+    # Her hacknation entry carries the same ETH address as her github profile,
+    # so D2 reaches the github PSR outright.
+    assert by_psr[fx.PSR_LENA_GITHUB]["match_method"] == "det_email"
+    assert by_psr[fx.PSR_LENA_GITHUB]["match_confidence"] == 0.98
+    # MASK (fixture drift): the fixtures narrate det_orcid for Lena's openalex
+    # link, but no ORCID pair is shared among her PSRs, so the principled
+    # engine reaches it through the D5 cross-link rule instead.
+    for psr in (fx.PSR_LENA_OPENALEX, fx.PSR_LENA_ZEFIX):
         assert by_psr[psr]["match_method"] == "det_crosslink"
         assert by_psr[psr]["match_confidence"] == 0.92
     assert by_psr[fx.PSR_WEI_A_GITHUB]["match_method"] == "llm_adjudication"

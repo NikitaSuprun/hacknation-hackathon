@@ -65,6 +65,7 @@ class ErInputs:
     zefix_sogc: list[Row]
     hacknation_people: list[Row]
     hacknation_projects: list[Row]
+    hacknation_cvs: list[Row]
     paper_code_links: list[Row]
     projects: list[Row]
     publications: list[Row]
@@ -117,6 +118,7 @@ def load_inputs(source: RowSource) -> ErInputs:
         zefix_sogc=source.rows("bronze.zefix_sogc_raw"),
         hacknation_people=source.rows("bronze.hacknation_people_raw"),
         hacknation_projects=source.rows("bronze.hacknation_projects_raw"),
+        hacknation_cvs=source.rows("bronze.hacknation_cvs_raw"),
         paper_code_links=source.rows("bronze.paper_code_links"),
         projects=source.rows("silver.project"),
         publications=source.rows("silver.publication"),
@@ -227,6 +229,7 @@ def _bronze_tables(inputs: ErInputs) -> dict[str, list[Row]]:
         "bronze.zefix_sogc_raw": inputs.zefix_sogc,
         "bronze.hacknation_people_raw": inputs.hacknation_people,
         "bronze.hacknation_projects_raw": inputs.hacknation_projects,
+        "bronze.hacknation_cvs_raw": inputs.hacknation_cvs,
     }
 
 

@@ -56,8 +56,9 @@ def test_stage0_reproduces_fixture_psr_bytes(inputs: ErInputs) -> None:
     }
     assert excluded == EXPECTED_EXCLUDED
     assert set(produced) <= set(expected)
-    # 13 since WS-G: +Mira's GitHub profile, +3 Hack Nation participants.
-    assert len(produced) == 13
+    # 12 since WS-G: +3 Hack Nation participants (Lena and Wei already hold a
+    # GitHub profile; Selin is hacknation-only).
+    assert len(produced) == 12
     for source_record_id, record in produced.items():
         row = record.to_row()
         # MASK: fixture keyword constants are narrative-authored and not
