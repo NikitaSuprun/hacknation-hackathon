@@ -23,6 +23,7 @@ import type {
   RunHandle,
   RunStatus,
   ScoreBreakdown,
+  ScoreSnapshot,
   ScoreWeights,
   StructuredAsks,
   Thesis,
@@ -149,15 +150,16 @@ export class LiveDataSource implements DataSource {
     }));
   }
 
-  async getVentureScores(ventureId: string): Promise<ScoreBreakdown> {
+  async getVentureScores(ventureId: string): Promise<ScoreSnapshot[]> {
     const { scores } = await this.request<{ scores: Record<string, unknown>[] }>(
       `/v1/venture/${ventureId}/scores`,
     );
-    const latest = scores[0];
-    if (!latest) throw new Error("No scores for this venture yet.");
-    return scoreBreakdownSchema.parse(
-      parseVariant(latest.breakdown),
-    ) as unknown as ScoreBreakdown;
+    return scores.map((row) => ({
+      ...(row as unknown as ScoreSnapshot),
+      breakdown: scoreBreakdownSchema.parse(
+        parseVariant(row.breakdown),
+      ) as unknown as ScoreBreakdown,
+    }));
   }
 
   async getVentureMemo(ventureId: string): Promise<Memo> {

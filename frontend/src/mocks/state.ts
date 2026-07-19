@@ -15,6 +15,7 @@ import type {
   Memo,
   OutreachRow,
   RankedVenture,
+  ScoreSnapshot,
   ScoreWeights,
   StructuredAsks,
   Thesis,
@@ -51,6 +52,8 @@ export interface MockDB {
   /** Base rows — getRanking() re-ranks them under the current weights. */
   ventures: RankedVenture[];
   team: Record<string, VentureTeamMember[]>;
+  /** Score history per venture, newest first (the /scores contract). */
+  scoreHistory: Record<string, ScoreSnapshot[]>;
   /** Memo currently served per venture. */
   memos: Record<string, Memo>;
   /** Post-interview memo versions, swapped in by completeInterview(). */
@@ -68,6 +71,7 @@ function buildDB(seed: SeedDB): MockDB {
     weights: seed.weights,
     ventures: seed.ventures,
     team: seed.team,
+    scoreHistory: { ...seed.scoreHistory },
     memos: { ...seed.memos },
     postMemos: { ...seed.postMemos },
     gaps: seed.gaps,

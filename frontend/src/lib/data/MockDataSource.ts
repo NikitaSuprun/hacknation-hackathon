@@ -14,7 +14,7 @@ import type {
   RankedVenture,
   RunHandle,
   RunStatus,
-  ScoreBreakdown,
+  ScoreSnapshot,
   ScoreWeights,
   StructuredAsks,
   Thesis,
@@ -114,11 +114,9 @@ export class MockDataSource implements DataSource {
     return rerank(db.ventures, db.weights);
   }
 
-  async getVentureScores(ventureId: string): Promise<ScoreBreakdown> {
+  async getVentureScores(ventureId: string): Promise<ScoreSnapshot[]> {
     await this.simulate();
-    const venture = getDB().ventures.find((v) => v.venture_id === ventureId);
-    if (!venture) throw new Error(`Unknown venture ${ventureId}`);
-    return venture.breakdown;
+    return getDB().scoreHistory[ventureId] ?? [];
   }
 
   async getVentureMemo(ventureId: string): Promise<Memo> {

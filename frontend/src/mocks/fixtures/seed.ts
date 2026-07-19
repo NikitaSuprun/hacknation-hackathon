@@ -9,6 +9,7 @@
  */
 import * as GEN from "./generated";
 import { EXTRA_GAPS, EXTRA_MEMOS, EXTRA_TEAM, EXTRA_VENTURES } from "./extraVentures";
+import { categoryScoresOf, computeFinalScore } from "@/lib/ranking/rerank";
 import type {
   CategoryKey,
   IdealCandidateProfile,
@@ -17,6 +18,7 @@ import type {
   OutreachRow,
   RankedVenture,
   ScoreBreakdown,
+  ScoreSnapshot,
   ScoreWeights,
   Thesis,
   VentureGap,
@@ -68,15 +70,15 @@ function assembleVenture(rawVenture: Raw): RankedVenture | null {
   if (!score) return null;
   const pool = poolByVenture.get(ventureId);
   if (pool && pool.included === false) return null;
-  return {
+  const venture: RankedVenture = {
     venture_id: ventureId,
     name: rawVenture.name as string,
     one_liner: rawVenture.one_liner as string,
     status: rawVenture.status as RankedVenture["status"],
     quality_tier: (rawVenture.quality_tier as RankedVenture["quality_tier"]) ?? null,
     market_tags: (rawVenture.market_tags as string[]) ?? [],
-    // final_score is recomputed by rerank() on every read — placeholder here
-    final_score: 0,
+    final_score: 0, // computed below from categories + default weights
+
     confidence: score.confidence as number,
     ideal_match: (score.ideal_match as number | null) ?? null,
     s_individual_experience: (score.s_individual_experience as number | null) ?? null,
@@ -91,6 +93,11 @@ function assembleVenture(rawVenture: Raw): RankedVenture | null {
     scored_at: score.scored_at as string,
     funding_signal: (pool?.funding_signal as RankedVenture["funding_signal"]) ?? null,
   };
+  venture.final_score = computeFinalScore(
+    categoryScoresOf(venture),
+    rawWeights as unknown as ScoreWeights,
+  );
+  return venture;
 }
 
 function applyGrasplabPreInterview(venture: RankedVenture): RankedVenture {
@@ -111,6 +118,10 @@ function applyGrasplabPreInterview(venture: RankedVenture): RankedVenture {
       if (rationale) cat.rationale = rationale;
     }
   }
+  downgraded.final_score = computeFinalScore(
+    categoryScoresOf(downgraded),
+    rawWeights as unknown as ScoreWeights,
+  );
   return downgraded;
 }
 
@@ -219,6 +230,7 @@ export interface SeedDB {
   weights: ScoreWeights;
   ventures: RankedVenture[];
   team: Record<string, VentureTeamMember[]>;
+  scoreHistory: Record<string, ScoreSnapshot[]>;
   memos: Record<string, Memo>;
   postMemos: Record<string, Memo>;
   gaps: Record<string, VentureGap[]>;
@@ -227,13 +239,40 @@ export interface SeedDB {
   postInterviewPatch: PostInterviewPatch | null;
 }
 
+/** Score snapshot of a venture's CURRENT values — used to seed history. */
+export function snapshotOf(venture: RankedVenture, scoreId: string): ScoreSnapshot {
+  return {
+    score_id: scoreId,
+    venture_id: venture.venture_id,
+    final_score: venture.final_score,
+    confidence: venture.confidence,
+    ideal_match: venture.ideal_match,
+    s_individual_experience: venture.s_individual_experience,
+    s_schools: venture.s_schools,
+    s_network_ties: venture.s_network_ties,
+    s_prior_collaboration: venture.s_prior_collaboration,
+    s_problem_realness: venture.s_problem_realness,
+    s_product_defensibility: venture.s_product_defensibility,
+    s_market: venture.s_market,
+    s_traction: venture.s_traction,
+    breakdown: structuredClone(venture.breakdown),
+    scored_at: venture.scored_at,
+  };
+}
+
 export function seedDB(): SeedDB {
   const grasplabLatest = latestScoreByVenture.get(GRASPLAB_ID)!;
+  const ventures = [...fixtureVentures(), ...EXTRA_VENTURES];
+  const scoreHistory: Record<string, ScoreSnapshot[]> = {};
+  for (const venture of ventures) {
+    scoreHistory[venture.venture_id] = [snapshotOf(venture, `score-${venture.venture_id}-1`)];
+  }
   const seed: SeedDB = {
     thesis: rawThesis as unknown as Thesis,
     weights: rawWeights as unknown as ScoreWeights,
-    ventures: [...fixtureVentures(), ...EXTRA_VENTURES],
+    ventures,
     team: { ...fixtureTeams(), ...EXTRA_TEAM },
+    scoreHistory,
     memos: { [GRASPLAB_ID]: grasplabMemo("memo-grasplab-pre"), ...EXTRA_MEMOS },
     postMemos: { [GRASPLAB_ID]: grasplabMemo("memo-grasplab-post") },
     gaps: { ...fixtureGaps(), ...EXTRA_GAPS },

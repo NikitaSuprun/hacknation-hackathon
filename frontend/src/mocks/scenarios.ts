@@ -4,8 +4,9 @@
  * the app could genuinely reach by clicking.
  */
 import { getDB, mutate, resetDB } from "@/mocks/state";
-import { GRASPLAB_ID, buildSentOutreachRow } from "@/mocks/fixtures/seed";
+import { GRASPLAB_ID, buildSentOutreachRow, snapshotOf } from "@/mocks/fixtures/seed";
 import { INTERVIEW_SCRIPT } from "@/mocks/fixtures/chatScript";
+import { categoryScoresOf, computeFinalScore } from "@/lib/ranking/rerank";
 import type { ChatMessage } from "@/lib/domain/types";
 
 export type ScenarioId =
@@ -52,7 +53,12 @@ export function completeInterviewMutation(): void {
         }
         venture.confidence = patch.confidence;
         venture.scored_at = new Date().toISOString();
+        venture.final_score = computeFinalScore(categoryScoresOf(venture), db.weights);
         if (patch.fundingSignalAfter) venture.funding_signal = patch.fundingSignalAfter;
+        // Append the post-interview row to score history (newest first).
+        (db.scoreHistory[patch.ventureId] ??= []).unshift(
+          snapshotOf(venture, "score-post-interview"),
+        );
       }
       const postMemo = db.postMemos[patch.ventureId];
       if (postMemo) db.memos[patch.ventureId] = postMemo;

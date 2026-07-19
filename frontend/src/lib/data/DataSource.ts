@@ -8,7 +8,7 @@ import type {
   RankedVenture,
   RunHandle,
   RunStatus,
-  ScoreBreakdown,
+  ScoreSnapshot,
   ScoreWeights,
   StructuredAsks,
   Thesis,
@@ -42,7 +42,8 @@ export interface DataSource {
   getIdealCandidate(thesisId: string): Promise<IdealCandidateProfile>;
   saveIdealCandidate(thesisId: string, profile: IdealCandidateProfile): Promise<RunHandle>;
   getRanking(thesisId: string): Promise<RankedVenture[]>;
-  getVentureScores(ventureId: string): Promise<ScoreBreakdown>;
+  /** Full score history, newest first — [0] is current, [1] the pre-interview state. */
+  getVentureScores(ventureId: string): Promise<ScoreSnapshot[]>;
   getVentureMemo(ventureId: string): Promise<Memo>;
   getVentureTeam(ventureId: string): Promise<VentureTeamMember[]>;
   getVentureGaps(ventureId: string): Promise<VentureGap[]>;

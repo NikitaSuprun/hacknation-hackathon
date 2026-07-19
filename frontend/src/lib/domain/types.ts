@@ -366,6 +366,26 @@ export interface InterviewExtracted {
   funding_status?: { raised_before: boolean | null; details?: string | null };
 }
 
+// --- gold.venture_score history rows (the /scores endpoint returns all, desc) ---
+
+export interface ScoreSnapshot {
+  score_id: string;
+  venture_id: string;
+  final_score: number;
+  confidence: number;
+  ideal_match: number | null;
+  s_individual_experience: number | null;
+  s_schools: number | null;
+  s_network_ties: number | null;
+  s_prior_collaboration: number | null;
+  s_problem_realness: number | null;
+  s_product_defensibility: number | null;
+  s_market: number | null;
+  s_traction: number | null;
+  breakdown: ScoreBreakdown;
+  scored_at: string;
+}
+
 // --- Async runs (Jobs run-now + polling) ---
 
 export interface RunHandle {
