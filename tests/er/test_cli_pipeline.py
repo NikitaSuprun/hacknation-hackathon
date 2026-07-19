@@ -31,12 +31,12 @@ def _unbind_captured_stderr() -> Iterator[None]:  # pyright: ignore[reportUnused
 
 
 def test_fixtures_dry_run_end_to_end() -> None:
-    # 13 PSRs since WS-G: the 9 original bronze identities plus Mira's GitHub
-    # profile and the three Hack Nation participants.
+    # 12 PSRs since WS-G: the 9 original bronze identities plus the three Hack
+    # Nation participants.
     result = runner.invoke(app, ["run", "--fixtures", "--dry-run"])
     assert result.exit_code == 0, result.output
-    assert "silver.person_source_record: 13 rows" in result.output
-    assert "silver.person: 9 rows" in result.output
+    assert "silver.person_source_record: 12 rows" in result.output
+    assert "silver.person: 8 rows" in result.output
     assert "silver.person_connection: 2 rows" in result.output
     assert "silver.person_source_link: 0 rows" in result.output
 
@@ -44,13 +44,13 @@ def test_fixtures_dry_run_end_to_end() -> None:
 def test_fixtures_dry_run_with_embeddings() -> None:
     result = runner.invoke(app, ["run", "--fixtures", "--dry-run", "--with-embeddings"])
     assert result.exit_code == 0, result.output
-    assert "gold.person_features: 9 rows" in result.output
+    assert "gold.person_features: 8 rows" in result.output
 
 
 def test_stage_selection() -> None:
     result = runner.invoke(app, ["run", "--fixtures", "--dry-run", "--stages", "0"])
     assert result.exit_code == 0, result.output
-    assert "silver.person_source_record: 13 rows" in result.output
+    assert "silver.person_source_record: 12 rows" in result.output
     assert "silver.person_source_link: 0 rows" in result.output
     assert "silver.person" not in result.output.replace("silver.person_", "")
 
@@ -91,12 +91,12 @@ def test_new_bronze_user_flows_to_minted_person_and_rerun_is_idempotent() -> Non
     grown = replace(inputs, github_users=[*inputs.github_users, synthetic])
     deps = offline_deps(inputs)
     first = run_pipeline(grown, deps, stages=ALL_STAGES)
-    assert len(first.tables["silver.person_source_record"]) == 14
+    assert len(first.tables["silver.person_source_record"]) == 13
     (new_link,) = first.tables["silver.person_source_link"]
     assert new_link["match_method"] == "seed_fixture"
     persons = {str(row["person_id"]) for row in first.tables["silver.person"]}
     assert str(new_link["person_id"]) in persons
-    assert len(persons) == 10
+    assert len(persons) == 9
     produced_psrs = as_json_rows(first.tables["silver.person_source_record"])
     new_psrs = [row for row in produced_psrs if row["source_key"] == "999777"]
     assert len(new_psrs) == 1

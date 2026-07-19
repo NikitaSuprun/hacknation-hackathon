@@ -11,7 +11,6 @@ filtered here so a re-run can never resurrect an erased person.
 import hashlib
 import re
 from collections.abc import Iterable, Mapping, Sequence
-from dataclasses import dataclass
 from datetime import datetime
 from typing import Final
 
@@ -375,16 +374,6 @@ def zefix_officer_psrs(sogc: Sequence[Row], companies: Sequence[Row]) -> list[Pe
     return records
 
 
-@dataclass(slots=True)
-class _HacknationEnrichment:
-    """Project-side facts accumulated for one Hack Nation participant."""
-
-    linkedin_url: str | None
-    keywords: set[str]
-    entry: Row
-    project_row: Row
-
-
 def hacknation_user_id(entry: Row) -> str | None:
     """The participant key as a string (the API serves string or int ids).
 
@@ -409,42 +398,6 @@ def hacknation_member_entries(payload: Row) -> list[Row]:
         entries.append(author)
     entries.extend(as_mapping(item) for item in get_list(payload, "team") if isinstance(item, dict))
     return entries
-
-
-def hacknation_project_keywords(payload: Row) -> set[str]:
-    """Lowercased techStack plus tags of one project payload."""
-    words = {item.lower() for item in get_list(payload, "techStack") if isinstance(item, str)}
-    words.update(item.lower() for item in get_list(payload, "tags") if isinstance(item, str))
-    return words
-
-
-def _absorb_entry(
-    by_user: dict[str, _HacknationEnrichment], entry: Row, keywords: set[str], project_row: Row
-) -> None:
-    """Fold one author/team entry into the per-user enrichment."""
-    user_id = hacknation_user_id(entry)
-    if user_id is None:
-        return
-    found = by_user.get(user_id)
-    if found is None:
-        found = _HacknationEnrichment(
-            linkedin_url=None, keywords=set(), entry=entry, project_row=project_row
-        )
-        by_user[user_id] = found
-    found.keywords.update(keywords)
-    if found.linkedin_url is None:
-        found.linkedin_url = get_str(entry, "linkedinUrl")
-
-
-def _hacknation_enrichment(projects: Sequence[Row]) -> dict[str, _HacknationEnrichment]:
-    """Per-user project-side enrichment across every project payload."""
-    by_user: dict[str, _HacknationEnrichment] = {}
-    for row in projects:
-        payload = get_map(row, "payload")
-        keywords = hacknation_project_keywords(payload)
-        for entry in hacknation_member_entries(payload):
-            _absorb_entry(by_user, entry, keywords, row)
-    return by_user
 
 
 def _typed_row(row: Row) -> dict[str, SinkValue]:
