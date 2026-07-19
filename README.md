@@ -27,44 +27,96 @@ need Databricks credentials in `.env` — see
 
 ### Data sources
 
-Four connectors feed the same warehouse. The GitHub scraper walks recently
-created repositories and bisects by creation date to work around the search
-API's thousand-result ceiling, then batches commit history and contributor
-profiles into GraphQL calls. The papers scraper uses arXiv as its spine and
-enriches against OpenAlex. We scrape Hack Nation ourselves, through the two
-public JSON endpoints behind the showcase: participants, projects, teams,
-pitches and CVs. The Swiss company registry is next; its schema is already in
-place.
+Every connector runs on the same small framework. It reads a cursor, fetches,
+validates into typed models, writes with an idempotent MERGE, and advances the
+cursor only after the write succeeds. Records that fail validation land in a
+rejects table rather than stopping the run, so one malformed profile never
+costs us a sweep.
 
-### The warehouse
+- **GitHub** — recently created repositories, bisected by creation date to get
+  past the search API's thousand-result ceiling, then commit history and
+  contributor profiles hydrated in batched GraphQL calls.
+- **arXiv + OpenAlex** — arXiv is the spine; OpenAlex adds citations, ORCIDs
+  and institutions through DOI-batch lookups. Semantic Scholar is optional and
+  its absence is a no-op.
+- **Hack Nation** — our own connector against the two public JSON endpoints
+  behind the showcase: participants, projects, teams, pitches and CVs.
+- **Zefix / SHAB** — the Swiss company registry. Schema and fixtures are in
+  place; the connector is next.
 
-Data lands in Databricks: Unity Catalog, Delta tables and a serverless SQL
-warehouse. Raw payloads are kept whole in a bronze layer, resolved into silver,
-then shaped into the gold tables the application reads. Each write stages a
-Parquet file to a volume before running one MERGE. A content hash skips
-anything that hasn't changed, so re-running a scrape is cheap. Erasure requests
-are enforced inside that MERGE, so a later scrape cannot bring someone back.
+### What we store
 
-### One person, many sources
+Three Delta layers in Unity Catalog, each with a distinct job.
 
-The same builder shows up as a GitHub login, a paper author and a hackathon
-profile. Facts stay attached to those per-source identities rather than to the
-person, and the golden `person_id` is a set of links laid over them. Eight
-deterministic rules handle the clear matches: ORCID, email, LinkedIn URL, or a
-project's repository. Splink scores the rest. Claude, called directly from SQL,
-decides the band that stays ambiguous. Since identity exists only as links, a
-wrong merge is undone without touching a single fact.
+- **Bronze** keeps each source payload intact in a `VARIANT` column, one row
+  per object under the source's own ID, alongside a content hash and an ETag.
+  A re-scrape that finds no change writes nothing. Change Data Feed is on, so
+  silver rebuilds process only what moved.
+- **Silver** is the conformed model: `person`, `project`, `publication` and
+  `company`, joined to people through `contribution`, `authorship` and
+  `officer`, with `person_connection` holding the collaboration graph as an
+  edge table rather than an array.
+- **Gold** serves the product: `venture` and its members, `person_features`,
+  `venture_score` and `memo`. Scores are append-only behind an `is_latest`
+  flag, so every re-score keeps its history, and each carries a `breakdown`
+  holding the evidence URL behind every claim.
 
-### How we score
+`person_features` stores its numbers in a `MAP<STRING,DOUBLE>` rather than
+columns, so adding a signal needs no migration. The application never queries a
+base table; it reads five `gold.v_*` views and nothing else.
 
-Each person gets ten signals computed in SQL, including weighted stars, commit
-volume, recency, centrality, citations and school tier. A missing signal stays
-null rather than becoming zero. Claude handles the judgements a query cannot:
-whether a commit history is any good, whether a product is defensible.
-Embeddings do one job, domain fit. They cannot know that MIT outranks KTH or
-that 8,200 stars dwarf 82, so prestige and scale stay in the feature layer.
-Nine weighted category scores become one ranking, and changing a weight
-re-sorts it in the browser.
+### Deduplicating people
+
+The same builder may appear as a GitHub login, a paper author and a hackathon
+profile. We keep those source identities separate until there is enough
+evidence to link them.
+
+Each becomes an immutable `person_source_record`, its ID a UUIDv5 of the source
+and source key, so another scrape regenerates exactly the same row. A golden
+`person_id` is nothing more than the set of active `person_source_link` rows
+laid over those records. Matching runs as a ladder:
+
+- Eight deterministic rules first: ORCID, email, website, handle, a repo-paper
+  cross-link, LinkedIn URL, and a Hack Nation project's repository.
+- Splink scores whatever the rules left unresolved.
+- Claude, called from SQL, adjudicates the 0.60–0.90 band.
+- Anything below that goes to a human review queue.
+
+Nothing auto-merges below 0.90, and a name alone is never enough. The payoff is
+reversibility: `contribution`, `authorship` and `officer` key on the source
+record, and their `person_id` is only a cache, so undoing a bad merge is a
+status flip on a link row. No underlying fact is rewritten.
+
+### Embeddings
+
+We embed `profile_text`, a deterministic rendering of what someone builds or
+researches, rather than the whole profile. Because the rendering is
+deterministic, unchanged inputs produce the same vector.
+
+The model is `databricks-gte-large-en` at 1024 dimensions. Vectors are
+L2-normalised, so similarity is a plain dot product we compute in SQL. There is
+no vector database and no index. The editable ideal candidate uses the same
+representation, which puts both vectors in one space.
+
+They have one job: domain fit — does this person work on that kind of problem.
+
+### Scoring
+
+Each person carries ten signals computed in SQL: weighted stars, commit volume
+and consistency, recency on a 90-day half-life, graph centrality, citations,
+school tier. A signal we could not find stays null. It never becomes zero,
+because unknown and bad are not the same claim.
+
+Claude handles the judgements that do not reduce to a query, such as whether a
+commit history shows good work or whether a product is genuinely defensible.
+For shortlisted ventures, a deeper pass researches the market on the open web
+under a hard search cap, and has to quote its sources.
+
+Nine weighted categories then produce one number. A category with no evidence
+redistributes its weight across the rest instead of scoring an invented
+average. Team scoring combines the average member with the best one. Confidence
+is stored separately from score, so thin evidence stays visible. The weights
+belong to the fund, and changing one re-sorts the list in the browser.
 
 A one-page architecture diagram and the pitch script live in
 [presentation/](presentation/).

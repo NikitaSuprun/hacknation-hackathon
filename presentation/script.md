@@ -1,7 +1,8 @@
 # 60-second script
 
 147 words. At a normal pitch pace (~150 wpm) that lands just under a minute.
-Point at the slide only twice: at the sources column, and at card 2.
+Point at the slide only twice: at the sources column, and at the note beside
+the Scoring box.
 
 ---
 
@@ -55,5 +56,5 @@ score and memo rewrite themselves."*
   someone who asked to be removed.
 - **"What did it cost?"** Under $150 for the whole demo. Databricks Free
   Edition, so the LLM calls are essentially the only spend.
-- **"Why not just embed the profile?"** That's card 2 — it's the question we
-  designed around, not one we avoided.
+- **"Why not just embed the profile?"** That's the note beside Scoring — it's
+  the question we designed around, not one we avoided.
