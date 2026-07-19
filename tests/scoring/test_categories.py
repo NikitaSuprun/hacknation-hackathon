@@ -7,6 +7,8 @@ Documented divergence: the schools rule computes 97.0 on the fixture data
 the golden path uses scripted verdicts, the formula is asserted here.
 """
 
+from typing import Final
+
 from contracts.models import CategoryScore, Evidence, FeatureBundle, VentureView
 from fixtures import build
 from scoring import scripted
@@ -47,7 +49,7 @@ def bundle(person_features: dict[str, dict[str, float]]) -> FeatureBundle:
     return FeatureBundle(person_features=person_features, venture_features={})
 
 
-FIXTURE_FEATURES: dict[str, dict[str, float]] = {
+FIXTURE_FEATURES: Final[dict[str, dict[str, float]]] = {
     build.LENA: {
         "stars_weighted": 8.53,
         "commits_12mo": 342.0,

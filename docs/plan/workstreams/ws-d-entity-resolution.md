@@ -18,7 +18,7 @@
 - [x] **T10 — Survivorship + person builder + denorm refresh + `person_connection`**
   - [x] *Acceptance*: canonical fields per precedence; `contribution.person_id` backfilled; all 3 edge types present; `chk_conn_order` holds; conflicting sources flagged *(tests/er/test_survivorship_golden.py, test_connections_golden.py, test_unmerge.py)*
 - [x] **T11 — Embeddings job + similarity view** (`databricks-gte-large-en`, L2-normalize, `v_person_similarity`)
-  - [ ] *Acceptance*: every person with ≥1 fact has a unit-norm 1024-dim vector; Fischer tops domain-fit vs the robotics ideal fixture *(offline byte-golden + domain-fit green in tests/er/test_embeddings.py via the fake embedder; live gte-large vectors need creds; the similarity view lives in 50_views.sql, outside this workstream's file budget)*
+  - [ ] *Acceptance*: every person with ≥1 fact has a unit-norm 1024-dim vector; Fischer tops domain-fit vs the robotics ideal fixture *(offline byte-golden + domain-fit green in tests/er/test_embeddings.py via the fake embedder; live gte-large vectors need creds; `gold.v_person_similarity` already exists in 50_views.sql — no view work needed)*
 - [x] **T12 — Erasure script + suppression wiring** (`tools/erase_person.py`)
   - [x] *Acceptance*: erasing a fixture person removes/tombstones across all four schemas, writes `erasure_log`; a normalizer re-run does not resurrect them *(tests/er/test_erase_person.py; live DELETE execution needs creds)*
 - [x] **T13 — Incremental orchestration** (`scrape_state` watermark; nightly full-ER script)

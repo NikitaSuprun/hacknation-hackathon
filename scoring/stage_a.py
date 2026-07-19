@@ -32,7 +32,7 @@ from scoring.categories.base import (
     weighted_final,
 )
 from scoring.snapshot import Row, SilverSnapshot, as_utc, get_bool, get_float, require_str
-from scrapers.common.jsonutil import as_sink, get_str
+from scrapers.common.jsonutil import as_mapping, as_sink, get_str
 
 CONFIDENCE_GATE: Final[float] = 0.5
 QUALITY_SCORED: Final[str] = "scored"
@@ -236,14 +236,16 @@ def feature_bundle(feature_rows: tuple[Row, ...]) -> FeatureBundle:
     person_features: dict[str, dict[str, float]] = {}
     for row in feature_rows:
         person_id = require_str(row, "person_id")
-        cell = row.get("features")
-        values: dict[str, float] = {}
-        if isinstance(cell, dict):
-            for key, value in cell.items():
-                if not isinstance(value, bool) and isinstance(value, int | float):
-                    values[key] = float(value)
-        person_features[person_id] = values
+        person_features[person_id] = _float_features(row.get("features"))
     return FeatureBundle(person_features=person_features, venture_features={})
+
+
+def _float_features(cell: object) -> dict[str, float]:
+    values: dict[str, float] = {}
+    for key, value in as_mapping(cell).items():
+        if not isinstance(value, bool) and isinstance(value, int | float):
+            values[key] = float(value)
+    return values
 
 
 def collab_extras(snapshot: SilverSnapshot, member_ids: tuple[str, ...]) -> dict[str, Json]:
@@ -269,13 +271,15 @@ def collab_extras(snapshot: SilverSnapshot, member_ids: tuple[str, ...]) -> dict
     )
     for rows, artifact_key, date_key in joins:
         for row in rows:
-            person = get_str(dict(row), "person_id")
-            artifact = get_str(dict(row), artifact_key)
-            if person in members and artifact is not None:
-                shared.setdefault(artifact, set()).add(person)
-                stamp = get_str(dict(row), date_key)
-                if stamp is not None:
-                    dates.append(stamp)
+            data = dict(row)
+            person = get_str(data, "person_id")
+            artifact = get_str(data, artifact_key)
+            if person not in members or artifact is None:
+                continue
+            shared.setdefault(artifact, set()).add(person)
+            stamp = get_str(data, date_key)
+            if stamp is not None:
+                dates.append(stamp)
     contexts = sum(1 for people in shared.values() if len(people) >= SHARED_CONTEXT_MIN)
     years = 0.0
     stamps = [stamp for text in dates if (stamp := as_utc(text)) is not None]

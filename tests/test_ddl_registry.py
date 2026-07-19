@@ -55,6 +55,7 @@ _EXPECTED_KEYS: Final[dict[str, tuple[str, ...]]] = {
     "gold.memo": ("memo_id",),
     "gold.outreach": ("outreach_id",),
     "gold.interview": ("interview_id",),
+    "gold.score_run": ("run_id",),
     "ops.scrape_state": ("source",),
     "ops.er_review_queue": ("review_id",),
     "ops.llm_adjudications": ("pair_id",),

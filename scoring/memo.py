@@ -83,10 +83,10 @@ def assert_all_bullets_cited(sections: Mapping[str, Json]) -> None:
         for item in as_list(body.get("bullets")):
             bullet = as_mapping(item)
             text = get_str(bullet, "text") or ""
-            if get_bool(bullet, "missing") is True:
-                if not get_str(bullet, "gap_field"):
-                    raise MissingGapFieldError(section, text)
-            elif not _bullet_urls(bullet):
+            missing = get_bool(bullet, "missing") is True
+            if missing and not get_str(bullet, "gap_field"):
+                raise MissingGapFieldError(section, text)
+            if not missing and not _bullet_urls(bullet):
                 raise UncitedBulletError(section, text)
 
 
