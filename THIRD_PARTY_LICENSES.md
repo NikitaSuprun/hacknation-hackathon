@@ -31,6 +31,8 @@
 | oauthlib                  | 3.3.1           | BSD-3-Clause                                       | https://github.com/oauthlib/oauthlib                                             |
 | pycparser                 | 3.0             | BSD-3-Clause                                       | https://github.com/eliben/pycparser                                              |
 | python-dotenv             | 1.2.2           | BSD-3-Clause                                       | https://github.com/theskumar/python-dotenv                                       |
+| starlette                 | 1.3.1           | BSD-3-Clause                                       | https://github.com/Kludex/starlette                                              |
+| uvicorn                   | 0.51.0          | BSD-3-Clause                                       | https://uvicorn.dev/                                                             |
 | numpy                     | 2.5.1           | BSD-3-Clause AND 0BSD AND MIT AND Zlib AND CC0-1.0 | https://numpy.org                                                                |
 | shellingham               | 1.5.4           | ISC License (ISCL)                                 | https://github.com/sarugaku/shellingham                                          |
 | PyJWT                     | 2.13.0          | MIT                                                | https://github.com/jpadilla/pyjwt                                                |

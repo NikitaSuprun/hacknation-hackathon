@@ -11,6 +11,8 @@ scrape-github = "uv run python -m scrapers.github"
 scrape-papers = "uv run python -m scrapers.papers"
 er = "uv run python -m er"
 scoring = "uv run python -m scoring"
+app = "uv run python -m app"
+hacknation = "uv run python -m sources.hacknation"
 
 # The allowlist enumerates observed spellings of permissive licenses only;
 # GPL/AGPL/SSPL or non-commercial terms must fail the check.

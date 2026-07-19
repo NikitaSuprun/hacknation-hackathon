@@ -159,3 +159,14 @@ def test_anthropic_embed_is_unsupported() -> None:
     client = anthropic_client(httpx.MockTransport(lambda _r: httpx.Response(200, json={})))
     with pytest.raises(UnsupportedLLMOperationError, match="embed"):
         client.embed("text")
+
+
+def test_endpoint_override_env_reroutes_completions(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("DATABRICKS_LLM_ENDPOINT", "databricks-claude-opus-4-8")
+    runner = FakeRunner([("ok",)])
+    AiQueryLLMClient(runner).complete("TASK:x")
+    assert "ai_query('databricks-claude-opus-4-8'" in runner.statements[0]
+    monkeypatch.delenv("DATABRICKS_LLM_ENDPOINT")
+    runner2 = FakeRunner([("ok",)])
+    AiQueryLLMClient(runner2).complete("TASK:x")
+    assert "ai_query('databricks-claude-sonnet-4-6'" in runner2.statements[0]

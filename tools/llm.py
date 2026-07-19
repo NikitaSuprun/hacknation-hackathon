@@ -16,6 +16,7 @@ Three implementations of contracts.interfaces.LLMClient:
 
 import json
 import math
+import os
 from collections.abc import Callable, Mapping
 from typing import Final, Protocol
 
@@ -27,6 +28,10 @@ from scrapers.common.jsonutil import as_list, as_mapping
 ANTHROPIC_API_URL: Final[str] = "https://api.anthropic.com/v1/messages"
 ANTHROPIC_VERSION: Final[str] = "2023-06-01"
 DEFAULT_AI_QUERY_MODEL: Final[str] = "databricks-claude-sonnet-4-6"
+# Free Edition workspaces ship a subset of Claude endpoints (poe smoke shows
+# which); this env var reroutes every ai_query completion to the one that
+# exists (e.g. databricks-claude-opus-4-8) without touching per-task tiering.
+ENDPOINT_OVERRIDE_ENV: Final[str] = "DATABRICKS_LLM_ENDPOINT"
 DEFAULT_ANTHROPIC_MODEL: Final[str] = "claude-opus-4-8"
 DEFAULT_MAX_TOKENS: Final[int] = 4_096
 EMBEDDING_MODEL: Final[str] = "databricks-gte-large-en"
@@ -155,6 +160,18 @@ class ScriptedLLMClient:
         return self._embedder(text)
 
 
+def resolve_endpoint(preferred: str) -> str:
+    """The ai_query endpoint to use; the workspace override env var wins.
+
+    Args:
+        preferred: The task's preferred endpoint.
+
+    Returns:
+        The override from DATABRICKS_LLM_ENDPOINT when set, else preferred.
+    """
+    return os.environ.get(ENDPOINT_OVERRIDE_ENV) or preferred
+
+
 def _sql_quote(value: str) -> str:
     return "'" + value.replace("\\", "\\\\").replace("'", "''") + "'"
 
@@ -212,7 +229,7 @@ class AiQueryLLMClient:
         Raises:
             EmptyAiQueryResultError: If the statement returned no row.
         """
-        endpoint = model or self._default_model
+        endpoint = resolve_endpoint(model or self._default_model)
         rows = self._runner.execute(
             f"SELECT ai_query({_sql_quote(endpoint)}, {_sql_quote(prompt)})"
         )

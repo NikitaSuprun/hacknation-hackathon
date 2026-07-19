@@ -144,4 +144,8 @@ WHEN MATCHED THEN UPDATE SET w_market = :w_market, updated_at = current_timestam
 - `scrapers/common/` shared runner library (WS-A/B/C half-day task)
 - Model smoke-test outcome: after `poe smoke`, record here which
   `databricks-claude-*` endpoints resolve and whether the Anthropic-API
-  fallback is active.
+  fallback is active. **Recorded 2026-07-19 (Free Edition workspace):** only
+  `databricks-claude-opus-4-8` resolves (plus `databricks-gte-large-en`);
+  live runs set `DATABRICKS_LLM_ENDPOINT=databricks-claude-opus-4-8` so every
+  ai_query completion reroutes there. The Anthropic-API fallback stays
+  inactive until an `ANTHROPIC_API_KEY` is provisioned.
