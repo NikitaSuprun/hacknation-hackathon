@@ -17,8 +17,8 @@ Three implementations of contracts.interfaces.LLMClient:
 import json
 import math
 import os
-from collections.abc import Callable, Mapping
-from typing import Final, Protocol
+from collections.abc import Callable, Iterable, Mapping
+from typing import Final, Protocol, SupportsFloat, cast
 
 import httpx
 
@@ -183,11 +183,34 @@ def _l2_normalize(vector: list[float]) -> list[float]:
     return [component / norm for component in vector]
 
 
+def _as_floats(raw: object) -> list[float]:
+    """Floats from any sequence-like value.
+
+    The SQL connector hands ARRAY<FLOAT> back as a numpy ndarray of numpy
+    scalars — neither a list nor Python floats — so accept anything iterable
+    whose items convert.
+
+    Args:
+        raw: The decoded cell value.
+
+    Returns:
+        The floats, or [] when the value is not a numeric sequence.
+    """
+    if isinstance(raw, str | bytes) or not isinstance(raw, Iterable):
+        return []
+    floats: list[float] = []
+    for item in cast("Iterable[object]", raw):
+        if isinstance(item, bool) or not isinstance(item, SupportsFloat):
+            return []
+        floats.append(float(item))
+    return floats
+
+
 def _parse_vector(value: object) -> list[float]:
     raw: object = value
     if isinstance(raw, str):
         raw = json.loads(raw)
-    vector = [float(item) for item in as_list(raw) if isinstance(item, int | float)]
+    vector = _as_floats(raw)
     if len(vector) != EMBEDDING_DIM:
         raise EmbeddingShapeError(len(vector))
     return _l2_normalize(vector)

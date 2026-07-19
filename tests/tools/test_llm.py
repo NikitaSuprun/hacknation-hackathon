@@ -3,7 +3,8 @@
 """LLMClient implementations: scripting, ai_query SQL, Anthropic transport."""
 
 import json
-from typing import Final
+from collections.abc import Iterator
+from typing import Final, SupportsFloat
 
 import httpx
 import pytest
@@ -170,3 +171,40 @@ def test_endpoint_override_env_reroutes_completions(monkeypatch: pytest.MonkeyPa
     runner2 = FakeRunner([("ok",)])
     AiQueryLLMClient(runner2).complete("TASK:x")
     assert "ai_query('databricks-claude-sonnet-4-6'" in runner2.statements[0]
+
+
+class FakeVector:
+    """An ndarray stand-in: iterable of __float__ scalars, not a list."""
+
+    def __init__(self, values: list[float]) -> None:
+        """Store the components."""
+        self._values: Final[list[float]] = values
+
+    def __iter__(self) -> Iterator[SupportsFloat]:
+        """Yield numpy-like scalars."""
+        return iter(FakeScalar(value) for value in self._values)
+
+
+class FakeScalar:
+    """A numpy-scalar stand-in: convertible but not a Python float."""
+
+    def __init__(self, value: float) -> None:
+        """Store the component."""
+        self._value: Final[float] = value
+
+    def __float__(self) -> float:
+        """Convert like numpy scalars do."""
+        return self._value
+
+
+def test_ai_query_embed_accepts_the_connector_ndarray_shape() -> None:
+    # databricks-sql-connector returns ARRAY<FLOAT> as a numpy ndarray of
+    # numpy scalars; neither is a list nor a Python float.
+    raw = [0.0] * EMBEDDING_DIM
+    raw[0] = 3.0
+    raw[-1] = 4.0
+    client = AiQueryLLMClient(FakeRunner([(FakeVector(raw),)]))
+    vector = client.embed("robotics")
+    assert len(vector) == EMBEDDING_DIM
+    assert vector[0] == pytest.approx(0.6)
+    assert vector[-1] == pytest.approx(0.8)
