@@ -18,4 +18,4 @@ convention = "google"
 runtime-evaluated-decorators = ["dataclasses.dataclass"]
 
 [lint.per-file-ignores]
-"tests/**" = ["S101", "S105", "S106", "D", "PLR2004", "SLF001", "PLR0913"]
+"tests/**" = ["S101", "S105", "S106", "D", "PLR2004", "SLF001", "PLR0913", "TC"]

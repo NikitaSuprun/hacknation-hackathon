@@ -23,6 +23,7 @@ dev = [
   "pip-licenses>=5.0",
   "poethepoet>=0.32",
   "pre-commit>=4.0",
+  "pyarrow-stubs>=20.0.0.20260625",
   "pydoclint>=0.6",
   "pytest>=8.3",
   "pytest-xdist>=3.6",
