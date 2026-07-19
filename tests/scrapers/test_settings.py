@@ -2,6 +2,8 @@
 # Proprietary and confidential. See LICENSE.
 """Settings fail fast; the offline CI path reads no environment at all."""
 
+from typing import Final
+
 import pytest
 
 from scrapers.common.settings import (
@@ -13,7 +15,12 @@ from scrapers.common.sink import NullSink, build_deps
 from scrapers.common.state import MemoryStateStore
 from tools.settings import MissingConfigError
 
-SCRAPER_ENV_KEYS = ("SCRAPER_CONTACT_EMAIL", "GITHUB_TOKEN", "OPENALEX_API_KEY", "S2_API_KEY")
+SCRAPER_ENV_KEYS: Final[tuple[str, ...]] = (
+    "SCRAPER_CONTACT_EMAIL",
+    "GITHUB_TOKEN",
+    "OPENALEX_API_KEY",
+    "S2_API_KEY",
+)
 
 
 @pytest.fixture(autouse=True)

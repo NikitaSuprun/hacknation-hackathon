@@ -1,0 +1,247 @@
+{
+  "dev01": {
+    "databaseId": 101,
+    "login": "dev01",
+    "name": "Dev 01",
+    "company": "@fx01",
+    "location": "Zurich, Switzerland",
+    "websiteUrl": "https://dev01.dev",
+    "email": "",
+    "bio": "Fixture developer 01",
+    "twitterUsername": "dev01_fixture",
+    "avatarUrl": "https://avatars.example/dev01.png",
+    "followers": {
+      "totalCount": 42
+    },
+    "organizations": {
+      "nodes": [
+        {
+          "login": "fx01",
+          "name": "FX One"
+        }
+      ]
+    },
+    "socialAccounts": {
+      "nodes": [
+        {
+          "provider": "LINKEDIN",
+          "url": "https://www.linkedin.com/in/dev01-fixture"
+        },
+        {
+          "provider": "TWITTER",
+          "url": "https://twitter.com/dev01_fixture"
+        }
+      ]
+    }
+  },
+  "dev02": {
+    "databaseId": 102,
+    "login": "dev02",
+    "name": "Dev 02",
+    "company": null,
+    "location": "Lausanne, Switzerland",
+    "websiteUrl": "https://dev02.dev",
+    "email": "dev02@example.org",
+    "bio": "Fixture developer 02",
+    "twitterUsername": null,
+    "avatarUrl": "https://avatars.example/dev02.png",
+    "followers": {
+      "totalCount": 84
+    },
+    "organizations": {
+      "nodes": []
+    },
+    "socialAccounts": {
+      "nodes": []
+    }
+  },
+  "dev03": {
+    "databaseId": 103,
+    "login": "dev03",
+    "name": "Dev 03",
+    "company": null,
+    "location": "Zurich, Switzerland",
+    "websiteUrl": "https://dev03.dev",
+    "email": "",
+    "bio": "Fixture developer 03",
+    "twitterUsername": null,
+    "avatarUrl": "https://avatars.example/dev03.png",
+    "followers": {
+      "totalCount": 126
+    },
+    "organizations": {
+      "nodes": []
+    },
+    "socialAccounts": {
+      "nodes": []
+    }
+  },
+  "dev04": {
+    "databaseId": 104,
+    "login": "dev04",
+    "name": "Dev 04",
+    "company": null,
+    "location": "Lausanne, Switzerland",
+    "websiteUrl": null,
+    "email": "",
+    "bio": "Fixture developer 04",
+    "twitterUsername": null,
+    "avatarUrl": "https://avatars.example/dev04.png",
+    "followers": {
+      "totalCount": 168
+    },
+    "organizations": {
+      "nodes": []
+    },
+    "socialAccounts": {
+      "nodes": []
+    }
+  },
+  "dev05": {
+    "databaseId": 105,
+    "login": "dev05",
+    "name": "Dev 05",
+    "company": null,
+    "location": "Zurich, Switzerland",
+    "websiteUrl": null,
+    "email": "",
+    "bio": "Fixture developer 05",
+    "twitterUsername": null,
+    "avatarUrl": "https://avatars.example/dev05.png",
+    "followers": {
+      "totalCount": 210
+    },
+    "organizations": {
+      "nodes": []
+    },
+    "socialAccounts": {
+      "nodes": []
+    }
+  },
+  "dev06": {
+    "databaseId": 106,
+    "login": "dev06",
+    "name": "Dev 06",
+    "company": null,
+    "location": "Lausanne, Switzerland",
+    "websiteUrl": null,
+    "email": "",
+    "bio": "Fixture developer 06",
+    "twitterUsername": null,
+    "avatarUrl": "https://avatars.example/dev06.png",
+    "followers": {
+      "totalCount": 252
+    },
+    "organizations": {
+      "nodes": []
+    },
+    "socialAccounts": {
+      "nodes": []
+    }
+  },
+  "dev07": {
+    "databaseId": 107,
+    "login": "dev07",
+    "name": "Dev 07",
+    "company": null,
+    "location": "Zurich, Switzerland",
+    "websiteUrl": null,
+    "email": "",
+    "bio": "Fixture developer 07",
+    "twitterUsername": null,
+    "avatarUrl": "https://avatars.example/dev07.png",
+    "followers": {
+      "totalCount": 294
+    },
+    "organizations": {
+      "nodes": []
+    },
+    "socialAccounts": {
+      "nodes": []
+    }
+  },
+  "dev08": {
+    "databaseId": 108,
+    "login": "dev08",
+    "name": "Dev 08",
+    "company": null,
+    "location": "Lausanne, Switzerland",
+    "websiteUrl": null,
+    "email": "",
+    "bio": "Fixture developer 08",
+    "twitterUsername": null,
+    "avatarUrl": "https://avatars.example/dev08.png",
+    "followers": {
+      "totalCount": 336
+    },
+    "organizations": {
+      "nodes": []
+    },
+    "socialAccounts": {
+      "nodes": []
+    }
+  },
+  "dev09": {
+    "databaseId": 109,
+    "login": "dev09",
+    "name": "Dev 09",
+    "company": null,
+    "location": "Zurich, Switzerland",
+    "websiteUrl": null,
+    "email": "",
+    "bio": "Fixture developer 09",
+    "twitterUsername": null,
+    "avatarUrl": "https://avatars.example/dev09.png",
+    "followers": {
+      "totalCount": 378
+    },
+    "organizations": {
+      "nodes": []
+    },
+    "socialAccounts": {
+      "nodes": []
+    }
+  },
+  "dev10": {
+    "databaseId": 110,
+    "login": "dev10",
+    "name": "Dev 10",
+    "company": null,
+    "location": "Lausanne, Switzerland",
+    "websiteUrl": null,
+    "email": "",
+    "bio": "Fixture developer 10",
+    "twitterUsername": null,
+    "avatarUrl": "https://avatars.example/dev10.png",
+    "followers": {
+      "totalCount": 420
+    },
+    "organizations": {
+      "nodes": []
+    },
+    "socialAccounts": {
+      "nodes": []
+    }
+  },
+  "broken-profile": {
+    "databaseId": null,
+    "login": "broken-profile",
+    "name": "Broken Profile",
+    "company": null,
+    "location": null,
+    "websiteUrl": null,
+    "email": "",
+    "bio": "Deliberately malformed fixture (null databaseId) for the rejects path",
+    "twitterUsername": null,
+    "avatarUrl": "https://avatars.example/broken.png",
+    "followers": {
+      "totalCount": 1
+    },
+    "organizations": {
+      "nodes": []
+    },
+    "socialAccounts": {
+      "nodes": []
+    }
+  }
+}

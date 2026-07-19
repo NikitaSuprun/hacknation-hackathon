@@ -209,10 +209,8 @@ class HttpClient:
             allow: Extra statuses to surface instead of raising (e.g. 404).
 
         Returns:
-            The response; 2xx, 304, and allowed statuses surface.
-
-        Raises:
-            HttpStatusError: For any other status after retries.
+            The response; 2xx, 304, and allowed statuses surface (any other
+            status raises HttpStatusError after retries).
         """
         headers: dict[str, str] = {}
         if accept is not None:
@@ -243,10 +241,8 @@ class HttpClient:
             allow: Extra statuses to surface instead of raising.
 
         Returns:
-            The response; 2xx and allowed statuses surface.
-
-        Raises:
-            HttpStatusError: For any other status after retries.
+            The response; 2xx and allowed statuses surface (any other status
+            raises HttpStatusError after retries).
         """
         spec = _RequestSpec(method="POST", url=url, params=params, headers=None, payload=payload)
         return self._surface(self._request(spec, bucket), url, allow)

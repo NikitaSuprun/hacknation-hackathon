@@ -9,9 +9,7 @@ from scrapers.common.http import HttpClient, HttpStatusError, TokenBucket
 from tests.scrapers.conftest import FakeTime
 
 
-def make_client(
-    handler: httpx.MockTransport, time: FakeTime, rate: float = 100.0
-) -> HttpClient:
+def make_client(handler: httpx.MockTransport, time: FakeTime, rate: float = 100.0) -> HttpClient:
     return HttpClient(
         user_agent="dealflow-scraper/0.1 (+mailto:test@example.invalid)",
         headers={"Authorization": "Bearer test-token"},

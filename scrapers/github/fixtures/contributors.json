@@ -1,0 +1,306 @@
+{
+  "fx01/proj01": [
+    {
+      "login": "dependabot[bot]",
+      "id": 49699333,
+      "type": "Bot",
+      "contributions": 120
+    },
+    {
+      "login": "codecov",
+      "id": 8226205,
+      "type": "User",
+      "contributions": 80
+    },
+    {
+      "login": "broken-profile",
+      "id": 999,
+      "type": "User",
+      "contributions": 50
+    },
+    {
+      "login": "dev02",
+      "id": 102,
+      "type": "User",
+      "contributions": 40
+    },
+    {
+      "login": "tail01",
+      "id": 301,
+      "type": "User",
+      "contributions": 1
+    }
+  ],
+  "fx02/proj02": [
+    {
+      "login": "dev03",
+      "id": 103,
+      "type": "User",
+      "contributions": 40
+    },
+    {
+      "login": "tail02",
+      "id": 302,
+      "type": "User",
+      "contributions": 1
+    }
+  ],
+  "fx03/proj03": [
+    {
+      "login": "dev04",
+      "id": 104,
+      "type": "User",
+      "contributions": 40
+    },
+    {
+      "login": "tail03",
+      "id": 303,
+      "type": "User",
+      "contributions": 1
+    }
+  ],
+  "fx04/proj04": [
+    {
+      "login": "dev05",
+      "id": 105,
+      "type": "User",
+      "contributions": 40
+    },
+    {
+      "login": "tail04",
+      "id": 304,
+      "type": "User",
+      "contributions": 1
+    }
+  ],
+  "fx05/proj05": [
+    {
+      "login": "ghost-user",
+      "id": 888,
+      "type": "User",
+      "contributions": 60
+    },
+    {
+      "login": "dev06",
+      "id": 106,
+      "type": "User",
+      "contributions": 40
+    },
+    {
+      "login": "tail05",
+      "id": 305,
+      "type": "User",
+      "contributions": 1
+    }
+  ],
+  "fx06/proj06": [
+    {
+      "login": "dev07",
+      "id": 107,
+      "type": "User",
+      "contributions": 40
+    },
+    {
+      "login": "tail06",
+      "id": 306,
+      "type": "User",
+      "contributions": 1
+    }
+  ],
+  "fx07/proj07": [
+    {
+      "login": "dev08",
+      "id": 108,
+      "type": "User",
+      "contributions": 40
+    },
+    {
+      "login": "tail07",
+      "id": 307,
+      "type": "User",
+      "contributions": 1
+    }
+  ],
+  "fx08/proj08": [
+    {
+      "login": "dev09",
+      "id": 109,
+      "type": "User",
+      "contributions": 40
+    },
+    {
+      "login": "tail08",
+      "id": 308,
+      "type": "User",
+      "contributions": 1
+    }
+  ],
+  "fx09/proj09": [
+    {
+      "login": "dev10",
+      "id": 110,
+      "type": "User",
+      "contributions": 40
+    },
+    {
+      "login": "tail09",
+      "id": 309,
+      "type": "User",
+      "contributions": 1
+    }
+  ],
+  "fx10/proj10": [
+    {
+      "login": "dev01",
+      "id": 101,
+      "type": "User",
+      "contributions": 40
+    },
+    {
+      "login": "tail10",
+      "id": 310,
+      "type": "User",
+      "contributions": 1
+    }
+  ],
+  "fx11/proj11": [
+    {
+      "login": "dev02",
+      "id": 102,
+      "type": "User",
+      "contributions": 40
+    },
+    {
+      "login": "tail11",
+      "id": 311,
+      "type": "User",
+      "contributions": 1
+    }
+  ],
+  "fx12/proj12": [
+    {
+      "login": "dev03",
+      "id": 103,
+      "type": "User",
+      "contributions": 40
+    },
+    {
+      "login": "tail12",
+      "id": 312,
+      "type": "User",
+      "contributions": 1
+    }
+  ],
+  "fx13/proj13": [
+    {
+      "login": "dev04",
+      "id": 104,
+      "type": "User",
+      "contributions": 40
+    },
+    {
+      "login": "tail13",
+      "id": 313,
+      "type": "User",
+      "contributions": 1
+    }
+  ],
+  "fx14/proj14": [
+    {
+      "login": "dev05",
+      "id": 105,
+      "type": "User",
+      "contributions": 40
+    },
+    {
+      "login": "tail14",
+      "id": 314,
+      "type": "User",
+      "contributions": 1
+    }
+  ],
+  "fx15/proj15": [
+    {
+      "login": "dev06",
+      "id": 106,
+      "type": "User",
+      "contributions": 40
+    },
+    {
+      "login": "tail15",
+      "id": 315,
+      "type": "User",
+      "contributions": 1
+    }
+  ],
+  "fx16/proj16": [
+    {
+      "login": "dev07",
+      "id": 107,
+      "type": "User",
+      "contributions": 40
+    },
+    {
+      "login": "tail16",
+      "id": 316,
+      "type": "User",
+      "contributions": 1
+    }
+  ],
+  "fx17/proj17": [
+    {
+      "login": "dev08",
+      "id": 108,
+      "type": "User",
+      "contributions": 40
+    },
+    {
+      "login": "tail17",
+      "id": 317,
+      "type": "User",
+      "contributions": 1
+    }
+  ],
+  "fx18/proj18": [
+    {
+      "login": "dev09",
+      "id": 109,
+      "type": "User",
+      "contributions": 40
+    },
+    {
+      "login": "tail18",
+      "id": 318,
+      "type": "User",
+      "contributions": 1
+    }
+  ],
+  "fx19/proj19": [
+    {
+      "login": "dev10",
+      "id": 110,
+      "type": "User",
+      "contributions": 40
+    },
+    {
+      "login": "tail19",
+      "id": 319,
+      "type": "User",
+      "contributions": 1
+    }
+  ],
+  "fx20/proj20": [
+    {
+      "login": "dev01",
+      "id": 101,
+      "type": "User",
+      "contributions": 40
+    },
+    {
+      "login": "tail20",
+      "id": 320,
+      "type": "User",
+      "contributions": 1
+    }
+  ]
+}

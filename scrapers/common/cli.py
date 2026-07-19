@@ -38,6 +38,7 @@ class ScraperContext:
     warehouse: Warehouse | None
     limit: int
     since: date
+    catalog: str
 
 
 MakeScraper = Callable[[ScraperContext], RunnableScraper]
@@ -96,6 +97,7 @@ def run_scraper(
         warehouse=deps.warehouse,
         limit=options.limit,
         since=options.since,
+        catalog=options.catalog,
     )
     result = execute_run(make_scraper(context), deps, options.since)
     deps.log.info(
