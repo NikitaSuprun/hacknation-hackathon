@@ -10,6 +10,8 @@
 | pyarrow                   | 25.0.0          | Apache-2.0                                         | https://arrow.apache.org/                                                        |
 | packaging                 | 26.2            | Apache-2.0 OR BSD-2-Clause                         | https://github.com/pypa/packaging                                                |
 | cryptography              | 49.0.0          | Apache-2.0 OR BSD-3-Clause                         | https://github.com/pyca/cryptography                                             |
+| Jinja2                    | 3.1.6           | BSD License                                        | https://github.com/pallets/jinja/                                                |
+| altair                    | 6.2.2           | BSD License                                        | https://github.com/vega/altair                                                   |
 | feedparser                | 6.0.12          | BSD License                                        | https://github.com/kurtmckee/feedparser                                          |
 | httpx                     | 0.28.1          | BSD License                                        | https://github.com/encode/httpx                                                  |
 | lz4                       | 4.4.5           | BSD License                                        | https://github.com/python-lz4/python-lz4                                         |
@@ -21,15 +23,18 @@
 | Pygments                  | 2.20.0          | BSD-2-Clause                                       | https://pygments.org                                                             |
 | pyarrow-stubs             | 20.0.0.20260625 | BSD-2-Clause                                       | https://github.com/zen-xu/pyarrow-stubs                                          |
 | pyasn1                    | 0.6.4           | BSD-2-Clause                                       | https://github.com/pyasn1/pyasn1                                                 |
+| MarkupSafe                | 3.0.3           | BSD-3-Clause                                       | https://github.com/pallets/markupsafe/                                           |
 | click                     | 8.4.2           | BSD-3-Clause                                       | https://github.com/pallets/click/                                                |
 | httpcore                  | 1.0.9           | BSD-3-Clause                                       | https://www.encode.io/httpcore/                                                  |
 | idna                      | 3.18            | BSD-3-Clause                                       | https://github.com/kjd/idna                                                      |
+| networkx                  | 3.6.1           | BSD-3-Clause                                       | https://networkx.org/                                                            |
 | oauthlib                  | 3.3.1           | BSD-3-Clause                                       | https://github.com/oauthlib/oauthlib                                             |
 | pycparser                 | 3.0             | BSD-3-Clause                                       | https://github.com/eliben/pycparser                                              |
 | python-dotenv             | 1.2.2           | BSD-3-Clause                                       | https://github.com/theskumar/python-dotenv                                       |
 | numpy                     | 2.5.1           | BSD-3-Clause AND 0BSD AND MIT AND Zlib AND CC0-1.0 | https://numpy.org                                                                |
 | shellingham               | 1.5.4           | ISC License (ISCL)                                 | https://github.com/sarugaku/shellingham                                          |
 | PyJWT                     | 2.13.0          | MIT                                                | https://github.com/jpadilla/pyjwt                                                |
+| RapidFuzz                 | 3.14.5          | MIT                                                | https://github.com/rapidfuzz/RapidFuzz                                           |
 | annotated-doc             | 0.0.4           | MIT                                                | https://github.com/fastapi/annotated-doc                                         |
 | anyio                     | 4.14.2          | MIT                                                | https://anyio.readthedocs.io/en/stable/versionhistory.html                       |
 | attrs                     | 26.1.0          | MIT                                                | https://www.attrs.org/en/stable/changelog.html                                   |
@@ -41,6 +46,7 @@
 | iniconfig                 | 2.3.0           | MIT                                                | https://github.com/pytest-dev/iniconfig                                          |
 | jsonschema                | 4.26.0          | MIT                                                | https://github.com/python-jsonschema/jsonschema                                  |
 | jsonschema-specifications | 2025.9.1        | MIT                                                | https://github.com/python-jsonschema/jsonschema-specifications                   |
+| narwhals                  | 2.24.0          | MIT                                                | https://github.com/narwhals-dev/narwhals                                         |
 | platformdirs              | 4.10.1          | MIT                                                | https://github.com/tox-dev/platformdirs                                          |
 | poethepoet                | 0.48.0          | MIT                                                | https://poethepoet.natn.io/                                                      |
 | pre_commit                | 4.6.0           | MIT                                                | https://github.com/pre-commit/pre-commit                                         |
@@ -51,6 +57,8 @@
 | referencing               | 0.37.0          | MIT                                                | https://github.com/python-jsonschema/referencing                                 |
 | rpds-py                   | 2026.6.3        | MIT                                                | https://github.com/crate-py/rpds                                                 |
 | ruff                      | 0.15.22         | MIT                                                | https://docs.astral.sh/ruff                                                      |
+| splink                    | 4.0.16          | MIT                                                | https://github.com/moj-analytical-services/splink                                |
+| sqlglot                   | 30.12.0         | MIT                                                | https://sqlglot.com/                                                             |
 | typer                     | 0.27.0          | MIT                                                | https://github.com/fastapi/typer                                                 |
 | typing-inspection         | 0.4.2           | MIT                                                | https://github.com/pydantic/typing-inspection                                    |
 | urllib3                   | 2.7.0           | MIT                                                | https://github.com/urllib3/urllib3/blob/main/CHANGES.rst                         |
@@ -59,6 +67,7 @@
 | annotated-types           | 0.7.0           | MIT License                                        | https://github.com/annotated-types/annotated-types                               |
 | basedpyright              | 1.39.9          | MIT License                                        | https://github.com/detachhead/basedpyright                                       |
 | docstring_parser_fork     | 0.0.16          | MIT License                                        | https://github.com/rr-/docstring_parser                                          |
+| duckdb                    | 1.5.4           | MIT License                                        | https://github.com/duckdb/duckdb-python                                          |
 | et_xmlfile                | 2.0.0           | MIT License                                        | https://foss.heptapod.net/openpyxl/et_xmlfile                                    |
 | h11                       | 0.16.0          | MIT License                                        | https://github.com/python-hyper/h11                                              |
 | markdown-it-py            | 4.2.0           | MIT License                                        | https://github.com/executablebooks/markdown-it-py                                |

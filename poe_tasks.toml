@@ -9,6 +9,8 @@ fixtures-validate = "uv run python -m fixtures.validate"
 fixtures-load = "uv run python -m fixtures.load"
 scrape-github = "uv run python -m scrapers.github"
 scrape-papers = "uv run python -m scrapers.papers"
+er = "uv run python -m er"
+scoring = "uv run python -m scoring"
 
 # The allowlist enumerates observed spellings of permissive licenses only;
 # GPL/AGPL/SSPL or non-commercial terms must fail the check.

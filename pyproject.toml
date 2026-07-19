@@ -25,6 +25,12 @@ scrapers = [
   "structlog>=25.1",
   "typer>=0.15",
 ]
+pipeline = [
+  "duckdb>=1.1",
+  "networkx>=3.4",
+  "rapidfuzz>=3.10",
+  "splink>=4.0.16",
+]
 dev = [
   "basedpyright>=1.29",
   "pip-licenses>=5.0",
@@ -40,13 +46,17 @@ dev = [
 
 [tool.uv]
 default-groups = "all"
+# splink declares igraph (GPL — blocked by the permissive-only license gate),
+# but only imports it lazily inside one graph-metrics helper we never call
+# (splink/internals/edge_metrics.py); the never-matching marker excludes it.
+override-dependencies = ["igraph; sys_platform == 'never'"]
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["contracts", "fixtures", "tools", "scrapers"]
+packages = ["contracts", "fixtures", "tools", "scrapers", "er", "scoring"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

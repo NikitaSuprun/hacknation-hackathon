@@ -34,3 +34,10 @@ runtime-evaluated-decorators = ["dataclasses.dataclass"]
 # S310 audits urlopen schemes; this script only ever calls the fixed https
 # ROR API endpoint.
 "tools/build_institutions.py" = ["S310"]
+# ER/scoring warehouse SQL: identifiers come from the DDL registry plus a
+# require_identifier-guarded catalog; values are typed literals or escaped
+# internal keys (same discipline as tools/db.py).
+"tools/llm.py" = ["S608"]
+"tools/erase_person.py" = ["S608"]
+"er/io.py" = ["S608"]
+"er/unmerge.py" = ["S608"]
