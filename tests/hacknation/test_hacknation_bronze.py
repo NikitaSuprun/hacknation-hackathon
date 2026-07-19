@@ -8,7 +8,7 @@ from typing import Final
 import pytest
 
 from contracts.models import Json
-from sources.hacknation.bronze import (
+from scrapers.hacknation.bronze import (
     MissingIdentifierError,
     PayloadShapeError,
     people_rows,

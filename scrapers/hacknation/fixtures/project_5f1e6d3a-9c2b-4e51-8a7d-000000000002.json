@@ -1,0 +1,50 @@
+{
+  "data": {
+    "id": "5f1e6d3a-9c2b-4e51-8a7d-000000000002",
+    "title": "CareLoop",
+    "code": "CARELOOP",
+    "summary": "Care-coordination copilot for hospital discharge planning",
+    "category": "Health",
+    "techStack": ["Python", "FastAPI", "React"],
+    "tags": ["health", "ai"],
+    "eventTitle": "HackNation Global AI Hackathon 2026",
+    "challengeId": "ch-health",
+    "challengeTitle": "Healthcare Challenge",
+    "winner": false,
+    "demoUrl": null,
+    "githubUrl": null,
+    "programType": "hackathon",
+    "ownerId": "hn-selin-0003",
+    "createdAt": "2026-06-21T09:00:00Z",
+    "updatedAt": "2026-07-02T15:00:00Z",
+    "structured": {
+      "problem": "Discharge planning is coordinated over phone and fax",
+      "solution": "A copilot that drafts and tracks discharge care plans",
+      "usp": "Integrates with hospital EHR export formats out of the box",
+      "impact": "Frees nurse coordinators hours per patient",
+      "implementation": "FastAPI service with an LLM planning core",
+      "targetAudience": "Hospital discharge and case management teams",
+      "jury_scope": "Healthcare Challenge finalist"
+    },
+    "authorProfile": {
+      "userId": "hn-selin-0003",
+      "displayName": "Selin Aydın",
+      "firstName": "Selin",
+      "lastName": "Aydın",
+      "email": "selin.aydin@careloop.se",
+      "linkedinUrl": "https://www.linkedin.com/in/selin-aydin-kth",
+      "cvUrl": "https://cdn.hack-nation.ai/cv/hn-selin-0003.pdf",
+      "avatarUrl": "https://cdn.hack-nation.ai/avatars/hn-selin-0003.png",
+      "university": "KTH Royal Institute of Technology",
+      "fieldOfStudy": "Autonomous Systems",
+      "academicDegree": "MSc",
+      "professionalSituation": "Founder",
+      "city": "Stockholm",
+      "country": "Sweden"
+    },
+    "team": [],
+    "review": null,
+    "extra": null,
+    "funMoment": null
+  }
+}

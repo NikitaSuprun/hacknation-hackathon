@@ -53,7 +53,7 @@ An **isolated script** (`sources/hacknation/`, not the shared `BaseScraper`) tha
 - **Flow**: people-v2 (1 req) → collect unique project ids → per-project detail (gentle rate limit + content_hash skip) → normalize.
 - **Gotcha**: Netlify SPA-fallbacks unknown routes to `index.html` with HTTP 200 — always check `content-type: application/json` before parsing (only `bff-public-people-v2` and `bff-projects-public-v2` are real).
 - **Value**: pre-assembled ventures (project + team + roles), the `githubUrl` ER spine (D8), founder education/location/LinkedIn, and a memo-grade structured pitch. Each project → a `hackathon_project` venture that auto-merges with the GitHub-repo venture on `githubUrl`.
-- **Compliance**: participant-disclosed public data; LinkedIn URLs + CVs stored with provenance + erasure; CV content parsing behind a legal-sign-off flag; gentle volume; login optional with own account. See [compliance.md](compliance.md).
+- **Compliance**: participant-disclosed public data; LinkedIn URLs + CVs stored with provenance + erasure; CV fetch + content parsing enabled by default (owner decision 2026-07-19; `--no-cvs` opt-out, CVs fully inside the erasure cascade); gentle volume; login optional with own account. See [compliance.md](compliance.md).
 
 ## Compliance & etiquette
 

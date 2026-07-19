@@ -9,8 +9,8 @@ from typing import Final
 import pytest
 
 from contracts.models import BronzeRecord, Json, SinkValue
-from sources.hacknation import HacknationNormalizer, merge_psrs
-from sources.hacknation.normalizer import psr_fragment_from_cv
+from scrapers.hacknation import HacknationNormalizer, merge_psrs
+from scrapers.hacknation.normalizer import psr_fragment_from_cv
 from tools import ids
 
 T_SCRAPED: Final[datetime] = datetime(2026, 7, 15, 8, 0, tzinfo=UTC)

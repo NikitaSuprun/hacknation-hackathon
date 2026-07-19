@@ -8,7 +8,7 @@ from typing import Final
 import pytest
 
 from contracts.models import Json
-from sources.hacknation.silver import MalformedProjectPayloadError, project_row
+from scrapers.hacknation.silver import MalformedProjectPayloadError, project_row
 from tools import ddl_registry, ids
 
 T_SCRAPED: Final[datetime] = datetime(2026, 7, 15, 8, 0, tzinfo=UTC)

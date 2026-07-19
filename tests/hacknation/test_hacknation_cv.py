@@ -1,24 +1,25 @@
 # Copyright (c) 2026 Maschmeyer's Chosen Portfolio. All rights reserved.
 # Proprietary and confidential. See LICENSE.
-"""Offline tests for the CV toolkit: sample PDF, mocked HTTP, golden bronze rows."""
+"""Offline tests for the CV toolkit: fixture PDF, mocked HTTP, golden bronze rows."""
 
 from collections.abc import Callable, Generator
 from contextlib import contextmanager
 from datetime import UTC, datetime
-from pathlib import Path
 from typing import Final, cast
 
 import httpx
 import pytest
 
 from contracts.models import Json
-from sources.hacknation import cv
+from scrapers.common.http import HttpClient, TokenBucket
+from scrapers.hacknation import cv
+from scrapers.hacknation.replay import CV_PDF
+from tests.scrapers.conftest import FakeTime
 from tools.db import SUPPRESSION_RULES, SuppressionRule, content_hash
 from tools.warehouse import Warehouse
 
-_SAMPLE_PDF: Final[Path] = Path(__file__).resolve().parent / "data" / "hacknation_cv_sample.pdf"
-
 _CV_URL: Final[str] = "https://cdn.example.org/cv/u1.pdf"
+_USER_AGENT: Final[str] = "dealflow-scraper/0.1 (+mailto:test@example.invalid)"
 _SCRAPED_AT: Final[datetime] = datetime(2026, 7, 19, 8, 0, tzinfo=UTC)
 _INGESTED_AT: Final[datetime] = datetime(2026, 7, 19, 8, 5, tzinfo=UTC)
 _STAMP: Final[cv.IngestStamp] = cv.IngestStamp(
@@ -60,14 +61,21 @@ def _as_warehouse(fake: _FakeWarehouse) -> Warehouse:
     return cast("Warehouse", cast("object", fake))
 
 
-def _client(handler: Callable[[httpx.Request], httpx.Response]) -> httpx.Client:
-    return httpx.Client(transport=httpx.MockTransport(handler))
+def _http(handler: Callable[[httpx.Request], httpx.Response]) -> HttpClient:
+    time = FakeTime()
+    return HttpClient(
+        user_agent=_USER_AGENT,
+        headers={},
+        buckets={cv.CV_BUCKET: TokenBucket(1000.0, 10.0, timing=time.timing())},
+        transport=httpx.MockTransport(handler),
+        timing=time.timing(),
+    )
 
 
-def test_extract_text_reads_the_sample_pdf() -> None:
-    text = cv.extract_text(_SAMPLE_PDF.read_bytes())
+def test_extract_text_reads_the_fixture_pdf() -> None:
+    text = cv.extract_text(CV_PDF.read_bytes())
     assert text is not None
-    assert "Aisha Rahman" in text
+    assert "Selin Aydin" in text
     assert "KTH" in text
 
 
@@ -92,7 +100,7 @@ def test_build_prompt_embeds_cv_text_and_demands_strict_json() -> None:
 
 def test_ai_query_constants_are_golden() -> None:
     assert cv.AI_QUERY_SQL == "SELECT ai_query(:endpoint, :prompt) AS extracted"
-    assert cv.DEFAULT_LLM_ENDPOINT == "databricks-claude-sonnet-4-5"
+    assert cv.DEFAULT_LLM_ENDPOINT == "databricks-claude-sonnet-4-6"
 
 
 def test_llm_endpoint_is_env_overridable(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -122,7 +130,7 @@ def test_extract_facts_returns_raw_response_on_invalid_json() -> None:
 def test_cv_row_matches_the_bronze_envelope_golden() -> None:
     document = cv.CvDocument(user_id="u1", cv_url=_CV_URL, pdf_bytes=b"%PDF")
     extraction = cv.CvExtraction(
-        extracted={"skills": ["ros"]}, raw_response=None, model="databricks-claude-sonnet-4-5"
+        extracted={"skills": ["ros"]}, raw_response=None, model="databricks-claude-sonnet-4-6"
     )
     row = cv.cv_row(
         document, cv.volume_path("dealflow_dev", "u1"), "Aisha Rahman", extraction, stamp=_STAMP
@@ -133,7 +141,7 @@ def test_cv_row_matches_the_bronze_envelope_golden() -> None:
         "text_sha256": "10ba71af58b6391482378602b4a5cd215f516e6f7d4b2cadf039523c21817381",
         "text_chars": 12,
         "extracted": {"skills": ["ros"]},
-        "model": "databricks-claude-sonnet-4-5",
+        "model": "databricks-claude-sonnet-4-6",
     }
     assert row == {
         "user_id": "u1",
@@ -157,7 +165,7 @@ def test_cv_row_keeps_raw_response_only_when_unparsed() -> None:
     assert payload["text_chars"] is None
 
 
-def test_fetch_cv_returns_pdf_bytes_with_descriptive_user_agent() -> None:
+def test_fetch_cv_returns_pdf_bytes_with_the_shared_user_agent() -> None:
     seen: list[httpx.Request] = []
 
     def handler(request: httpx.Request) -> httpx.Response:
@@ -166,9 +174,8 @@ def test_fetch_cv_returns_pdf_bytes_with_descriptive_user_agent() -> None:
             200, headers={"content-type": "application/pdf"}, content=b"%PDF-1.4 fake"
         )
 
-    with _client(handler) as client:
-        assert cv.fetch_cv(_CV_URL, client=client) == b"%PDF-1.4 fake"
-    assert seen[0].headers["user-agent"] == cv.USER_AGENT
+    assert cv.fetch_cv(_CV_URL, http=_http(handler)) == b"%PDF-1.4 fake"
+    assert seen[0].headers["user-agent"] == _USER_AGENT
 
 
 def test_fetch_cv_accepts_octet_stream() -> None:
@@ -177,32 +184,28 @@ def test_fetch_cv_accepts_octet_stream() -> None:
             200, headers={"content-type": "application/octet-stream"}, content=b"%PDF-1.4"
         )
 
-    with _client(handler) as client:
-        assert cv.fetch_cv(_CV_URL, client=client) == b"%PDF-1.4"
+    assert cv.fetch_cv(_CV_URL, http=_http(handler)) == b"%PDF-1.4"
 
 
 def test_fetch_cv_returns_none_on_error_status() -> None:
     def handler(_: httpx.Request) -> httpx.Response:
         return httpx.Response(404, headers={"content-type": "application/pdf"}, content=b"gone")
 
-    with _client(handler) as client:
-        assert cv.fetch_cv(_CV_URL, client=client) is None
+    assert cv.fetch_cv(_CV_URL, http=_http(handler)) is None
 
 
 def test_fetch_cv_returns_none_on_non_pdf_content_type() -> None:
     def handler(_: httpx.Request) -> httpx.Response:
         return httpx.Response(200, headers={"content-type": "text/html"}, content=b"<html></html>")
 
-    with _client(handler) as client:
-        assert cv.fetch_cv(_CV_URL, client=client) is None
+    assert cv.fetch_cv(_CV_URL, http=_http(handler)) is None
 
 
 def test_fetch_cv_returns_none_on_empty_body() -> None:
     def handler(_: httpx.Request) -> httpx.Response:
         return httpx.Response(200, headers={"content-type": "application/pdf"}, content=b"")
 
-    with _client(handler) as client:
-        assert cv.fetch_cv(_CV_URL, client=client) is None
+    assert cv.fetch_cv(_CV_URL, http=_http(handler)) is None
 
 
 def test_cvs_table_is_registered_for_erasure_suppression() -> None:

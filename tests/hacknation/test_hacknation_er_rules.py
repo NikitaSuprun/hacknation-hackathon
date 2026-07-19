@@ -5,7 +5,7 @@
 import re
 from typing import Final
 
-from sources.hacknation.er_rules import (
+from scrapers.hacknation.er_rules import (
     CONFIDENCE_D7,
     CONFIDENCE_D8,
     D7_SQL,

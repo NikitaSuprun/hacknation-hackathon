@@ -12,24 +12,16 @@ endobj
 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
 endobj
 5 0 obj
-<< /Length 320 >>
+<< /Length 128 >>
 stream
 BT
 /F1 12 Tf
 72 720 Td
-(Aisha Rahman) Tj
+(Selin Aydin) Tj
 0 -16 Td
-(aisha.rahman@example.org) Tj
+(KTH Royal Institute of Technology) Tj
 0 -16 Td
-(Education) Tj
-0 -16 Td
-(KTH Royal Institute of Technology - MSc Robotics, 2022-2024) Tj
-0 -16 Td
-(Experience) Tj
-0 -16 Td
-(Robotics Intern, Example Dynamics AB, Stockholm, 2024) Tj
-0 -16 Td
-(Skills: Python, ROS 2, SLAM, C++) Tj
+(MSc Autonomous Systems) Tj
 ET
 endstream
 endobj
@@ -44,5 +36,5 @@ xref
 trailer
 << /Size 6 /Root 1 0 R >>
 startxref
-682
+489
 %%EOF

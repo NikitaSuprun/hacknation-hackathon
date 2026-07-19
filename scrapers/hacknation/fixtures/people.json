@@ -1,0 +1,59 @@
+{
+  "data": {
+    "people": [
+      {
+        "user_id": "hn-lena-0001",
+        "display_name": "Léna Fischer",
+        "first_name": "Léna",
+        "last_name": "Fischer",
+        "avatar_url": "https://cdn.hack-nation.ai/avatars/hn-lena-0001.png",
+        "university": "ETH Zürich",
+        "field_of_study": "Robotics",
+        "academic_degree": "PhD",
+        "professional_situation": "Founder",
+        "tagline": "Building grasp foundation models for anything",
+        "country": "Switzerland",
+        "city": "Zürich"
+      },
+      {
+        "user_id": "hn-wei-0002",
+        "display_name": "Wei Zhang",
+        "first_name": "Wei",
+        "last_name": "Zhang",
+        "avatar_url": null,
+        "university": "ETH Zürich",
+        "field_of_study": "Robot Learning",
+        "academic_degree": "PhD",
+        "professional_situation": "Researcher",
+        "tagline": null,
+        "country": "Switzerland",
+        "city": "Zürich"
+      },
+      {
+        "user_id": "hn-selin-0003",
+        "display_name": "Selin Aydın",
+        "first_name": "Selin",
+        "last_name": "Aydın",
+        "avatar_url": "https://cdn.hack-nation.ai/avatars/hn-selin-0003.png",
+        "university": "KTH Royal Institute of Technology",
+        "field_of_study": "Autonomous Systems",
+        "academic_degree": "MSc",
+        "professional_situation": "Founder",
+        "tagline": "Care coordination copilot for hospitals",
+        "country": "Sweden",
+        "city": "Stockholm"
+      }
+    ],
+    "contributionsByUserId": {
+      "hn-lena-0001": [
+        {"id": "5f1e6d3a-9c2b-4e51-8a7d-000000000001", "title": "GraspOS Studio"}
+      ],
+      "hn-wei-0002": [
+        {"id": "5f1e6d3a-9c2b-4e51-8a7d-000000000001", "title": "GraspOS Studio"}
+      ],
+      "hn-selin-0003": [
+        {"id": "5f1e6d3a-9c2b-4e51-8a7d-000000000002", "title": "CareLoop"}
+      ]
+    }
+  }
+}

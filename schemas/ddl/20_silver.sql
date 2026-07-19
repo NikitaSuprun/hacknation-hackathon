@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS silver.person (          -- golden record; survivorsh
   orcid                 STRING,
   website_url           STRING,                     -- personal site/portfolio (enrichment source)
   linkedin_url          STRING,                     -- pointer only; investor click-through
-  cv_url                STRING,                     -- pointer (e.g. Hack Nation cvUrl); content parsing gated by legal sign-off
+  cv_url                STRING,                     -- pointer (e.g. Hack Nation cvUrl); content parsed by default (owner decision 2026-07-19)
   twitter_handle        STRING,
   affiliation           STRING,                     -- current best org guess
   location              STRING,
