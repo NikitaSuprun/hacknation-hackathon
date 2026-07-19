@@ -9,7 +9,7 @@
  * class fakes token streaming client-side so the UI matches mock mode.
  */
 import type { ChatStreamEvent, DataSource } from "@/lib/data/DataSource";
-import { API_BASE, clearSessionToken, getSessionToken } from "@/lib/auth";
+import { apiBase, clearSessionToken, getSessionToken } from "@/lib/auth";
 import { memoSectionsSchema, scoreBreakdownSchema } from "@/lib/domain/schemas";
 import type {
   ConsentPayload,
@@ -33,10 +33,29 @@ import type {
   VentureTeamMember,
 } from "@/lib/domain/types";
 
-/** VARIANT columns arrive as JSON strings from the Statement Execution API. */
+/**
+ * VARIANT columns arrive as JSON strings from the Statement Execution API.
+ * (Some payloads — interview transcript, outreach history — arrive as native
+ * JSON already; both shapes are accepted.)
+ */
 function parseVariant<T>(value: unknown): T | null {
   if (value == null) return null;
   return (typeof value === "string" ? JSON.parse(value) : value) as T;
+}
+
+/**
+ * The server's error surface: {"error": "..."} everywhere except the
+ * ideal-candidate validator, which returns {"errors": ["...", ...]} on 422.
+ */
+function errorMessage(body: unknown): string | null {
+  if (body === null || typeof body !== "object") return null;
+  const { error, errors } = body as { error?: unknown; errors?: unknown };
+  if (typeof error === "string" && error) return error;
+  if (Array.isArray(errors)) {
+    const messages = errors.filter((item): item is string => typeof item === "string");
+    if (messages.length > 0) return messages.join("; ");
+  }
+  return null;
 }
 
 const INTERVIEW_SESSION_KEY = "chosen.interview-session";
@@ -66,7 +85,7 @@ export class LiveDataSource implements DataSource {
 
   private async request<T>(path: string, init?: RequestInit): Promise<T> {
     const token = getSessionToken();
-    const response = await fetch(`${API_BASE}${path}`, {
+    const response = await fetch(`${apiBase()}${path}`, {
       ...init,
       headers: {
         "Content-Type": "application/json",
@@ -75,12 +94,14 @@ export class LiveDataSource implements DataSource {
       },
     });
     if (response.status === 401) {
+      // Sessions are in-memory server-side: {"error":"unauthorized"} after a
+      // restart (or a bad password on /v1/login). Either way, re-login.
       clearSessionToken();
       throw new Error("Session expired — sign in again.");
     }
     if (!response.ok) {
-      const body = (await response.json().catch(() => null)) as { error?: string } | null;
-      throw new Error(body?.error ?? `${path} failed (${response.status})`);
+      const body: unknown = await response.json().catch(() => null);
+      throw new Error(errorMessage(body) ?? `${path} failed (${response.status})`);
     }
     return (await response.json()) as T;
   }
@@ -95,18 +116,29 @@ export class LiveDataSource implements DataSource {
     return (await this.thesisEnvelope()).theses;
   }
 
-  saveThesis(input: ThesisInput): Promise<Thesis> {
-    return this.request("/v1/thesis", { method: "POST", body: JSON.stringify(input) });
+  async saveThesis(input: ThesisInput): Promise<Thesis> {
+    // The upsert echoes the stored row; it sets updated_at but (verified) not
+    // updated_by, so default it rather than surface undefined.
+    const row = await this.request<Record<string, unknown>>("/v1/thesis", {
+      method: "POST",
+      body: JSON.stringify(input),
+    });
+    return { updated_by: "app", ...row } as unknown as Thesis;
   }
 
   async getWeights(thesisId: string): Promise<ScoreWeights> {
     const { weights } = await this.thesisEnvelope();
-    const row = weights.find((w) => w.thesis_id === thesisId && w.is_active) ?? weights[0];
+    // Server-side "active" is `is_active is not False` — mirror that here.
+    const row =
+      weights.find((w) => w.thesis_id === thesisId && w.is_active !== false) ?? weights[0];
     if (!row) throw new Error("No weights configured for this thesis.");
     return row;
   }
 
   async saveWeights(thesisId: string, weights: ScoreWeights): Promise<void> {
+    // Verified: the server reads exactly the nine w_* keys and tolerates the
+    // rest of the row (bookkeeping fields in the body are ignored) — 422 with
+    // {"error": "missing or non-numeric weights: ..."} only when one is absent.
     await this.request(`/v1/thesis/${thesisId}/weights`, {
       method: "PUT",
       body: JSON.stringify(weights),
@@ -115,7 +147,8 @@ export class LiveDataSource implements DataSource {
 
   async getIdealCandidate(thesisId: string): Promise<IdealCandidateProfile> {
     const { ideals } = await this.thesisEnvelope();
-    const row = ideals.find((r) => r.thesis_id === thesisId && r.is_active) ?? ideals[0];
+    const row =
+      ideals.find((r) => r.thesis_id === thesisId && r.is_active !== false) ?? ideals[0];
     if (!row) throw new Error("No ideal-candidate profile for this thesis.");
     const profile = parseVariant<IdealCandidateProfile>(row.profile_json);
     if (!profile) throw new Error("Ideal-candidate profile is empty.");
@@ -138,16 +171,23 @@ export class LiveDataSource implements DataSource {
     const { ventures } = await this.request<{ ventures: Record<string, unknown>[] }>(
       `/v1/ranking?thesis_id=${encodeURIComponent(thesisId)}`,
     );
-    return ventures.map((row) => ({
-      ...(row as unknown as RankedVenture),
-      quality_tier: (row.quality_tier as RankedVenture["quality_tier"]) ?? null,
-      market_tags: parseVariant<string[]>(row.market_tags) ?? [],
-      breakdown: scoreBreakdownSchema.parse(
-        parseVariant(row.breakdown),
-      ) as unknown as ScoreBreakdown,
-      // Ranking rows don't carry the pool's funding_signal — badge renders only when present.
-      funding_signal: (row.funding_signal as RankedVenture["funding_signal"]) ?? null,
-    }));
+    return ventures.map((row) => {
+      // Verified: breakdown is null for pool ventures without a score row —
+      // degrade to an empty breakdown instead of failing the whole ranking.
+      const breakdown = parseVariant(row.breakdown);
+      return {
+        ...(row as unknown as RankedVenture),
+        // Verified present on the wire (from gold.venture), but nullable.
+        quality_tier: (row.quality_tier as RankedVenture["quality_tier"]) ?? null,
+        market_tags: parseVariant<string[]>(row.market_tags) ?? [],
+        breakdown: breakdown
+          ? (scoreBreakdownSchema.parse(breakdown) as unknown as ScoreBreakdown)
+          : { schema_version: 1, categories: {} },
+        // Verified absent from /v1/ranking (it lives on gold.candidate_pool) —
+        // null keeps the badge hidden.
+        funding_signal: (row.funding_signal as RankedVenture["funding_signal"]) ?? null,
+      };
+    });
   }
 
   async getVentureScores(ventureId: string): Promise<ScoreSnapshot[]> {
@@ -200,11 +240,34 @@ export class LiveDataSource implements DataSource {
       "/v1/outreach",
     );
     const row = outreach.find((o) => o.outreach_id === result.outreach_id);
+    if (!row) {
+      // The row should always be listable right after the POST; synthesize a
+      // board-renderable stub from the POST result if it somehow is not.
+      return {
+        outreach_id: result.outreach_id,
+        venture_id: ventureId,
+        person_id: "",
+        thesis_id: "",
+        channel: "email",
+        to_email: result.to_email,
+        subject: "",
+        body: "",
+        interview_url: result.interview_url,
+        status: result.status,
+        sent_at: null,
+        consent_at: null,
+        last_event_at: null,
+        token_expires_at: null,
+        question_plan: null,
+        history: null,
+        created_by: "app",
+        updated_at: new Date().toISOString(),
+      };
+    }
     return {
       ...(row as unknown as OutreachRow),
-      question_plan: row
-        ? parseVariant<{ questions: string[] }>(row.question_plan)
-        : null,
+      question_plan: parseVariant<{ questions: string[] }>(row.question_plan),
+      history: parseVariant<unknown[]>(row.history),
       interview_url: result.interview_url,
     };
   }
@@ -235,7 +298,7 @@ export class LiveDataSource implements DataSource {
   // --- Founder (outreach token + X-Interview-Session header) ---
 
   private async interviewRequest<T>(path: string, init?: RequestInit): Promise<T> {
-    const response = await fetch(`${API_BASE}/v1/interview${path}`, {
+    const response = await fetch(`${apiBase()}/v1/interview${path}`, {
       ...init,
       headers: {
         "Content-Type": "application/json",
@@ -244,8 +307,13 @@ export class LiveDataSource implements DataSource {
       },
     });
     if (!response.ok) {
-      const body = (await response.json().catch(() => null)) as { error?: string } | null;
-      const error = new Error(body?.error ?? `Interview request failed (${response.status})`);
+      // Verified statuses: 400 missing session header, 404 unknown token,
+      // 409 token bound to another device, 410 expired/consumed link,
+      // 403 complete-before-consent, 422 empty text / invalid extraction.
+      const body: unknown = await response.json().catch(() => null);
+      const error = new Error(
+        errorMessage(body) ?? `Interview request failed (${response.status})`,
+      );
       (error as Error & { status?: number }).status = response.status;
       throw error;
     }
@@ -289,10 +357,18 @@ export class LiveDataSource implements DataSource {
         })),
       };
     } catch (error) {
-      const status = (error as Error & { status?: number }).status;
+      const { status, message } = error as Error & { status?: number };
+      // 410 covers both "link has expired" and "no longer usable (status: X)";
+      // an interviewed link means the founder already finished — show that.
+      const stage =
+        status === 410
+          ? message.includes("status: interviewed")
+            ? "completed"
+            : "expired"
+          : "invalid"; // 404 unknown token, 409 open on another device
       return {
         token,
-        stage: status === 410 ? "expired" : "invalid",
+        stage,
         venture_name: "",
         founder_name: "",
         fund_name: "",

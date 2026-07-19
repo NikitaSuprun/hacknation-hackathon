@@ -4,7 +4,8 @@
  * and which memo gap the answer fills. Streaming timing is derived
  * deterministically per-message in MockDataSource.
  *
- * TODO(Track A): replace with the full 10-turn script from the demo plan.
+ * Tone contract: warm, precise, consent-first — and never the language of
+ * an application process (no "apply", "submit"; a copy-audit test enforces it).
  */
 
 export interface ScriptedTurn {
@@ -28,7 +29,46 @@ export const INTERVIEW_SCRIPT: ScriptedTurn[] = [
     fills: ["traction.revenue"],
   },
   {
-    ai: "That's everything, Lena. Your answers — with your consent on record — go into the fund's memo now; a partner reviews the update this week and you'll hear directly either way. Thank you.",
+    ai: "That's helpful, thank you. How are the pilots performing, and when do they decide about converting?",
+    founder:
+      "We hold ourselves to at least 95% pick accuracy on a 500-SKU test set before we invoice. The lead pilot sits at 96.3% today, and two of the three have conversion decisions scheduled for December.",
+  },
+  {
+    ai: "Which customer segment do you serve first, and roughly how large is it?",
+    founder:
+      "Mid-size 3PL warehouses in DACH — roughly 1,900 sites. At about CHF 60k per site per year, that's around CHF 115M serviceable before we look at the rest of Europe.",
+    fills: ["market.tam"],
+  },
+  {
+    ai: "On the team — are you and Wei both full-time on GraspLab?",
+    founder:
+      "I've been full-time since June. Wei defends his PhD in August and has signed to join full-time on September 1 — he already holds founder equity.",
+    fills: ["team.commitment"],
+  },
+  {
+    ai: "Noted, thank you. How is the ETH research IP licensed to the company?",
+    founder:
+      "We signed an exclusive licence with ETH transfer on June 28 — standard spin-off terms with a small royalty on product revenue. The model weights and the training pipeline are ours outright.",
+    fills: ["tech.ip_licensing"],
+  },
+  {
+    ai: "Our records show no prior venture funding for GraspLab — is that right?",
+    founder:
+      "Correct — no equity funding of any kind. We run on a CHF 150k non-dilutive research grant plus the pilot fees.",
+    fills: ["funding.history_verified"],
+  },
+  {
+    ai: "How long does your current runway last at today's burn?",
+    founder:
+      "Burn is about CHF 14k a month, mostly cloud training. With the grant and pilot fees, that gives us roughly 11 months. We're planning a CHF 750k pre-seed this autumn.",
+  },
+  {
+    ai: "Almost done. In your view, what does the public data get wrong about GraspLab?",
+    founder:
+      "The star spike came from one viral benchmark post — stars aren't users, and I'd discount them. The number I'd watch instead is our 41-company design-partner waitlist, which we've never announced.",
+  },
+  {
+    ai: "That's everything, Lena — thank you. Your answers, with your consent on record, go into the fund's memo now. A partner reviews the update this week and you'll hear directly either way. You can review or withdraw your data at any time via the data-rights link in your invitation. To be clear, this review is never a promise of investment. Take care.",
     founder: null,
   },
 ];

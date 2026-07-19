@@ -1,46 +1,168 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMemo } from "react";
 import { Link, useParams } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { dataSource } from "@/lib/data";
-import { formatScore } from "@/lib/utils";
+import { ConfidenceBar } from "@/components/scores/ConfidenceBar";
+import { FundingBadge } from "@/components/scores/FundingBadge";
+import { QualityChip } from "@/components/scores/QualityChip";
+import { ScoreBar } from "@/components/scores/ScoreBar";
+import { StatusChip } from "@/components/scores/StatusChip";
+import {
+  COLD_START_HINT,
+  useColdStartHint,
+  useFlashOnReorder,
+  useRanking,
+} from "@/hooks/useInvestorData";
+import { cn, formatScore } from "@/lib/utils";
+
+/** Shared column template so the mono-label header stays aligned with rows. */
+const ROW_GRID =
+  "grid grid-cols-[2.5rem_minmax(0,1fr)_7.5rem] items-center gap-x-4 px-2 lg:grid-cols-[2.5rem_minmax(0,1fr)_10.5rem_9rem_8.5rem_9.5rem_7.5rem]";
+
+function SkeletonRow() {
+  return (
+    <div className={cn(ROW_GRID, "hairline-b h-14")}>
+      <Skeleton className="h-3 w-6" />
+      <div className="min-w-0">
+        <Skeleton className="h-4 w-3/5 max-w-64" />
+      </div>
+      <Skeleton className="hidden h-5 w-24 rounded-full lg:block" />
+      <Skeleton className="hidden h-5 w-20 rounded-full lg:block" />
+      <Skeleton className="hidden h-5 w-20 rounded-full lg:block" />
+      <span className="hidden lg:block" />
+      <div className="space-y-1.5">
+        <Skeleton className="ml-auto h-3 w-10" />
+        <Skeleton className="h-1 w-full" />
+        <Skeleton className="h-0.5 w-full" />
+      </div>
+    </div>
+  );
+}
 
 /**
- * TODO(Track B): full ranked list — score/confidence bars, status chips,
- * funding badges, quality tiers, needs_more_data treatment, select-for-outreach.
+ * The flagship ranked list: 56px hairline rows over gold.v_ranked_ventures,
+ * already sorted by the seam under the active weights. Order changes flash
+ * the moved rows for 240ms (FLIP-lite).
  */
 export default function RankingPage() {
   const { thesisId = "" } = useParams();
-  const ds = dataSource();
-  const { data: ventures, isLoading } = useQuery({
-    queryKey: ["ranking", thesisId],
-    queryFn: () => ds.getRanking(thesisId),
-  });
+  const { data: ventures, isLoading, isError, error, refetch } = useRanking(thesisId);
+  const coldStart = useColdStartHint(isLoading);
+  const ids = useMemo(() => ventures?.map((v) => v.venture_id), [ventures]);
+  const flashed = useFlashOnReorder(ids);
 
   return (
     <div className="py-gutter-lg">
-      <p className="mono-label mb-2">Ranked ventures</p>
-      <h1 className="font-display text-h1">Ranking</h1>
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p className="mono-label mb-2">Ranked ventures</p>
+          <h1 className="font-display text-h1">Ranking</h1>
+        </div>
+        {ventures && ventures.length > 0 && (
+          <p className="font-mono text-mono-data tabular text-quiet">
+            {String(ventures.length).padStart(2, "0")} ventures · ranked under active weights
+          </p>
+        )}
+      </div>
+
       <div className="mt-8">
-        {isLoading &&
-          Array.from({ length: 6 }, (_, i) => <Skeleton key={i} className="mb-px h-14 w-full" />)}
-        {ventures?.map((venture, index) => (
-          <Link
-            key={venture.venture_id}
-            to={`/t/${thesisId}/venture/${venture.venture_id}`}
-            className="hairline-b flex h-14 items-center gap-6 px-2 transition-colors duration-120 ease-swift hover:bg-wash"
-          >
-            <span className="w-8 font-mono text-mono-data tabular text-quiet">
-              {String(index + 1).padStart(2, "0")}
-            </span>
-            <span className="flex-1 truncate">
-              <span className="font-medium text-ink">{venture.name}</span>
-              <span className="ml-3 text-small text-quiet">{venture.one_liner}</span>
-            </span>
-            <span className="font-mono text-mono-data tabular text-ink">
-              {formatScore(venture.final_score)}
-            </span>
-          </Link>
-        ))}
+        <div className={cn(ROW_GRID, "h-9 border-b border-line-strong")}>
+          <span className="mono-label">Rank</span>
+          <span className="mono-label">Venture</span>
+          <span className="mono-label hidden lg:block">Funding</span>
+          <span className="mono-label hidden lg:block">Quality</span>
+          <span className="mono-label hidden lg:block">Status</span>
+          <span className="hidden lg:block" />
+          <span className="mono-label text-right">Score</span>
+        </div>
+
+        {isLoading && (
+          <>
+            {Array.from({ length: 8 }, (_, i) => (
+              <SkeletonRow key={i} />
+            ))}
+            {coldStart && (
+              <p className="mt-4 font-mono text-mono-data text-quiet">{COLD_START_HINT}</p>
+            )}
+          </>
+        )}
+
+        {isError && (
+          <div className="max-w-measure-narrow py-gutter">
+            <p className="mono-label mb-2">Ranking unavailable</p>
+            <p className="text-body text-quiet">
+              The ranking query failed{error instanceof Error ? ` — ${error.message}` : ""}.
+            </p>
+            <Button variant="outline" size="sm" className="mt-4" onClick={() => refetch()}>
+              Retry
+            </Button>
+          </div>
+        )}
+
+        {ventures && ventures.length === 0 && (
+          <div className="max-w-measure-narrow py-gutter">
+            <p className="mono-label mb-2">Empty pool</p>
+            <p className="text-body text-quiet">No ventures match the active thesis yet.</p>
+            <Button asChild variant="outline" size="sm" className="mt-4">
+              <Link to="/thesis">Review thesis</Link>
+            </Button>
+          </div>
+        )}
+
+        {ventures?.map((venture, index) => {
+          const needsMore = venture.quality_tier === "needs_more_data";
+          const isFlashed = flashed.has(venture.venture_id);
+          return (
+            <Link
+              key={venture.venture_id}
+              to={`/t/${thesisId}/venture/${venture.venture_id}`}
+              data-demo-id={`venture-row-${venture.venture_id}`}
+              className={cn(
+                ROW_GRID,
+                "group hairline-b h-14 transition-colors duration-240 ease-swift hover:bg-wash",
+                isFlashed && "bg-electric-wash",
+              )}
+            >
+              <span className="font-mono text-mono-data tabular text-quiet">
+                {String(index + 1).padStart(2, "0")}
+              </span>
+              <span className="min-w-0 truncate">
+                <span className="text-body font-medium text-ink">{venture.name}</span>
+                <span className="ml-3 text-small text-quiet">{venture.one_liner}</span>
+              </span>
+              <span className="hidden lg:block">
+                <FundingBadge signal={venture.funding_signal} />
+              </span>
+              <span className="hidden lg:block">
+                <QualityChip tier={venture.quality_tier} />
+              </span>
+              <span className="hidden lg:block">
+                <StatusChip status={venture.status} />
+              </span>
+              <span className="hidden text-right lg:block">
+                {needsMore ? (
+                  <span
+                    className="block font-mono text-[11px] leading-tight text-quiet"
+                    title="Not enough signal to choose"
+                  >
+                    Not enough signal to choose
+                  </span>
+                ) : (
+                  <span className="font-mono text-[11px] uppercase tracking-[0.06em] text-quiet opacity-0 transition-opacity duration-120 ease-swift group-hover:opacity-100">
+                    open →
+                  </span>
+                )}
+              </span>
+              <span className={cn("block space-y-1", needsMore && "opacity-60")}>
+                <span className="block text-right font-mono text-mono-data tabular text-ink">
+                  {formatScore(venture.final_score)}
+                </span>
+                <ScoreBar value={venture.final_score} flash={isFlashed} />
+                <ConfidenceBar value={venture.confidence} />
+              </span>
+            </Link>
+          );
+        })}
       </div>
     </div>
   );

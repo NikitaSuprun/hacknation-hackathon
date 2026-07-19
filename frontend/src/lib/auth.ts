@@ -6,10 +6,16 @@
 
 const SESSION_KEY = "chosen.session";
 
-export const API_BASE = ((import.meta.env.VITE_API_BASE as string | undefined) ?? "").replace(
-  /\/$/,
-  "",
-);
+/**
+ * The API origin, read lazily so tests can stub VITE_API_BASE after module
+ * load (vi.stubEnv). Empty string = same-origin (production / dev proxy).
+ */
+export function apiBase(): string {
+  return ((import.meta.env.VITE_API_BASE as string | undefined) ?? "").replace(/\/$/, "");
+}
+
+/** Snapshot at module load — kept for import stability; prefer apiBase(). */
+export const API_BASE = apiBase();
 
 export function getSessionToken(): string | null {
   return localStorage.getItem(SESSION_KEY);
@@ -24,7 +30,7 @@ export function clearSessionToken(): void {
 }
 
 export async function login(password: string): Promise<void> {
-  const response = await fetch(`${API_BASE}/v1/login`, {
+  const response = await fetch(`${apiBase()}/v1/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ password }),

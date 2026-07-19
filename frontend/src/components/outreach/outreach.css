@@ -1,0 +1,20 @@
+/* Outreach board micro-animations — transform/opacity only. */
+
+/* Status-chip flip: 240ms ease-spring rotateX, played when a card's status
+   changes between renders (the chip is remounted keyed by status). */
+.outreach-chip-flip {
+  animation: outreach-chip-flip 240ms var(--ease-spring) both;
+  transform-origin: 50% 100%;
+  backface-visibility: hidden;
+}
+
+@keyframes outreach-chip-flip {
+  from {
+    transform: perspective(320px) rotateX(-88deg);
+    opacity: 0;
+  }
+  to {
+    transform: perspective(320px) rotateX(0deg);
+    opacity: 1;
+  }
+}

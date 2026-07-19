@@ -1,0 +1,185 @@
+/* ---------------------------------------------------------------------------
+   CANDIDACY SENT — the signature moment (~1600ms, CSS only).
+   Every animation is transform / opacity / clip-path; blur filters are set
+   once per layer and never animated. Keyframes loop but the overlay unmounts
+   at ~1600ms, so they only run while it is mounted.
+
+   Storyboard:
+     0–120ms    circular clip-path reveal of the paint burst from the origin
+     300–900ms  center card rises
+     1100–1600  whole overlay fades out (320ms ease-travel), then unmounts
+--------------------------------------------------------------------------- */
+
+.celebration-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  pointer-events: auto;
+  --burst-x: 50%;
+  --burst-y: 50%;
+}
+
+.celebration-overlay.is-exiting {
+  animation: celebration-exit 320ms var(--ease-travel) both;
+  pointer-events: none;
+}
+
+@keyframes celebration-exit {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* --- Paint burst: cream ground + 3 stacked pre-blurred gradient layers ---- */
+
+.celebration-burst {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--paper);
+  clip-path: circle(0px at var(--burst-x) var(--burst-y));
+  animation: celebration-reveal 120ms var(--ease-swift) forwards;
+}
+
+@keyframes celebration-reveal {
+  from {
+    clip-path: circle(0px at var(--burst-x) var(--burst-y));
+  }
+  to {
+    clip-path: circle(160vmax at var(--burst-x) var(--burst-y));
+  }
+}
+
+.celebration-burst__layer {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 170vmax;
+  height: 170vmax;
+  margin: -85vmax 0 0 -85vmax;
+  border-radius: 9999px;
+  will-change: transform;
+}
+
+.celebration-burst__layer--electric {
+  background: conic-gradient(
+    from 30deg at 50% 50%,
+    rgba(0, 55, 255, 0.85) 0%,
+    rgba(0, 55, 255, 0) 32%,
+    rgba(0, 55, 255, 0.55) 48%,
+    rgba(0, 55, 255, 0) 70%,
+    rgba(0, 55, 255, 0.85) 100%
+  );
+  filter: blur(72px);
+  animation: celebration-spin-a 7s linear infinite;
+}
+
+.celebration-burst__layer--cream {
+  background: radial-gradient(
+    closest-side,
+    rgba(250, 247, 234, 0.95) 0%,
+    rgba(250, 247, 234, 0.45) 45%,
+    rgba(250, 247, 234, 0) 72%
+  );
+  filter: blur(56px);
+  animation: celebration-spin-b 9s linear infinite;
+}
+
+.celebration-burst__layer--ink {
+  background: conic-gradient(
+    from 210deg at 50% 50%,
+    rgba(14, 14, 12, 0.2) 0%,
+    rgba(14, 14, 12, 0) 30%,
+    rgba(14, 14, 12, 0.14) 55%,
+    rgba(14, 14, 12, 0) 82%,
+    rgba(14, 14, 12, 0.2) 100%
+  );
+  filter: blur(64px);
+  animation: celebration-spin-c 11s linear infinite;
+}
+
+@keyframes celebration-spin-a {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(180deg) scale(1.12);
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+@keyframes celebration-spin-b {
+  0% {
+    transform: rotate(0deg) scale(1.05);
+  }
+  50% {
+    transform: rotate(-180deg) scale(0.92);
+  }
+  100% {
+    transform: rotate(-360deg) scale(1.05);
+  }
+}
+
+@keyframes celebration-spin-c {
+  0% {
+    transform: rotate(0deg) scale(0.96);
+  }
+  50% {
+    transform: rotate(180deg) scale(1.08);
+  }
+  100% {
+    transform: rotate(360deg) scale(0.96);
+  }
+}
+
+/* --- Center card ---------------------------------------------------------- */
+
+.celebration-card {
+  position: relative;
+  z-index: 1;
+  max-width: min(560px, calc(100vw - 56px));
+  opacity: 0;
+  transform: translateY(18px);
+  animation: celebration-rise 420ms var(--ease-swift) 300ms forwards;
+}
+
+@keyframes celebration-rise {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Reduced motion: no burst is rendered; the card does a 150ms crossfade.
+   These class selectors out-rank the global universal clamp on purpose —
+   an opacity-only crossfade is the sanctioned reduced-motion variant. */
+.celebration-card--reduced {
+  transform: none;
+  animation: celebration-crossfade 150ms ease-out forwards;
+}
+
+@keyframes celebration-crossfade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .celebration-card--reduced {
+    animation-duration: 150ms !important;
+    animation-delay: 0ms !important;
+  }
+  .celebration-overlay.is-exiting {
+    animation-duration: 150ms !important;
+  }
+}

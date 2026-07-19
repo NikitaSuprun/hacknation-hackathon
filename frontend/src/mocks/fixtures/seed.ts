@@ -9,6 +9,7 @@
  */
 import * as GEN from "./generated";
 import { EXTRA_GAPS, EXTRA_MEMOS, EXTRA_TEAM, EXTRA_VENTURES } from "./extraVentures";
+import { GRASPLAB_MEMO_POST_SECTIONS, GRASPLAB_MEMO_PRE_SECTIONS } from "./memos";
 import { categoryScoresOf, computeFinalScore } from "@/lib/ranking/rerank";
 import type {
   CategoryKey,
@@ -178,16 +179,16 @@ function fixtureGaps(): Record<string, VentureGap[]> {
   return gaps;
 }
 
-function grasplabMemo(id: string): Memo {
+function grasplabMemo(id: string, sections: MemoSections, generatedAt?: string): Memo {
   return {
     memo_id: id,
     venture_id: GRASPLAB_ID,
     thesis_id: rawMemo.thesis_id as string,
-    sections: structuredClone(rawMemo.sections) as MemoSections,
+    sections: structuredClone(sections),
     model_version: rawMemo.model_version as string,
     status: (rawMemo.status as string | null) ?? null,
     run_id: (rawMemo.run_id as string | null) ?? null,
-    generated_at: rawMemo.generated_at as string,
+    generated_at: generatedAt ?? (rawMemo.generated_at as string),
     is_latest: true,
   };
 }
@@ -216,7 +217,11 @@ export function buildSentOutreachRow(overrides: Partial<OutreachRow> = {}): Outr
     last_event_at: now,
     token_expires_at: new Date(Date.now() + 14 * 24 * 3600 * 1000).toISOString(),
     question_plan: {
-      questions: (fixtureGaps()[GRASPLAB_ID] ?? []).map((gap) => gap.question_text),
+      // The seed merge replaces GraspLab's generated gaps with the authored
+      // five-question plan — mirror that here so the outreach row agrees.
+      questions: (EXTRA_GAPS[GRASPLAB_ID] ?? fixtureGaps()[GRASPLAB_ID] ?? []).map(
+        (gap) => gap.question_text,
+      ),
     },
     history: null,
     created_by: rawThesis.owner_email as string,
@@ -273,8 +278,17 @@ export function seedDB(): SeedDB {
     ventures,
     team: { ...fixtureTeams(), ...EXTRA_TEAM },
     scoreHistory,
-    memos: { [GRASPLAB_ID]: grasplabMemo("memo-grasplab-pre"), ...EXTRA_MEMOS },
-    postMemos: { [GRASPLAB_ID]: grasplabMemo("memo-grasplab-post") },
+    memos: {
+      [GRASPLAB_ID]: grasplabMemo("memo-grasplab-pre", GRASPLAB_MEMO_PRE_SECTIONS),
+      ...EXTRA_MEMOS,
+    },
+    postMemos: {
+      [GRASPLAB_ID]: grasplabMemo(
+        "memo-grasplab-post",
+        GRASPLAB_MEMO_POST_SECTIONS,
+        "2026-07-16T10:20:00+00:00",
+      ),
+    },
     gaps: { ...fixtureGaps(), ...EXTRA_GAPS },
     outreach: [],
     ideal: rawIdeal.profile_json as unknown as IdealCandidateProfile,
