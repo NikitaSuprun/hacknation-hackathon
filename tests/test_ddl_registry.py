@@ -154,3 +154,23 @@ def test_coerce_rows_types_temporal_cells_and_passes_typed_ones_through() -> Non
     assert typed[0]["created_at"] == datetime(2026, 7, 15, 8, 0, tzinfo=UTC)
     assert typed[0]["updated_at"] == datetime(2026, 7, 15, 8, 0, tzinfo=UTC)
     assert typed[0]["name"] == "GraspLab"
+
+
+def test_coerce_rows_normalizes_column_order_across_a_batch() -> None:
+    # Arrow staging compares key order, so a freshly built row and a row
+    # copied from JSONL (sorted keys) must come out identically ordered.
+    fresh = {
+        "venture_id": "v1",
+        "anchor_type": "repo",
+        "anchor_id": "p1",
+        "name": "GraspLab",
+        "status": "sourced",
+        "created_at": datetime(2026, 7, 15, 8, 0, tzinfo=UTC),
+        "updated_at": datetime(2026, 7, 15, 8, 0, tzinfo=UTC),
+    }
+    from_jsonl = dict(sorted(fresh.items()))
+    typed = coerce_rows("gold.venture", [fresh, from_jsonl])
+    assert list(typed[0]) == list(typed[1])
+    assert list(typed[0]) == [
+        column for column in table_schema("gold.venture").column_names if column in fresh
+    ]

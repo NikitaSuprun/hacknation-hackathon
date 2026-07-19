@@ -324,7 +324,9 @@ def coerce_rows(table: str, rows: Sequence[Mapping[str, object]]) -> list[SinkRo
     Rows assembled from JSONL (or read back from the warehouse) carry ISO
     strings where the DDL declares TIMESTAMP/DATE; Parquet staging needs the
     typed values. Cells that are already typed pass through untouched, so
-    this is safe to apply on any write path.
+    this is safe to apply on any write path. Columns are also emitted in DDL
+    order: Arrow staging compares key order across a batch, and rows built
+    fresh and rows copied from JSONL otherwise disagree.
 
     Args:
         table: Schema-qualified table name.
@@ -337,8 +339,9 @@ def coerce_rows(table: str, rows: Sequence[Mapping[str, object]]) -> list[SinkRo
     schema = table_schema(table)
     return [
         {
-            column: coerce(cast("Json", value), schema.column_type(column))
-            for column, value in row.items()
+            column: coerce(cast("Json", row[column]), schema.column_type(column))
+            for column in schema.column_names
+            if column in row
         }
         for row in rows
     ]
