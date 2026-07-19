@@ -26,6 +26,7 @@ from scrapers.common.sink import DEFAULT_CATALOG, NullSink
 from tools.db import DatabricksSink
 from tools.ids import DEALFLOW_NS, new_random_id
 from tools.llm import AiQueryLLMClient, AnthropicHttpClient, ScriptedLLMClient
+from tools.llm_cli import BACKEND_ENV, CLAUDE_CODE_BACKEND, ClaudeCodeLLMClient
 from tools.settings import MissingConfigError, load_databricks_settings
 from tools.warehouse import Warehouse
 
@@ -70,6 +71,10 @@ def _fixture_clock() -> datetime:
 
 def _live_llm(*, stage_b: bool) -> LLMClient:
     if stage_b:
+        # Opt-in route for operators who have a Claude subscription but no API
+        # credits; unset, everything behaves exactly as before.
+        if os.environ.get(BACKEND_ENV) == CLAUDE_CODE_BACKEND:
+            return ClaudeCodeLLMClient()
         api_key = os.environ.get(ANTHROPIC_KEY_ENV)
         if not api_key:
             raise MissingConfigError([ANTHROPIC_KEY_ENV])

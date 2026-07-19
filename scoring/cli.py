@@ -301,8 +301,9 @@ def stage_b(  # pyright: ignore[reportUnusedFunction] - typer registers the comm
     """Report the Stage-B deep-dive verdicts (scripted when offline)."""
     if not (fixtures and dry_run):
         typer.echo(
-            "stage-b live runs need ANTHROPIC_API_KEY and a warehouse; "
-            "run with --fixtures --dry-run for the scripted path"
+            "stage-b live runs need a warehouse plus either ANTHROPIC_API_KEY "
+            "or LLM_BACKEND=claude-code (a signed-in Claude Code, no API "
+            "credits); run with --fixtures --dry-run for the scripted path"
         )
         raise typer.Exit(code=1)
     del venture_id
