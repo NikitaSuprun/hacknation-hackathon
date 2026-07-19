@@ -135,6 +135,17 @@ CREATE TABLE IF NOT EXISTS bronze.hacknation_projects_raw ( -- Hack Nation proje
   CONSTRAINT pk_hacknation_projects_raw PRIMARY KEY (project_id)
 ) TBLPROPERTIES (delta.enableChangeDataFeed = true);
 
+CREATE TABLE IF NOT EXISTS bronze.hacknation_cvs_raw ( -- fetched+parsed participant CVs (enabled by default; owner decision 2026-07-19)
+  user_id        STRING NOT NULL,
+  payload        VARIANT,                    -- cv_url, volume_path, text_sha256, text_chars, extracted, raw_response, model
+  content_hash   STRING NOT NULL,
+  source_url     STRING NOT NULL,
+  scraped_at     TIMESTAMP NOT NULL,
+  ingested_at    TIMESTAMP NOT NULL,
+  scrape_run_id  STRING NOT NULL,
+  CONSTRAINT pk_hacknation_cvs_raw PRIMARY KEY (user_id)
+) TBLPROPERTIES (delta.enableChangeDataFeed = true);
+
 CREATE TABLE IF NOT EXISTS bronze._rejects (           -- validation failures never crash a run; they land here
   source STRING, natural_key STRING, error STRING, raw STRING, scrape_run_id STRING, ingested_at TIMESTAMP
 );

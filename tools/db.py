@@ -74,6 +74,7 @@ class SuppressionRule:
 # Person-bearing MERGE targets; artifact tables need no guard.
 SUPPRESSION_RULES: Final[dict[str, SuppressionRule]] = {
     "bronze.github_users_raw": SuppressionRule("github", None, "user_id"),
+    "bronze.hacknation_cvs_raw": SuppressionRule("hacknation", None, "user_id"),
     "bronze.hacknation_people_raw": SuppressionRule("hacknation", None, "user_id"),
     "silver.person_source_record": SuppressionRule(None, "source", "source_key"),
 }

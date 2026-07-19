@@ -40,6 +40,11 @@ def project_id(repo_id: int) -> str:
     return _uuid5(f"github_repo:{repo_id}")
 
 
+def hacknation_project_id(project_key: str) -> str:
+    """ID for silver.project (Hack Nation anchor): `'hacknation_project:' || project_key`."""
+    return _uuid5(f"hacknation_project:{project_key}")
+
+
 def publication_id(doi: str | None, arxiv_id: str | None, openalex_id: str | None) -> str:
     """ID for silver.publication: `coalesce(doi, 'arxiv:' || arxiv_id, openalex_id)`.
 

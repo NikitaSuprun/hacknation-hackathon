@@ -646,6 +646,8 @@ class PsrSeed:
     country_code: str | None = None
     keywords: tuple[str, ...] = ()
     bio: str | None = None
+    avatar_url: str | None = None
+    cv_url: str | None = None
 
 
 def make_psr(seed: PsrSeed) -> Row:
@@ -681,6 +683,8 @@ def make_psr(seed: PsrSeed) -> Row:
         last_seen_at=datetime.fromisoformat(T_SCRAPED),
         scraped_at=datetime.fromisoformat(T_SCRAPED),
         ingested_at=datetime.fromisoformat(T_INGESTED),
+        avatar_url=seed.avatar_url,
+        cv_url=seed.cv_url,
     )
     return record.to_row()
 

@@ -19,6 +19,10 @@ def test_project_id_golden() -> None:
     assert ids.project_id(500123) == "efce0d66-c110-555a-a79b-bfb96fa3ef11"
 
 
+def test_hacknation_project_id_golden() -> None:
+    assert ids.hacknation_project_id("hn-proj-001") == "7cbc2f38-bdc7-5803-84d5-37d500070f5a"
+
+
 def test_publication_id_coalesce_order() -> None:
     assert ids.publication_id("10.1000/xyz", "2506.01234", "W1") == (
         "401bc6a0-b12d-5244-8eb0-07ad92aa1f2d"

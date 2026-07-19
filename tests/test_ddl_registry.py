@@ -33,6 +33,7 @@ _EXPECTED_KEYS: Final[dict[str, tuple[str, ...]]] = {
     "bronze.zefix_sogc_raw": ("sogc_id",),
     "bronze.hacknation_people_raw": ("user_id",),
     "bronze.hacknation_projects_raw": ("project_id",),
+    "bronze.hacknation_cvs_raw": ("user_id",),
     "silver.person": ("person_id",),
     "silver.person_source_record": ("source_record_id",),
     "silver.person_source_link": ("link_id",),

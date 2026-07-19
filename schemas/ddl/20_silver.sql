@@ -58,6 +58,8 @@ CREATE TABLE IF NOT EXISTS silver.person_source_record (  -- immutable per-sourc
   last_seen_at      TIMESTAMP NOT NULL,
   scraped_at        TIMESTAMP NOT NULL,
   ingested_at       TIMESTAMP NOT NULL,
+  avatar_url        STRING,                       -- profile photo (e.g. Hack Nation avatar_url)
+  cv_url            STRING,                       -- CV pointer (e.g. Hack Nation cvUrl); content fetched to the ops volume
   CONSTRAINT pk_psr PRIMARY KEY (source_record_id)
 ) TBLPROPERTIES (delta.enableChangeDataFeed = true);
 
@@ -66,7 +68,7 @@ CREATE TABLE IF NOT EXISTS silver.person_source_link (  -- the ER decisions; app
   person_id         STRING NOT NULL,
   source_record_id  STRING NOT NULL,
   match_confidence  DOUBLE NOT NULL,              -- 0..1
-  match_method      STRING NOT NULL,              -- det_email | det_orcid | det_website | det_handle | det_crosslink | splink | llm_adjudication | human_review | interview_claim | seed_fixture
+  match_method      STRING NOT NULL,              -- det_email | det_orcid | det_website | det_handle | det_crosslink | splink | llm_adjudication | human_review | interview_claim | seed_fixture | det_linkedin | det_hn_repo
   evidence          VARIANT,
   pipeline_version  STRING NOT NULL,
   matched_at        TIMESTAMP NOT NULL,
@@ -82,8 +84,8 @@ ALTER TABLE silver.person_source_link ADD CONSTRAINT chk_psl_conf CHECK (match_c
 
 CREATE TABLE IF NOT EXISTS silver.project (          -- GitHub repo as a signal artifact
   project_id        STRING NOT NULL,               -- UUIDv5(ns,'github_repo:'||repo_id)
-  repo_id           BIGINT NOT NULL,
-  full_name         STRING NOT NULL,
+  repo_id           BIGINT,                        -- github rows only; hacknation projects carry no repo identity (NOT NULL was github-era)
+  full_name         STRING,                        -- github rows only
   name              STRING,
   owner_login       STRING,
   is_org_owned      BOOLEAN,
