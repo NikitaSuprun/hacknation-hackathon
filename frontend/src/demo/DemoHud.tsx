@@ -4,6 +4,7 @@
  * the content being demonstrated. Everything inside is marked data-demo-hud so
  * presenter clicks here never trigger the auto-pause.
  */
+import { useEffect } from "react";
 import { ChevronLeft, ChevronRight, Pause, Play, RotateCcw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEngineState, type DemoEngine } from "@/demo/engine";
@@ -48,6 +49,15 @@ const STATUS_LABEL: Record<string, string> = {
 
 export function DemoHud({ engine }: { engine: DemoEngine }) {
   const state = useEngineState(engine);
+
+  // Surfaces that own the bottom of the viewport (the interview composer)
+  // reserve room for the bar while it is on screen — see index.css.
+  useEffect(() => {
+    if (!state.hudVisible) return;
+    document.body.classList.add("demo-hud-active");
+    return () => document.body.classList.remove("demo-hud-active");
+  }, [state.hudVisible]);
+
   if (!state.hudVisible) return null;
 
   const playing = state.status === "playing";
@@ -56,7 +66,9 @@ export function DemoHud({ engine }: { engine: DemoEngine }) {
   return (
     <div
       data-demo-hud
-      className="pointer-events-none fixed inset-x-0 bottom-5 z-[100] flex flex-col items-center gap-2 px-4"
+      // Left-aligned on wide screens so it never covers the interview
+      // composer, which owns the centre column.
+      className="pointer-events-none fixed inset-x-0 bottom-5 z-[100] flex flex-col items-center gap-2 px-4 xl:items-start xl:pl-6"
     >
       {state.captionsOn && state.caption && (
         <div className="pointer-events-auto max-w-xl rounded-ctrl border border-line bg-paper px-4 py-2 shadow-lift">

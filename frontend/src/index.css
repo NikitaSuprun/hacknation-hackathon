@@ -136,6 +136,12 @@
   .hairline-r {
     border-right: 1px solid var(--line);
   }
+  /* The demo HUD is fixed to the bottom-left; surfaces that own the bottom
+     of the viewport reserve room for it so the two never overlap on stage. */
+  body.demo-hud-active .demo-safe-bottom {
+    padding-bottom: 7.5rem;
+  }
+
   /* Skeleton shimmer: transform-only sweep on a wash base */
   .skeleton {
     @apply relative overflow-hidden bg-wash;

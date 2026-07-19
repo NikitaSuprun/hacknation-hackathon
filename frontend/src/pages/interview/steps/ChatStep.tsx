@@ -167,7 +167,7 @@ export function ChatStep({
       </div>
 
       {!chat.ended ? (
-        <footer className="hairline-t shrink-0 px-gutter py-4">
+        <footer className="hairline-t demo-safe-bottom shrink-0 px-gutter py-4">
           <div className="mx-auto flex w-full max-w-[680px] items-end gap-3">
             <Textarea
               data-demo-id="chat-input"
