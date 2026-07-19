@@ -15,6 +15,7 @@ from typing import Final
 
 from structlog.typing import FilteringBoundLogger
 
+from contracts.models import Json
 from scrapers.common.http import HttpClient
 from scrapers.common.jsonutil import as_list, as_mapping, get_list, get_map, get_str
 from scrapers.github.models import RepoStub
@@ -148,7 +149,7 @@ class GithubGraphql:
 
     def hydrate_repos(
         self, stubs: Sequence[RepoStub], since: str | None
-    ) -> tuple[dict[str, dict[str, object]], list[GqlFailure]]:
+    ) -> tuple[dict[str, dict[str, Json]], list[GqlFailure]]:
         """Hydrate up to 25 repos in one query.
 
         Args:
@@ -163,7 +164,7 @@ class GithubGraphql:
 
     def user_profiles(
         self, logins: Sequence[str]
-    ) -> tuple[dict[str, dict[str, object]], list[GqlFailure]]:
+    ) -> tuple[dict[str, dict[str, Json]], list[GqlFailure]]:
         """Fetch up to 50 profiles in one query.
 
         Args:
@@ -174,7 +175,7 @@ class GithubGraphql:
         """
         return self._with_retry(list(logins), user_query)
 
-    def _execute(self, query: str) -> tuple[dict[str, object], dict[str, tuple[str, str]]]:
+    def _execute(self, query: str) -> tuple[dict[str, Json], dict[str, tuple[str, str]]]:
         response = self._http.post_json(GQL_URL, {"query": query}, bucket=GQL_BUCKET)
         body = as_mapping(response.json())
         data = get_map(body, "data")
@@ -190,16 +191,16 @@ class GithubGraphql:
         self._note_rate(data)
         return data, errors
 
-    def _note_rate(self, data: dict[str, object]) -> None:
+    def _note_rate(self, data: dict[str, Json]) -> None:
         rate = get_map(data, "rateLimit")
         if rate:
             self._log.info("graphql rate", cost=rate.get("cost"), remaining=rate.get("remaining"))
 
     def _query_map(
         self, keys: Sequence[str], build: QueryBuilder
-    ) -> tuple[dict[str, dict[str, object]], dict[str, str]]:
+    ) -> tuple[dict[str, dict[str, Json]], dict[str, str]]:
         data, errors = self._execute(build(keys))
-        results: dict[str, dict[str, object]] = {}
+        results: dict[str, dict[str, Json]] = {}
         retryable: dict[str, str] = {}
         for index, key in enumerate(keys):
             alias = f"n{index}"
@@ -216,7 +217,7 @@ class GithubGraphql:
 
     def _with_retry(
         self, keys: Sequence[str], build: QueryBuilder
-    ) -> tuple[dict[str, dict[str, object]], list[GqlFailure]]:
+    ) -> tuple[dict[str, dict[str, Json]], list[GqlFailure]]:
         results, retryable = self._query_map(keys, build)
         failures: list[GqlFailure] = []
         for key, message in retryable.items():

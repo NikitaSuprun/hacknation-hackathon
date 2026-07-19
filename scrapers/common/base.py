@@ -11,15 +11,34 @@ import contextlib
 from collections.abc import Iterator
 from dataclasses import dataclass
 from datetime import date
-from typing import Protocol
+from typing import Final, Protocol
 
+import httpx
+from databricks.sdk.errors.base import DatabricksError
 from structlog.typing import FilteringBoundLogger
 
 from contracts.interfaces import Sink
-from contracts.models import BronzeRecord, Cursor, RawBatch, RunResult
+from contracts.models import BronzeRecord, Cursor, RawBatch, RunResult, SinkRow
+from scrapers.common.http import HttpStatusError
+from scrapers.common.models import REJECTS_TABLE
 from scrapers.common.state import StateStore
-from scrapers.common.tables import BATCH_SIZE, MERGE_KEYS, REJECTS_TABLE, VARIANT_COLS
-from tools.warehouse import Warehouse
+from tools.db import RowShapeError
+from tools.ddl_registry import table_schema
+from tools.warehouse import Warehouse, WarehouseError
+
+BATCH_SIZE: Final[int] = 500
+# bronze._rejects deliberately has no PRIMARY KEY in the DDL; merge on the
+# natural pair so persistent failures dedupe across runs.
+REJECTS_KEYS: Final[tuple[str, ...]] = ("source", "natural_key")
+# The failure modes a run can hit mid-stream; anything else is a bug and
+# propagates without the best-effort error-status save (never catch Exception).
+RUN_FAILURES: Final[tuple[type[Exception], ...]] = (
+    HttpStatusError,
+    httpx.HTTPError,
+    WarehouseError,
+    DatabricksError,
+    RowShapeError,
+)
 
 
 class RunnableScraper(Protocol):
@@ -56,11 +75,12 @@ class _RunTally:
     rejects: int
 
 
-def _flush(deps: RunnerDeps, table: str, rows: list[dict[str, object]], tally: _RunTally) -> None:
+def _flush(deps: RunnerDeps, table: str, rows: list[SinkRow], tally: _RunTally) -> None:
     if not rows:
         return
+    schema = table_schema(table)
     result = deps.sink.upsert(
-        table, rows, list(MERGE_KEYS[table]), variant_cols=VARIANT_COLS.get(table, frozenset())
+        table, rows, list(schema.primary_key or REJECTS_KEYS), variant_cols=schema.variant_cols
     )
     if table == REJECTS_TABLE:
         tally.rejects += len(rows)
@@ -82,7 +102,7 @@ def _drain(
     deps: RunnerDeps,
     scraper: RunnableScraper,
     cursor: Cursor,
-    buffers: dict[str, list[dict[str, object]]],
+    buffers: dict[str, list[SinkRow]],
     tally: _RunTally,
 ) -> None:
     for batch in scraper.fetch(cursor):
@@ -107,18 +127,19 @@ def execute_run(scraper: RunnableScraper, deps: RunnerDeps, since: date) -> RunR
         The run summary with the newly persisted cursor.
 
     Raises:
-        Exception: Whatever fetch/normalize/upsert raised; the old cursor is
-            kept (best-effort saved with status 'error') before re-raising.
+        RUN_FAILURES: Whatever fetch/normalize/upsert raised; on these known
+            failure modes the old cursor is best-effort saved with status
+            'error' before re-raising (unknown exceptions propagate untouched).
     """
     cursor = deps.state.load(scraper.source) or Cursor(
         source=scraper.source, state={"since": since.isoformat()}
     )
-    buffers: dict[str, list[dict[str, object]]] = {}
+    buffers: dict[str, list[SinkRow]] = {}
     tally = _RunTally(0, 0)
     try:
         _drain(deps, scraper, cursor, buffers, tally)
-    except Exception as exc:
-        with contextlib.suppress(Exception):
+    except RUN_FAILURES as exc:
+        with contextlib.suppress(WarehouseError, DatabricksError, RowShapeError):
             deps.state.save(
                 scraper.source,
                 cursor,

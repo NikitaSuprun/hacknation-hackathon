@@ -10,6 +10,7 @@ and the runner, with zero credentials and zero network.
 from datetime import UTC, date, datetime
 from typing import Final
 
+from contracts.models import SinkRow
 from scrapers.common.base import RunnerDeps, execute_run
 from scrapers.common.http import HttpClient, TokenBucket
 from scrapers.common.jsonutil import as_list, as_mapping
@@ -65,8 +66,8 @@ def run_once() -> tuple[RecordingSink, MemoryStateStore, object]:
     return sink, state, result
 
 
-def rows_for(sink: RecordingSink, table: str) -> list[dict[str, object]]:
-    rows: list[dict[str, object]] = []
+def rows_for(sink: RecordingSink, table: str) -> list[SinkRow]:
+    rows: list[SinkRow] = []
     for called_table, called_rows, _keys, _variants in sink.calls:
         if called_table == table:
             rows.extend(called_rows)

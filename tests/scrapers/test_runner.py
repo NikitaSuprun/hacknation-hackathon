@@ -8,12 +8,13 @@ from typing import Final
 
 import pytest
 
-from contracts.models import BronzeRecord, Cursor, RawBatch, UpsertResult
-from scrapers.common.base import RunnerDeps, execute_run
+from contracts.models import BronzeRecord, Cursor, RawBatch, SinkRow, UpsertResult
+from scrapers.common.base import BATCH_SIZE, RunnerDeps, execute_run
 from scrapers.common.log import get_logger
+from scrapers.common.models import REJECTS_TABLE
 from scrapers.common.state import MemoryStateStore
-from scrapers.common.tables import BATCH_SIZE, REJECTS_TABLE
 from tests.scrapers.conftest import RecordingSink
+from tools.db import RowShapeError
 
 SINCE: Final[date] = date(2026, 6, 19)
 REPOS_TABLE: Final[str] = "bronze.github_repos_raw"
@@ -89,21 +90,20 @@ def test_success_saves_next_cursor_with_ok_status() -> None:
 
 
 class ExplodingSink:
-    """A Sink whose upsert always fails."""
+    """A Sink whose upsert always fails with a typed warehouse-side error."""
 
     def upsert(
         self,
         table: str,
-        rows: list[dict[str, object]],
+        rows: list[SinkRow],
         keys: list[str],
         *,
         variant_cols: frozenset[str] = frozenset(),
         hash_col: str = "content_hash",
     ) -> UpsertResult:
         """Always raise."""
-        del table, rows, keys, variant_cols, hash_col
-        message = "warehouse unavailable"
-        raise RuntimeError(message)
+        del rows, keys, variant_cols, hash_col
+        raise RowShapeError(table)
 
 
 def test_failure_keeps_old_cursor_and_reraises() -> None:
@@ -111,7 +111,7 @@ def test_failure_keeps_old_cursor_and_reraises() -> None:
     old_cursor = Cursor(source="github", state={"window_end": "2026-07-01"})
     state.save("github", old_cursor, status="ok", error=None, items_upserted=0)
     deps = RunnerDeps(sink=ExplodingSink(), state=state, warehouse=None, log=get_logger("test"))
-    with pytest.raises(RuntimeError, match="warehouse unavailable"):
+    with pytest.raises(RowShapeError, match="do not share one column set"):
         execute_run(ScriptedScraper([repo_record(1)]), deps, SINCE)
     assert state.load("github") == old_cursor
     assert state.statuses["github"] == "error"

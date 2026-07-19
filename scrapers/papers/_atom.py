@@ -12,6 +12,7 @@ from typing import cast
 
 import feedparser  # pyright: ignore[reportMissingTypeStubs] - vendor ships no stubs
 
+from contracts.models import Json
 from scrapers.common.jsonutil import as_mapping, get_list, get_map, get_str
 
 
@@ -38,7 +39,7 @@ class AtomEntry:
     pdf_url: str | None
 
 
-def _links(entry: dict[str, object]) -> tuple[str | None, str | None]:
+def _links(entry: dict[str, Json]) -> tuple[str | None, str | None]:
     landing: str | None = None
     pdf: str | None = None
     for link_value in get_list(entry, "links"):
@@ -53,7 +54,7 @@ def _links(entry: dict[str, object]) -> tuple[str | None, str | None]:
     return landing, pdf
 
 
-def _entry(raw: dict[str, object]) -> AtomEntry:
+def _entry(raw: dict[str, Json]) -> AtomEntry:
     landing, pdf = _links(raw)
     title = get_str(raw, "title") or ""
     return AtomEntry(

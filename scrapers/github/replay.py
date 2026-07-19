@@ -15,6 +15,7 @@ from typing import Final
 
 import httpx
 
+from contracts.models import Json
 from scrapers.common.fixtures import FixtureRoute, build_mock_transport
 from scrapers.common.jsonutil import as_mapping
 
@@ -23,14 +24,14 @@ REPO_ALIAS_RE: Final[re.Pattern[str]] = re.compile(
     r'(n\d+): repository\(owner: "([^"]+)", name: "([^"]+)"\)'
 )
 USER_ALIAS_RE: Final[re.Pattern[str]] = re.compile(r'(n\d+): user\(login: "([^"]+)"\)')
-RATE_LIMIT_STUB: Final[dict[str, object]] = {
+RATE_LIMIT_STUB: Final[dict[str, Json]] = {
     "cost": 1,
     "remaining": 4990,
     "resetAt": "2026-07-19T13:00:00Z",
 }
 
 
-def _load(name: str) -> dict[str, object]:
+def _load(name: str) -> dict[str, Json]:
     return as_mapping(json.loads((FIXTURES_DIR / name).read_text(encoding="utf-8")))
 
 
@@ -70,13 +71,13 @@ def _contributors(request: httpx.Request) -> httpx.Response:
     return httpx.Response(200, json=entries, headers={"ETag": etag})
 
 
-def _graphql_payload(query: str) -> tuple[dict[str, object], list[dict[str, object]]]:
-    data: dict[str, object] = {"rateLimit": dict(RATE_LIMIT_STUB)}
-    errors: list[dict[str, object]] = []
+def _graphql_payload(query: str) -> tuple[dict[str, Json], list[dict[str, Json]]]:
+    data: dict[str, Json] = {"rateLimit": dict(RATE_LIMIT_STUB)}
+    errors: list[dict[str, Json]] = []
     if "query Hydrate" in query:
         repos = _load("repos.json")
         pairs = [(alias, f"{owner}/{name}") for alias, owner, name in REPO_ALIAS_RE.findall(query)]
-        universe: dict[str, object] = repos
+        universe: dict[str, Json] = repos
     else:
         universe = _load("users.json")
         pairs = list(USER_ALIAS_RE.findall(query))
@@ -98,9 +99,9 @@ def _graphql(request: httpx.Request) -> httpx.Response:
     body = as_mapping(json.loads(request.content))
     query = body.get("query")
     data, errors = _graphql_payload(query if isinstance(query, str) else "")
-    payload: dict[str, object] = {"data": data}
+    payload: dict[str, Json] = {"data": data}
     if errors:
-        payload["errors"] = errors
+        payload["errors"] = list[Json](errors)
     return httpx.Response(200, json=payload)
 
 

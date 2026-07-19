@@ -7,7 +7,7 @@ from typing import Final
 
 import httpx
 
-from contracts.models import Cursor
+from contracts.models import Cursor, Json
 from scrapers.common.http import HttpClient, TokenBucket
 from scrapers.common.jsonutil import as_mapping
 from scrapers.common.log import get_logger
@@ -21,9 +21,7 @@ NOW: Final[datetime] = datetime(2026, 7, 19, 12, 0, 0, tzinfo=UTC)
 SINCE: Final[date] = date(2026, 6, 19)
 
 
-def make_scraper(
-    api_key: str | None, seen: list[httpx.Request], pending_count: int
-) -> S2Scraper:
+def make_scraper(api_key: str | None, seen: list[httpx.Request], pending_count: int) -> S2Scraper:
     time = FakeTime()
 
     def handler(request: httpx.Request) -> httpx.Response:
@@ -44,7 +42,9 @@ def make_scraper(
         timing=time.timing(),
     )
     pending = StaticPendingWorks(
-        tuple(PendingPaper(arxiv_id=f"2507.{index:05d}", doi=None) for index in range(pending_count))
+        tuple(
+            PendingPaper(arxiv_id=f"2507.{index:05d}", doi=None) for index in range(pending_count)
+        )
     )
     return S2Scraper(
         S2Deps(
@@ -80,7 +80,7 @@ def test_with_key_batches_500_ids_per_post() -> None:
 
 
 def test_row_promotion_is_golden() -> None:
-    paper: dict[str, object] = {
+    paper: dict[str, Json] = {
         "paperId": "649def34f8be52c8b66281af98ae884c09aef38b",
         "title": "GraspFM",
         "citationCount": 44,

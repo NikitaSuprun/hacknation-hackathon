@@ -41,9 +41,7 @@ def test_parquet_and_json_read_identically(tmp_path: Path) -> None:
     items = json.loads(SAMPLE.read_text(encoding="utf-8"))
     parquet_path = tmp_path / "links.parquet"
     pq.write_table(pa.Table.from_pylist(items), parquet_path)  # pyright: ignore[reportUnknownMemberType] - pyarrow stubs are partial here
-    assert to_bronze_rows(read_links(parquet_path), NOW) == to_bronze_rows(
-        read_links(SAMPLE), NOW
-    )
+    assert to_bronze_rows(read_links(parquet_path), NOW) == to_bronze_rows(read_links(SAMPLE), NOW)
 
 
 def test_unsupported_extension_raises() -> None:

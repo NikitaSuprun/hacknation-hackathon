@@ -14,7 +14,8 @@ from typing import Final
 
 from pydantic import ValidationError
 
-from contracts.models import BronzeRecord, RawBatch
+from contracts.models import BronzeRecord, Json, RawBatch
+from scrapers.common.jsonutil import as_sink
 from scrapers.common.models import RejectRow
 from scrapers.github.models import RAW_ITEM_ADAPTER, CommitRaw, RepoRaw, UserRaw
 from tools.db import canonical_json, content_hash
@@ -26,7 +27,7 @@ USERS_TABLE: Final[str] = "bronze.github_users_raw"
 COMMITS_TABLE: Final[str] = "bronze.github_commits_raw"
 
 
-def _natural_key(item: dict[str, object]) -> str:
+def _natural_key(item: dict[str, Json]) -> str:
     for key in ("full_name", "login", "sha", "natural_key"):
         value = item.get(key)
         if isinstance(value, str):
@@ -38,7 +39,7 @@ def _jsonable(value: object) -> object:
     return value.isoformat() if isinstance(value, datetime) else value
 
 
-def _reject(item: dict[str, object], error: str, run_id: str, now: datetime) -> BronzeRecord:
+def _reject(item: dict[str, Json], error: str, run_id: str, now: datetime) -> BronzeRecord:
     return RejectRow(
         source=SOURCE,
         natural_key=_natural_key(item),
@@ -55,7 +56,7 @@ def _repo_row(model: RepoRaw, run_id: str, now: datetime) -> BronzeRecord:
         row={
             "repo_id": model.repo_id,
             "full_name": model.full_name,
-            "payload": model.payload,
+            "payload": as_sink(model.payload),
             "content_hash": content_hash(model.payload),
             "etag": model.etag,
             "source_url": model.source_url,
@@ -72,7 +73,7 @@ def _user_row(model: UserRaw, run_id: str, now: datetime) -> BronzeRecord:
         row={
             "user_id": model.user_id,
             "login": model.login,
-            "payload": model.payload,
+            "payload": as_sink(model.payload),
             "content_hash": content_hash(model.payload),
             "source_url": model.source_url,
             "scraped_at": model.scraped_at,
@@ -91,7 +92,7 @@ def _commit_row(model: CommitRaw, run_id: str, now: datetime) -> BronzeRecord:
             "repo_id": model.repo_id,
             "sha": model.sha,
             "author_user_id": model.author_user_id,
-            "payload": model.payload,
+            "payload": as_sink(model.payload),
             "source_url": model.source_url,
             "scraped_at": model.scraped_at,
             "ingested_at": now,
@@ -100,7 +101,7 @@ def _commit_row(model: CommitRaw, run_id: str, now: datetime) -> BronzeRecord:
     )
 
 
-def _one(item: dict[str, object], run_id: str, now: datetime) -> BronzeRecord:
+def _one(item: dict[str, Json], run_id: str, now: datetime) -> BronzeRecord:
     if item.get("kind") == ERROR_KIND:
         return _reject(item, str(item.get("error", "fetch error")), run_id, now)
     try:

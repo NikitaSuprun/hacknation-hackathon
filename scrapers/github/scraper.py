@@ -15,11 +15,11 @@ from typing import Final, Protocol
 
 from structlog.typing import FilteringBoundLogger
 
-from contracts.models import BronzeRecord, Cursor, RawBatch, RunResult
+from contracts.models import BronzeRecord, Cursor, Json, RawBatch, RunResult
 from scrapers.common.base import execute_run
 from scrapers.common.jsonutil import as_list, as_mapping, get_int, get_list, get_map, get_str
 from scrapers.common.sink import build_deps
-from scrapers.common.state import SqlRunner
+from scrapers.common.state import SqlRunner, require_identifier
 from scrapers.github.client_gql import (
     HYDRATE_BATCH_SIZE,
     PROFILE_BATCH_SIZE,
@@ -70,7 +70,7 @@ class WarehouseReadback:
     def __init__(self, runner: SqlRunner, catalog: str) -> None:
         """Bind to one catalog."""
         self._runner: Final[SqlRunner] = runner
-        self._catalog: Final[str] = catalog
+        self._catalog: Final[str] = require_identifier(catalog)
 
     def readmes(self, repo_ids: Sequence[int]) -> dict[int, str]:
         """Read stored readme_md for the given repos.
@@ -85,7 +85,7 @@ class WarehouseReadback:
             return {}
         id_list = ", ".join(str(int(repo_id)) for repo_id in repo_ids)
         rows = self._runner.execute(
-            "SELECT repo_id, CAST(payload:readme_md AS STRING) "  # noqa: S608 - identifiers are frozen; ids are ints
+            "SELECT repo_id, CAST(payload:readme_md AS STRING) "
             f"FROM {self._catalog}.bronze.github_repos_raw WHERE repo_id IN ({id_list})"
         )
         found: dict[int, str] = {}
@@ -114,7 +114,7 @@ def _chunks[T](items: Sequence[T], size: int) -> Iterator[Sequence[T]]:
         yield items[start : start + size]
 
 
-def _error_item(failure: GqlFailure) -> dict[str, object]:
+def _error_item(failure: GqlFailure) -> dict[str, Json]:
     return {
         "kind": ERROR_KIND,
         "natural_key": failure.key,
@@ -134,7 +134,7 @@ class GithubScraper:
         self._new_readme_etags: Final[dict[str, str]] = {}
         self._new_contrib_etags: Final[dict[str, str]] = {}
         self._core_logins: Final[set[str]] = set()
-        self._emails: Final[dict[str, list[dict[str, str]]]] = {}
+        self._emails: Final[dict[str, list[dict[str, Json]]]] = {}
         self._window_end: date = deps.since
 
     def fetch(self, cursor: Cursor) -> Iterator[RawBatch]:
@@ -214,7 +214,7 @@ class GithubScraper:
         cached: dict[int, str],
     ) -> RawBatch:
         results, failures = self._deps.gql.hydrate_repos(chunk, commits_since)
-        items: list[dict[str, object]] = []
+        items: list[dict[str, Json]] = []
         for stub in chunk:
             repo = results.get(stub.full_name)
             if repo is None:
@@ -227,17 +227,17 @@ class GithubScraper:
     def _repo_items(
         self,
         stub: RepoStub,
-        repo: dict[str, object],
+        repo: dict[str, Json],
         readme_etags: dict[str, str],
         cached: dict[int, str],
-    ) -> list[dict[str, object]]:
+    ) -> list[dict[str, Json]]:
         readme_md, etag = self._readme(stub, readme_etags, cached)
         payload = dict(repo)
         if readme_md is not None:
             payload["readme_md"] = readme_md
-        payload["funded_signals"] = funded_signals(repo, readme_md)
-        scraped_at = self._deps.clock()
-        repo_item: dict[str, object] = {
+        payload["funded_signals"] = list[Json](funded_signals(repo, readme_md))
+        scraped_at = self._deps.clock().isoformat()
+        repo_item: dict[str, Json] = {
             "kind": "repo",
             "repo_id": stub.repo_id,
             "full_name": stub.full_name,
@@ -267,10 +267,10 @@ class GithubScraper:
         return text, response.etag
 
     def _commit_items(
-        self, stub: RepoStub, repo: dict[str, object], scraped_at: datetime
-    ) -> list[dict[str, object]]:
+        self, stub: RepoStub, repo: dict[str, Json], scraped_at: str
+    ) -> list[dict[str, Json]]:
         history = get_map(get_map(get_map(repo, "defaultBranchRef"), "target"), "history")
-        items: list[dict[str, object]] = []
+        items: list[dict[str, Json]] = []
         for node_value in get_list(history, "nodes"):
             node = as_mapping(node_value)
             sha = get_str(node, "oid")
@@ -312,15 +312,17 @@ class GithubScraper:
 
     def _profile_batch(self, logins: Sequence[str]) -> RawBatch:
         results, failures = self._deps.gql.user_profiles(logins)
-        items: list[dict[str, object]] = []
+        items: list[dict[str, Json]] = []
         for login in logins:
             profile = results.get(login)
             if profile is None:
                 continue
             payload = dict(profile)
-            payload["candidate_emails"] = sorted(
-                self._emails.get(login, []), key=lambda entry: (entry["email"], entry["sha"])
+            emails = sorted(
+                self._emails.get(login, []),
+                key=lambda entry: (str(entry["email"]), str(entry["sha"])),
             )
+            payload["candidate_emails"] = list[Json](emails)
             items.append(
                 {
                     "kind": "user",
@@ -328,7 +330,7 @@ class GithubScraper:
                     "login": login,
                     "payload": payload,
                     "source_url": f"https://github.com/{login}",
-                    "scraped_at": self._deps.clock(),
+                    "scraped_at": self._deps.clock().isoformat(),
                 }
             )
         items.extend(_error_item(failure) for failure in failures)

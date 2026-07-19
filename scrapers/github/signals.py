@@ -10,6 +10,7 @@ import re
 from typing import Final
 from urllib.parse import urlparse
 
+from contracts.models import Json
 from scrapers.common.jsonutil import get_list, get_map, get_str
 
 FUNDED_PATTERNS: Final[tuple[tuple[str, re.Pattern[str]], ...]] = (
@@ -47,7 +48,7 @@ def _domain(url: str | None) -> str | None:
     return netloc or None
 
 
-def org_signals(gql_repo: dict[str, object]) -> list[str]:
+def org_signals(gql_repo: dict[str, Json]) -> list[str]:
     """Signals from the hydrated repo's org and funding fields.
 
     Args:
@@ -69,7 +70,7 @@ def org_signals(gql_repo: dict[str, object]) -> list[str]:
     return fired
 
 
-def funded_signals(gql_repo: dict[str, object], readme_md: str | None) -> list[str]:
+def funded_signals(gql_repo: dict[str, Json], readme_md: str | None) -> list[str]:
     """All funded signals for one repo, deduplicated, battery order first.
 
     Args:

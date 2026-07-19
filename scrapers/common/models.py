@@ -5,9 +5,11 @@
 import json
 from dataclasses import dataclass
 from datetime import datetime
+from typing import Final
 
 from contracts.models import BronzeRecord
-from scrapers.common.tables import REJECTS_TABLE
+
+REJECTS_TABLE: Final[str] = "bronze._rejects"
 
 
 @dataclass(frozen=True, slots=True)

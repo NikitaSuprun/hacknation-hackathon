@@ -8,6 +8,8 @@ from typing import Annotated, Final, Literal, final
 
 from pydantic import BaseModel, ConfigDict, Field, TypeAdapter
 
+from contracts.models import Json
+
 
 @final
 class RepoRaw(BaseModel):
@@ -18,7 +20,7 @@ class RepoRaw(BaseModel):
     kind: Literal["repo"]
     repo_id: int = Field(gt=0)
     full_name: str = Field(min_length=3, pattern=r".+/.+")
-    payload: dict[str, object]
+    payload: dict[str, Json]
     etag: str | None
     source_url: str
     scraped_at: datetime
@@ -33,7 +35,7 @@ class UserRaw(BaseModel):
     kind: Literal["user"]
     user_id: int = Field(gt=0)
     login: str = Field(min_length=1)
-    payload: dict[str, object]
+    payload: dict[str, Json]
     source_url: str
     scraped_at: datetime
 
@@ -48,7 +50,7 @@ class CommitRaw(BaseModel):
     repo_id: int = Field(gt=0)
     sha: str = Field(pattern=r"^[0-9a-f]{40}$")
     author_user_id: int | None
-    payload: dict[str, object]
+    payload: dict[str, Json]
     source_url: str
     scraped_at: datetime
 

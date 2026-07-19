@@ -10,6 +10,7 @@ refetches come back 304 for free.
 from datetime import date
 from typing import Final
 
+from contracts.models import Json
 from scrapers.common.http import HttpClient
 from scrapers.common.jsonutil import as_list, as_mapping, get_int
 from scrapers.common.models import FetchedResponse
@@ -60,7 +61,7 @@ class GithubRest:
         )
         return get_int(as_mapping(response.json()), "total_count") or 0
 
-    def search_page(self, start: date, end: date, page: int) -> list[dict[str, object]]:
+    def search_page(self, start: date, end: date, page: int) -> list[dict[str, Json]]:
         """One page of the created-window search, most-starred first.
 
         Args:
@@ -121,7 +122,7 @@ class GithubRest:
         )
 
 
-def get_list_of_maps(response: FetchedResponse) -> list[dict[str, object]]:
+def get_list_of_maps(response: FetchedResponse) -> list[dict[str, Json]]:
     """Decode a search response body into its item mappings.
 
     Args:

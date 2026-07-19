@@ -17,7 +17,7 @@ from typing import Final, Protocol
 from pydantic import ValidationError
 from structlog.typing import FilteringBoundLogger
 
-from contracts.models import BronzeRecord, Cursor, RawBatch, RunResult
+from contracts.models import BronzeRecord, Cursor, Json, RawBatch, RunResult
 from scrapers.common.base import execute_run
 from scrapers.common.http import HttpClient
 from scrapers.common.jsonutil import as_list, as_mapping, get_list, get_str
@@ -94,7 +94,7 @@ class WarehousePendingWorks:
             Pending papers with their journal DOI when arXiv knows it.
         """
         rows = self._runner.execute(
-            f"SELECT a.arxiv_id, CAST(a.payload:doi AS STRING) AS doi "  # noqa: S608 - identifiers are frozen; values are typed literals
+            f"SELECT a.arxiv_id, CAST(a.payload:doi AS STRING) AS doi "
             f"FROM {self._catalog}.bronze.arxiv_papers_raw a "
             f"LEFT ANTI JOIN {self._catalog}.bronze.openalex_works_raw w "
             f"ON w.arxiv_id = a.arxiv_id "
@@ -141,7 +141,7 @@ class OpenAlexClient:
         if spend:
             self._log.info("openalex spend", **spend)
 
-    def fetch_by_dois(self, dois: Sequence[str]) -> list[dict[str, object]]:
+    def fetch_by_dois(self, dois: Sequence[str]) -> list[dict[str, Json]]:
         """One DOI-filter batch call (up to 50 DOIs).
 
         Args:
@@ -164,7 +164,7 @@ class OpenAlexClient:
         body = as_mapping(response.json())
         return [as_mapping(work) for work in as_list(get_list(body, "results"))]
 
-    def fetch_single(self, doi: str) -> dict[str, object] | None:
+    def fetch_single(self, doi: str) -> dict[str, Json] | None:
         """Single-work fallback for a batch miss.
 
         Args:
@@ -265,7 +265,7 @@ class OpenAlexScraper:
         del fixtures
         return execute_run(self, build_deps(OPENALEX_SOURCE, dry_run=dry_run), since)
 
-    def _enrich_batch(self, batch: tuple[PendingPaper, ...]) -> list[dict[str, object]]:
+    def _enrich_batch(self, batch: tuple[PendingPaper, ...]) -> list[dict[str, Json]]:
         dois = [lookup_doi(paper) for paper in batch]
         self._requested += len(dois)
         works = self._deps.client.fetch_by_dois(dois)
@@ -292,7 +292,7 @@ class OpenAlexScraper:
             rate=round(rate, 3),
         )
 
-    def _one(self, work: dict[str, object], now: datetime) -> BronzeRecord:
+    def _one(self, work: dict[str, Json], now: datetime) -> BronzeRecord:
         try:
             openalex_work_to_record(work, now)
             row = openalex_work_to_row(work, self._deps.run_id, now, now)

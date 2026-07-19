@@ -11,7 +11,16 @@ import re
 from datetime import date, datetime
 from typing import Final
 
-from scrapers.common.jsonutil import as_list, as_mapping, get_int, get_list, get_map, get_str
+from contracts.models import Json, SinkRow
+from scrapers.common.jsonutil import (
+    as_list,
+    as_mapping,
+    as_sink,
+    get_int,
+    get_list,
+    get_map,
+    get_str,
+)
 from scrapers.papers._atom import AtomEntry
 from scrapers.papers.codelinks import extract_code_links
 from scrapers.papers.models import (
@@ -129,7 +138,7 @@ def arxiv_entry_to_record(entry: AtomEntry, retrieved_at: datetime) -> Publicati
 
 def arxiv_record_to_row(
     record: PublicationRecord, run_id: str, scraped_at: datetime, ingested_at: datetime
-) -> dict[str, object]:
+) -> SinkRow:
     """Render one arXiv record as a bronze.arxiv_papers_raw row.
 
     The payload keeps the committed fixture core (title, abstract, authors,
@@ -146,7 +155,7 @@ def arxiv_record_to_row(
     """
     extras = record.source_extras
     version = extras.get("version")
-    payload: dict[str, object] = {
+    payload: dict[str, Json] = {
         "title": record.title,
         "abstract": record.abstract,
         "authors": [author.full_name for author in record.authors],
@@ -164,7 +173,7 @@ def arxiv_record_to_row(
     return {
         "arxiv_id": record.source_native_id,
         "latest_version": version if isinstance(version, int) else 1,
-        "payload": payload,
+        "payload": as_sink(payload),
         "content_hash": content_hash(payload),
         "source_url": f"https://arxiv.org/abs/{record.source_native_id}",
         "scraped_at": scraped_at,
@@ -173,7 +182,7 @@ def arxiv_record_to_row(
     }
 
 
-def reconstruct_abstract(inverted_index: dict[str, object]) -> str:
+def reconstruct_abstract(inverted_index: dict[str, Json]) -> str:
     """Rebuild an abstract from OpenAlex's inverted index.
 
     Args:
@@ -190,7 +199,7 @@ def reconstruct_abstract(inverted_index: dict[str, object]) -> str:
     return " ".join(positions[key] for key in sorted(positions))
 
 
-def arxiv_id_from_work(work: dict[str, object]) -> str | None:
+def arxiv_id_from_work(work: dict[str, Json]) -> str | None:
     """Recover the base arXiv id from an OpenAlex work, when present.
 
     Args:
@@ -210,8 +219,8 @@ def arxiv_id_from_work(work: dict[str, object]) -> str | None:
     return None
 
 
-def _selected_authorships(work: dict[str, object]) -> list[dict[str, object]]:
-    selected: list[dict[str, object]] = []
+def _selected_authorships(work: dict[str, Json]) -> list[Json]:
+    selected: list[Json] = []
     for authorship_value in get_list(work, "authorships"):
         authorship = as_mapping(authorship_value)
         author = get_map(authorship, "author")
@@ -236,7 +245,7 @@ def _selected_authorships(work: dict[str, object]) -> list[dict[str, object]]:
     return selected
 
 
-def openalex_work_to_record(work: dict[str, object], retrieved_at: datetime) -> PublicationRecord:
+def openalex_work_to_record(work: dict[str, Json], retrieved_at: datetime) -> PublicationRecord:
     """Build the unified record for one OpenAlex work (the validation gate).
 
     Args:
@@ -294,8 +303,8 @@ def openalex_work_to_record(work: dict[str, object], retrieved_at: datetime) -> 
 
 
 def openalex_work_to_row(
-    work: dict[str, object], run_id: str, scraped_at: datetime, ingested_at: datetime
-) -> dict[str, object]:
+    work: dict[str, Json], run_id: str, scraped_at: datetime, ingested_at: datetime
+) -> SinkRow:
     """Render one OpenAlex work as a bronze.openalex_works_raw row.
 
     Args:
@@ -315,7 +324,7 @@ def openalex_work_to_row(
         raise MissingNativeIdError("openalex")
     openalex_id = work_id.removeprefix(OPENALEX_URL_PREFIX)
     inverted = get_map(work, "abstract_inverted_index")
-    payload: dict[str, object] = {
+    payload: dict[str, Json] = {
         "title": get_str(work, "display_name") or get_str(work, "title"),
         "cited_by_count": get_int(work, "cited_by_count"),
         "authorships": _selected_authorships(work),
@@ -327,7 +336,7 @@ def openalex_work_to_row(
         "openalex_id": openalex_id,
         "doi": (get_str(work, "doi") or "").removeprefix(DOI_URL_PREFIX) or None,
         "arxiv_id": arxiv_id_from_work(work),
-        "payload": payload,
+        "payload": as_sink(payload),
         "content_hash": content_hash(payload),
         "source_url": f"https://api.openalex.org/works/{openalex_id}",
         "scraped_at": scraped_at,
@@ -337,8 +346,8 @@ def openalex_work_to_row(
 
 
 def s2_paper_to_row(
-    paper: dict[str, object], run_id: str, scraped_at: datetime, ingested_at: datetime
-) -> dict[str, object]:
+    paper: dict[str, Json], run_id: str, scraped_at: datetime, ingested_at: datetime
+) -> SinkRow:
     """Render one Semantic Scholar paper as a bronze.s2_papers_raw row.
 
     Args:
@@ -357,7 +366,7 @@ def s2_paper_to_row(
     if s2_id is None:
         raise MissingNativeIdError("s2")
     external = get_map(paper, "externalIds")
-    payload: dict[str, object] = {
+    payload: dict[str, Json] = {
         "title": get_str(paper, "title"),
         "citationCount": get_int(paper, "citationCount"),
         "tldr": get_str(get_map(paper, "tldr"), "text"),
@@ -367,7 +376,7 @@ def s2_paper_to_row(
         "s2_id": s2_id,
         "arxiv_id": get_str(external, "ArXiv"),
         "doi": get_str(external, "DOI"),
-        "payload": payload,
+        "payload": as_sink(payload),
         "content_hash": content_hash(payload),
         "source_url": f"https://api.semanticscholar.org/graph/v1/paper/{s2_id}",
         "scraped_at": scraped_at,

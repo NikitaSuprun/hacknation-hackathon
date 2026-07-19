@@ -5,7 +5,7 @@
 from datetime import UTC, datetime
 from typing import Final
 
-from contracts.models import RawBatch
+from contracts.models import Json, RawBatch
 from scrapers.github.normalize import normalize_batch
 from tools.db import content_hash
 
@@ -15,20 +15,20 @@ RUN_ID: Final[str] = "run-0001"
 SHA: Final[str] = "a" * 40
 
 
-def batch(*items: dict[str, object]) -> RawBatch:
+def batch(*items: dict[str, Json]) -> RawBatch:
     return RawBatch(source="github", items=tuple(items))
 
 
 def test_repo_item_becomes_golden_bronze_row() -> None:
-    payload: dict[str, object] = {"nameWithOwner": "o/r", "funded_signals": ["a16z"]}
-    item: dict[str, object] = {
+    payload: dict[str, Json] = {"nameWithOwner": "o/r", "funded_signals": ["a16z"]}
+    item: dict[str, Json] = {
         "kind": "repo",
         "repo_id": 9001,
         "full_name": "o/r",
         "payload": payload,
         "etag": 'W/"x"',
         "source_url": "https://github.com/o/r",
-        "scraped_at": SCRAPED_AT,
+        "scraped_at": SCRAPED_AT.isoformat(),
     }
     (record,) = normalize_batch(batch(item), RUN_ID, NOW)
     assert record.table == "bronze.github_repos_raw"
@@ -50,14 +50,14 @@ def test_repo_item_becomes_golden_bronze_row() -> None:
 
 
 def test_commit_row_has_no_content_hash() -> None:
-    item: dict[str, object] = {
+    item: dict[str, Json] = {
         "kind": "commit",
         "repo_id": 9001,
         "sha": SHA,
         "author_user_id": None,
         "payload": {"oid": SHA},
         "source_url": f"https://github.com/o/r/commit/{SHA}",
-        "scraped_at": SCRAPED_AT,
+        "scraped_at": SCRAPED_AT.isoformat(),
     }
     (record,) = normalize_batch(batch(item), RUN_ID, NOW)
     assert record.table == "bronze.github_commits_raw"
@@ -66,13 +66,13 @@ def test_commit_row_has_no_content_hash() -> None:
 
 
 def test_invalid_user_diverts_to_rejects_with_login_key() -> None:
-    item: dict[str, object] = {
+    item: dict[str, Json] = {
         "kind": "user",
         "user_id": None,
         "login": "broken-profile",
         "payload": {},
         "source_url": "https://github.com/broken-profile",
-        "scraped_at": SCRAPED_AT,
+        "scraped_at": SCRAPED_AT.isoformat(),
     }
     (record,) = normalize_batch(batch(item), RUN_ID, NOW)
     assert record.table == "bronze._rejects"
@@ -86,7 +86,7 @@ def test_invalid_user_diverts_to_rejects_with_login_key() -> None:
 
 
 def test_error_kind_item_maps_straight_to_rejects() -> None:
-    item: dict[str, object] = {
+    item: dict[str, Json] = {
         "kind": "error",
         "natural_key": "octo/gone",
         "error": "still boom",
@@ -99,14 +99,14 @@ def test_error_kind_item_maps_straight_to_rejects() -> None:
 
 
 def test_malformed_sha_rejected() -> None:
-    item: dict[str, object] = {
+    item: dict[str, Json] = {
         "kind": "commit",
         "repo_id": 9001,
         "sha": "not-a-sha",
         "author_user_id": 1,
         "payload": {},
         "source_url": "https://github.com/o/r/commit/x",
-        "scraped_at": SCRAPED_AT,
+        "scraped_at": SCRAPED_AT.isoformat(),
     }
     (record,) = normalize_batch(batch(item), RUN_ID, NOW)
     assert record.table == "bronze._rejects"

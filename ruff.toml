@@ -25,6 +25,12 @@ runtime-evaluated-decorators = ["dataclasses.dataclass"]
 "tools/db.py" = ["S608"]
 "tools/verify_merge.py" = ["S608"]
 "fixtures/load.py" = ["S608"]
+# Scraper warehouse reads: identifiers are frozen constants plus a catalog
+# guarded by scrapers.common.state.require_identifier; values are typed
+# literals (ints, ISO dates) or escaped internal source names.
+"scrapers/common/state.py" = ["S608"]
+"scrapers/github/scraper.py" = ["S608"]
+"scrapers/papers/openalex_client.py" = ["S608"]
 # S310 audits urlopen schemes; this script only ever calls the fixed https
 # ROR API endpoint.
 "tools/build_institutions.py" = ["S310"]

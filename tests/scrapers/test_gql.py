@@ -7,6 +7,7 @@ from typing import Final
 
 import httpx
 
+from contracts.models import Json
 from scrapers.common.http import HttpClient, TokenBucket
 from scrapers.common.jsonutil import as_mapping
 from scrapers.common.log import get_logger
@@ -109,7 +110,7 @@ def test_profiles_parse_by_login() -> None:
 
 
 def test_request_body_is_the_query_document() -> None:
-    seen: list[dict[str, object]] = []
+    seen: list[dict[str, Json]] = []
 
     def handler(request: httpx.Request) -> httpx.Response:
         seen.append(as_mapping(json.loads(request.content)))

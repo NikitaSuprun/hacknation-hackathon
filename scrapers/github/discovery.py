@@ -14,6 +14,7 @@ from typing import Final, Protocol
 
 from structlog.typing import FilteringBoundLogger
 
+from contracts.models import Json
 from scrapers.common.jsonutil import get_int, get_str
 from scrapers.github.models import RepoStub, SearchWindow
 
@@ -30,12 +31,12 @@ class SearchClient(Protocol):
         """Probe the result count for a created window."""
         ...
 
-    def search_page(self, start: date, end: date, page: int) -> list[dict[str, object]]:
+    def search_page(self, start: date, end: date, page: int) -> list[dict[str, Json]]:
         """One page of the created-window search, most-starred first."""
         ...
 
 
-def _stub(item: dict[str, object]) -> RepoStub | None:
+def _stub(item: dict[str, Json]) -> RepoStub | None:
     node_id = get_str(item, "node_id")
     repo_id = get_int(item, "id")
     full_name = get_str(item, "full_name")

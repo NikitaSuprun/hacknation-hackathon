@@ -10,7 +10,7 @@ path) credential-free.
 from datetime import UTC, datetime
 from typing import Final
 
-from contracts.models import UpsertResult
+from contracts.models import SinkRow, UpsertResult
 from scrapers.common.base import RunnerDeps
 from scrapers.common.log import get_logger
 from scrapers.common.state import MemoryStateStore, WarehouseStateStore
@@ -26,12 +26,12 @@ class NullSink:
 
     def __init__(self) -> None:
         """Start with no recorded rows."""
-        self.rows: Final[dict[str, list[dict[str, object]]]] = {}
+        self.rows: Final[dict[str, list[SinkRow]]] = {}
 
     def upsert(
         self,
         table: str,
-        rows: list[dict[str, object]],
+        rows: list[SinkRow],
         keys: list[str],
         *,
         variant_cols: frozenset[str] = frozenset(),

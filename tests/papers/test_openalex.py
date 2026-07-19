@@ -7,6 +7,7 @@ from typing import Final
 
 import httpx
 
+from contracts.models import Json
 from scrapers.common.http import HttpClient, TokenBucket
 from scrapers.common.jsonutil import as_mapping
 from scrapers.common.log import get_logger
@@ -37,7 +38,7 @@ def test_lookup_doi_prefers_journal_doi() -> None:
 
 
 def test_reconstruct_abstract_handles_repeats_and_order() -> None:
-    inverted: dict[str, object] = {
+    inverted: dict[str, Json] = {
         "the": [0, 3],
         "cat": [1],
         "sat": [2],
@@ -47,9 +48,9 @@ def test_reconstruct_abstract_handles_repeats_and_order() -> None:
 
 
 def test_arxiv_id_from_work_via_doi_and_landing() -> None:
-    via_doi: dict[str, object] = {"doi": "https://doi.org/10.48550/arXiv.2506.11111"}
+    via_doi: dict[str, Json] = {"doi": "https://doi.org/10.48550/arXiv.2506.11111"}
     assert arxiv_id_from_work(via_doi) == "2506.11111"
-    via_landing: dict[str, object] = {
+    via_landing: dict[str, Json] = {
         "doi": "https://doi.org/10.1234/journal.2026.1",
         "locations": [{"landing_page_url": "https://arxiv.org/abs/2507.22222v1"}],
     }
@@ -58,7 +59,7 @@ def test_arxiv_id_from_work_via_doi_and_landing() -> None:
 
 
 def test_work_to_row_promotions_and_selected_payload() -> None:
-    work: dict[str, object] = {
+    work: dict[str, Json] = {
         "id": "https://openalex.org/W4400000001",
         "doi": "https://doi.org/10.48550/arxiv.2506.11111",
         "display_name": "GraspFM",

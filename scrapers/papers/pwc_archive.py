@@ -19,7 +19,7 @@ from typing import Final
 import pyarrow.parquet as pq
 
 from contracts.interfaces import Sink
-from contracts.models import UpsertResult
+from contracts.models import Json, SinkRow, UpsertResult
 from scrapers.common.jsonutil import as_list, as_mapping, get_str
 
 PWC_TABLE: Final[str] = "bronze.paper_code_links"
@@ -38,7 +38,7 @@ class UnsupportedArchiveFormatError(ValueError):
         super().__init__(f"unsupported archive format: {path.name} (use .parquet/.json/.json.gz)")
 
 
-def read_links(path: Path) -> list[dict[str, object]]:
+def read_links(path: Path) -> list[dict[str, Json]]:
     """Read the archive rows from a local file.
 
     Args:
@@ -62,9 +62,7 @@ def read_links(path: Path) -> list[dict[str, object]]:
     raise UnsupportedArchiveFormatError(path)
 
 
-def to_bronze_rows(
-    items: list[dict[str, object]], ingested_at: datetime
-) -> list[dict[str, object]]:
+def to_bronze_rows(items: list[dict[str, Json]], ingested_at: datetime) -> list[SinkRow]:
     """Map archive rows to bronze shape: drop NULL-key rows, dedupe in-file.
 
     Args:
@@ -74,7 +72,7 @@ def to_bronze_rows(
     Returns:
         Deduplicated bronze rows (last occurrence wins).
     """
-    deduped: dict[tuple[str, str], dict[str, object]] = {}
+    deduped: dict[tuple[str, str], SinkRow] = {}
     for item in items:
         arxiv_id = get_str(item, "paper_arxiv_id")
         repo_url = get_str(item, "repo_url")

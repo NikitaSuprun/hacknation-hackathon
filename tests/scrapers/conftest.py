@@ -4,7 +4,7 @@
 
 from typing import Final
 
-from contracts.models import UpsertResult
+from contracts.models import SinkRow, UpsertResult
 from scrapers.common.http import Timing
 
 
@@ -35,12 +35,12 @@ class RecordingSink:
 
     def __init__(self) -> None:
         """Start with no calls."""
-        self.calls: Final[list[tuple[str, list[dict[str, object]], list[str], frozenset[str]]]] = []
+        self.calls: Final[list[tuple[str, list[SinkRow], list[str], frozenset[str]]]] = []
 
     def upsert(
         self,
         table: str,
-        rows: list[dict[str, object]],
+        rows: list[SinkRow],
         keys: list[str],
         *,
         variant_cols: frozenset[str] = frozenset(),

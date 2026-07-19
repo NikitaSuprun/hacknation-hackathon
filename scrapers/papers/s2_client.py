@@ -9,7 +9,7 @@ from typing import Final
 
 from structlog.typing import FilteringBoundLogger
 
-from contracts.models import BronzeRecord, Cursor, RawBatch, RunResult
+from contracts.models import BronzeRecord, Cursor, Json, RawBatch, RunResult
 from scrapers.common.base import execute_run
 from scrapers.common.http import HttpClient
 from scrapers.common.jsonutil import as_list, as_mapping
@@ -110,7 +110,7 @@ class S2Scraper:
         del fixtures
         return execute_run(self, build_deps(S2_SOURCE, dry_run=dry_run), since)
 
-    def _one(self, paper: dict[str, object], now: datetime) -> BronzeRecord:
+    def _one(self, paper: dict[str, Json], now: datetime) -> BronzeRecord:
         try:
             row = s2_paper_to_row(paper, self._deps.run_id, now, now)
         except MissingNativeIdError as exc:

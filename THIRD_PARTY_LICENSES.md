@@ -6,7 +6,6 @@
 | databricks-sql-connector  | 4.3.0           | Apache Software License                            | https://github.com/databricks/databricks-sql-python                              |
 | google-auth               | 2.56.0          | Apache Software License                            | https://github.com/googleapis/google-cloud-python/tree/main/packages/google-auth |
 | requests                  | 2.34.2          | Apache Software License                            | https://github.com/psf/requests                                                  |
-| tenacity                  | 9.1.4           | Apache Software License                            | https://github.com/jd/tenacity                                                   |
 | python-dateutil           | 2.9.0.post0     | Apache Software License; BSD License               | https://github.com/dateutil/dateutil                                             |
 | pyarrow                   | 25.0.0          | Apache-2.0                                         | https://arrow.apache.org/                                                        |
 | packaging                 | 26.2            | Apache-2.0 OR BSD-2-Clause                         | https://github.com/pypa/packaging                                                |
@@ -51,7 +50,7 @@
 | pytest-xdist              | 3.8.0           | MIT                                                | https://github.com/pytest-dev/pytest-xdist                                       |
 | referencing               | 0.37.0          | MIT                                                | https://github.com/python-jsonschema/referencing                                 |
 | rpds-py                   | 2026.6.3        | MIT                                                | https://github.com/crate-py/rpds                                                 |
-| ruff                      | 0.15.17         | MIT                                                | https://docs.astral.sh/ruff                                                      |
+| ruff                      | 0.15.22         | MIT                                                | https://docs.astral.sh/ruff                                                      |
 | typer                     | 0.27.0          | MIT                                                | https://github.com/fastapi/typer                                                 |
 | typing-inspection         | 0.4.2           | MIT                                                | https://github.com/pydantic/typing-inspection                                    |
 | urllib3                   | 2.7.0           | MIT                                                | https://github.com/urllib3/urllib3/blob/main/CHANGES.rst                         |

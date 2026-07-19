@@ -4,6 +4,7 @@
 
 from typing import Final
 
+from contracts.models import Json
 from scrapers.github.signals import funded_signals, org_signals, readme_signals
 
 PLANTED: Final[str] = (
@@ -28,7 +29,7 @@ def test_yc_batch_is_case_sensitive() -> None:
 
 
 def test_org_signals_from_owner_fields() -> None:
-    repo: dict[str, object] = {
+    repo: dict[str, Json] = {
         "homepageUrl": "https://fx01.dev/",
         "fundingLinks": [{"platform": "CUSTOM", "url": "https://fx01.dev/sponsor"}],
         "owner": {
@@ -41,7 +42,7 @@ def test_org_signals_from_owner_fields() -> None:
 
 
 def test_funded_signals_merges_and_dedupes() -> None:
-    repo: dict[str, object] = {"owner": {"isVerified": True}, "fundingLinks": []}
+    repo: dict[str, Json] = {"owner": {"isVerified": True}, "fundingLinks": []}
     fired = funded_signals(repo, "Backed by a16z. backed by everyone.")
     assert fired == ["backed_by", "a16z", "org_verified"]
 

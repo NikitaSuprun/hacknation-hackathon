@@ -17,7 +17,7 @@ from typing import Final
 from pydantic import TypeAdapter, ValidationError
 from structlog.typing import FilteringBoundLogger
 
-from contracts.models import BronzeRecord, Cursor, RawBatch, RunResult
+from contracts.models import BronzeRecord, Cursor, Json, RawBatch, RunResult
 from scrapers.common.base import execute_run
 from scrapers.common.http import HttpClient
 from scrapers.common.models import RejectRow
@@ -235,7 +235,7 @@ class ArxivScraper:
             fresh.append(entry)
         return fresh
 
-    def _one(self, item: dict[str, object], now: datetime) -> BronzeRecord:
+    def _one(self, item: dict[str, Json], now: datetime) -> BronzeRecord:
         try:
             entry = ATOM_ADAPTER.validate_python(item)
             record = arxiv_entry_to_record(entry, now)

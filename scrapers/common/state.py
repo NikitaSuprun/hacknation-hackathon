@@ -1,19 +1,44 @@
 # Copyright (c) 2026 Maschmeyer's Chosen Portfolio. All rights reserved.
 # Proprietary and confidential. See LICENSE.
-"""Cursor persistence in ops.scrape_state (one row per source)."""
+"""Cursor persistence in ops.scrape_state (one row per source).
+
+SQL identifiers here come from frozen internal constants plus the injected
+catalog, which require_identifier guards at construction — the reason the
+per-file S608 ignore in ruff.toml is safe.
+"""
 
 import json
+import re
 from collections.abc import Callable, Mapping
 from datetime import datetime
 from typing import Final, Protocol, cast
 
 from contracts.interfaces import Sink
-from contracts.models import Cursor
+from contracts.models import Cursor, Json, SinkRow
+from scrapers.common.jsonutil import as_sink
+from tools.db import UnsafeIdentifierError
+from tools.ddl_registry import table_schema
 
 STATE_TABLE: Final[str] = "ops.scrape_state"
-STATE_KEYS: Final[tuple[str, ...]] = ("source",)
-STATE_VARIANT_COLS: Final[frozenset[str]] = frozenset({"cursor"})
 MAX_ERROR_LENGTH: Final[int] = 1_000
+_IDENTIFIER: Final[re.Pattern[str]] = re.compile(r"^[A-Za-z0-9_.]+$")
+
+
+def require_identifier(name: str) -> str:
+    """Guard a value that is about to travel into SQL as an identifier.
+
+    Args:
+        name: The catalog/schema/table identifier.
+
+    Returns:
+        The validated name.
+
+    Raises:
+        UnsafeIdentifierError: If the name is not a plain SQL identifier.
+    """
+    if _IDENTIFIER.fullmatch(name) is None:
+        raise UnsafeIdentifierError(name)
+    return name
 
 
 class SqlRunner(Protocol):
@@ -100,7 +125,7 @@ class WarehouseStateStore:
         """Bind to one catalog; the clock is injected for testability."""
         self._warehouse: Final[SqlRunner] = warehouse
         self._sink: Final[Sink] = sink
-        self._catalog: Final[str] = catalog
+        self._catalog: Final[str] = require_identifier(catalog)
         self._clock: Final[Callable[[], datetime]] = clock
 
     def load(self, source: str) -> Cursor | None:
@@ -114,7 +139,7 @@ class WarehouseStateStore:
         """
         safe_source = source.replace("'", "''")
         rows = self._warehouse.execute(
-            f"SELECT to_json(cursor) FROM {self._catalog}.{STATE_TABLE} "  # noqa: S608 - catalog/table are frozen internal identifiers
+            f"SELECT to_json(cursor) FROM {self._catalog}.{STATE_TABLE} "
             f"WHERE source = '{safe_source}'"
         )
         if not rows or rows[0][0] is None:
@@ -122,7 +147,7 @@ class WarehouseStateStore:
         parsed: object = json.loads(str(rows[0][0]))
         if not isinstance(parsed, dict):
             return None
-        state = cast("Mapping[str, object]", cast("object", parsed))
+        state = cast("Mapping[str, Json]", cast("object", parsed))
         return Cursor(source=source, state=state)
 
     def save(
@@ -144,13 +169,16 @@ class WarehouseStateStore:
             items_upserted: Rows written this run.
         """
         now = self._clock()
-        row: dict[str, object] = {
+        row: SinkRow = {
             "source": source,
-            "cursor": dict(cursor.state),
+            "cursor": as_sink(dict(cursor.state)),
             "last_run_at": now,
             "last_status": status,
             "last_error": error[:MAX_ERROR_LENGTH] if error is not None else None,
             "items_upserted": items_upserted,
             "updated_at": now,
         }
-        self._sink.upsert(STATE_TABLE, [row], list(STATE_KEYS), variant_cols=STATE_VARIANT_COLS)
+        schema = table_schema(STATE_TABLE)
+        self._sink.upsert(
+            STATE_TABLE, [row], list(schema.primary_key), variant_cols=schema.variant_cols
+        )

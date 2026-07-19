@@ -5,6 +5,7 @@
 from datetime import date
 from typing import Final
 
+from contracts.models import Json
 from scrapers.common.log import get_logger
 from scrapers.github.discovery import bisect_windows, discover
 from scrapers.github.models import SearchWindow
@@ -15,7 +16,7 @@ D3: Final[date] = date(2026, 7, 3)
 D4: Final[date] = date(2026, 7, 4)
 
 
-def item(node_id: str, repo_id: int, stars: int) -> dict[str, object]:
+def item(node_id: str, repo_id: int, stars: int) -> dict[str, Json]:
     return {
         "node_id": node_id,
         "id": repo_id,
@@ -30,11 +31,11 @@ class FakeSearch:
     def __init__(
         self,
         totals: dict[tuple[date, date], int],
-        pages: dict[tuple[date, date], list[dict[str, object]]],
+        pages: dict[tuple[date, date], list[dict[str, Json]]],
     ) -> None:
         """Store the scripted responses."""
         self.totals: Final[dict[tuple[date, date], int]] = totals
-        self.pages: Final[dict[tuple[date, date], list[dict[str, object]]]] = pages
+        self.pages: Final[dict[tuple[date, date], list[dict[str, Json]]]] = pages
         self.total_calls: Final[list[tuple[date, date]]] = []
 
     def search_total(self, start: date, end: date) -> int:
@@ -42,7 +43,7 @@ class FakeSearch:
         self.total_calls.append((start, end))
         return self.totals[(start, end)]
 
-    def search_page(self, start: date, end: date, page: int) -> list[dict[str, object]]:
+    def search_page(self, start: date, end: date, page: int) -> list[dict[str, Json]]:
         """Return the scripted single page (page 1 only)."""
         if page > 1:
             return []
@@ -99,7 +100,7 @@ def test_discover_respects_limit_and_skips_bisection_under_cap() -> None:
 
 def test_discover_drops_malformed_search_items() -> None:
     totals = {(D1, D2): 2}
-    malformed: dict[str, object] = {"node_id": "R_bad", "id": None}
+    malformed: dict[str, Json] = {"node_id": "R_bad", "id": None}
     pages = {(D1, D2): [item("R_ok", 1, 10), malformed]}
     rest = FakeSearch(totals, pages)
     stubs = discover(rest, D1, D2, 0, get_logger("test"))

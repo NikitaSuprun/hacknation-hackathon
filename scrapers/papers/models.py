@@ -15,6 +15,8 @@ from typing import Final, Literal, final
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from contracts.models import Json
+
 SCHEMA_VERSION: Final[int] = 1
 
 DataSource = Literal["arxiv", "openalex", "s2"]
@@ -80,7 +82,7 @@ class PublicationRecord(BaseModel):
     citation_count_as_of: date | None
     retrieved_at: datetime
     schema_version: int
-    source_extras: dict[str, object]
+    source_extras: dict[str, Json]
 
 
 @dataclass(frozen=True, slots=True)
