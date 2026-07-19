@@ -1,4 +1,4 @@
-# Copyright (c) 2026 Maschmeyer's Chosen Portfolio. All rights reserved.
+# Copyright (c) 2026 Venture Hunt. All rights reserved.
 # Proprietary and confidential. See LICENSE.
 """Bot filtering and the core-contributor rule (the G2 selection contract)."""
 

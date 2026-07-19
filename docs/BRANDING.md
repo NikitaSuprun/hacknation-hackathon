@@ -1,13 +1,13 @@
-# CHOSEN, brand & design system
+# Venture Hunt, brand & design system
 
-**Product:** Maschmeyer's Chosen Portfolio · **Wordmark:** CHOSEN · **Tagline:** *You don't apply. You get chosen.*
+**Product:** Venture Hunt · **Wordmark:** VENTURE HUNT · **Tagline:** *You don't apply. You get chosen.*
 **Canonical tokens:** `frontend/src/index.css` (CSS custom properties) + `frontend/tailwind.config.ts` (utility mapping). This document explains them; the code is the source of truth.
 
 ---
 
 ## 1. The brand idea
 
-CHOSEN inverts the application. Investors hunt; founders are found. Every design choice encodes that inversion:
+Venture Hunt inverts the application. Investors hunt; founders are found. Every design choice encodes that inversion, and the name says the same thing from the fund's side that the tagline says from the founder's:
 
 - **Paper & ink** carry the *work of judging*, the investor side is a working document: memos, scores, hairline rules, mono-set numbers on warm cream.
 - **The electric blue is the act of choosing**, it appears only when a decision is being made or has just been made. This single rule answers nearly every "should this be blue?" question with *no*.
@@ -129,9 +129,11 @@ The paint-swirl aesthetic (Balatro-inspired) appears **only** at ceremony surfac
 
 ## 9. Wordmark & favicon
 
-- **CHOSEN** in Clash Display. Display sizes: weight 500, −0.02em, uppercase. Nav size (14-16px): weight 600, +0.08em tracking.
-- Full name *"Maschmeyer's Chosen Portfolio"* is always a mono-label eyebrow or footer line, never set in Clash next to the wordmark.
-- Favicon: electric square, cream "C" (`frontend/public/favicon.svg`). Also the avatar for outreach email.
+- **VENTURE HUNT** in Clash Display. Display sizes: weight 500, −0.02em, uppercase, set on two lines, a single line overflows below ~900px. Nav size (14-16px): weight 600, +0.08em tracking, on one line beside the monogram.
+- **The VH monogram**, a chevron V interlocked with an H, separated by a paper seam where they cross. Drawn as paths, never as text, so it is identical before Clash Display loads. Canonical implementation: `frontend/src/components/brand/Wordmark.tsx`, which exports `BrandMark` (glyph only) and `Wordmark` (the nav lockup). Use it rather than re-typing the name, the shell, login and intake pages all share it.
+- The eyebrow above the landing wordmark is the *descriptor* ("Early-signal deal sourcing"), never the product name repeated.
+- Favicon: ink square, paper monogram (`frontend/public/favicon.svg`), ink rather than electric, since a full-bleed accent fill would break the accent budget in §3. Also the avatar for outreach email.
+- `logo.png` (repo root, mirrored at `frontend/public/logo.png`) is the full lockup: monogram, wordmark and tagline. README and social cards only; it is 864 KB and must never be loaded by the app.
 
 ## 10. Component vocabulary (quick reference)
 

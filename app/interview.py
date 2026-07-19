@@ -1,4 +1,4 @@
-# Copyright (c) 2026 Maschmeyer's Chosen Portfolio. All rights reserved.
+# Copyright (c) 2026 Venture Hunt. All rights reserved.
 # Proprietary and confidential. See LICENSE.
 """The consent-gated founder interview: token auth, chat loop, completion sync.
 
@@ -200,7 +200,7 @@ class InterviewEngine:
         state = self._state(claims, session)
         return {
             "venture_name": self._venture_name(claims.venture_id),
-            "fund_name": "Maschmeyer's Chosen Portfolio",
+            "fund_name": "Venture Hunt",
             "why_contacted": get_str(row, "body"),
             "consent_prompt": CONSENT_PROMPT,
             "consented": state.consent_confirmed,

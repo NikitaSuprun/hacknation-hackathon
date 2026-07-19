@@ -27,7 +27,7 @@ import { seedDB, type SeedDB } from "@/mocks/fixtures/seed";
 /** The tokenized founder link used throughout the demo. */
 export const DEMO_TOKEN = "demo";
 /** Demo fund identity (fictional, self-referential on purpose). */
-export const FUND_NAME = "Chosen Partners";
+export const FUND_NAME = "Venture Hunt";
 export const FUND_EMAIL = "partner@fund.example";
 
 export interface InterviewState {

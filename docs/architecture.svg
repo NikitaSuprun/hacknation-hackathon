@@ -1,0 +1,167 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="640" viewBox="0 0 1200 640" role="img" aria-label="Venture Hunt architecture: four public sources feed a Databricks medallion warehouse, entity resolution produces one golden person per human, two scoring stages produce ranked ventures with cited memos, and the app closes the loop through consent-based outreach and interviews.">
+  <style>
+    .bg    { fill: #FAF7EA; }
+    .box   { fill: none; stroke: #0E0E0C; stroke-width: 1.4; }
+    .soft  { fill: #0E0E0C; fill-opacity: 0.05; stroke: none; }
+    .cont  { fill: none; stroke: rgba(14,14,12,.24); stroke-width: 1.2; stroke-dasharray: 6 5; }
+    .t     { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #0E0E0C; }
+    .mono  { font-family: "SFMono-Regular", Menlo, Consolas, monospace; }
+    .brand { font-size: 27px; font-weight: 600; letter-spacing: -0.4px; }
+    .tag   { font-size: 13px; fill: #6F6F63; }
+    .hdr   { font-size: 10.5px; font-weight: 600; letter-spacing: 1.6px; fill: #6F6F63; }
+    .nt    { font-size: 15px; font-weight: 600; }
+    .nl    { font-size: 10.5px; fill: #6F6F63; }
+    .el    { fill: #0037FF; }
+    .elt   { font-size: 15px; font-weight: 600; fill: #0037FF; }
+    .alab  { font-size: 10px; fill: #6F6F63; }
+    .foot  { font-size: 10px; fill: #6F6F63; }
+    .flow  { stroke: #0E0E0C; stroke-width: 1.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .eflow { stroke: #0037FF; stroke-width: 1.8; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .loop  { stroke: #6F6F63; stroke-width: 1.3; fill: none; stroke-dasharray: 5 4; stroke-linecap: round; stroke-linejoin: round; }
+  </style>
+
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#0E0E0C"/>
+    </marker>
+    <marker id="ae" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#0037FF"/>
+    </marker>
+    <marker id="aq" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#6F6F63"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1200" height="640"/>
+
+  <!-- ============ title ============ -->
+  <text class="t brand" x="40" y="52">Venture Hunt</text>
+  <text class="t tag" x="40" y="76">You don&#8217;t apply. You get chosen.</text>
+  <text class="t tag" x="1160" y="52" text-anchor="end">Public builder signals in, ranked ventures out</text>
+  <text class="t tag" x="1160" y="76" text-anchor="end">One warehouse &#183; one person_id &#183; every score traceable to a source</text>
+  <line x1="40" y1="98" x2="1160" y2="98" stroke="rgba(14,14,12,.12)" stroke-width="1"/>
+
+  <!-- ============ sources ============ -->
+  <text class="t hdr" x="40" y="130">SOURCES</text>
+
+  <rect class="box" x="40" y="146" width="196" height="52"/>
+  <text class="t nt" x="56" y="171">GitHub</text>
+  <text class="t nl" x="56" y="188">repos &#183; contributors &#183; commits</text>
+
+  <rect class="box" x="40" y="212" width="196" height="52"/>
+  <text class="t nt" x="56" y="237">arXiv + OpenAlex</text>
+  <text class="t nl" x="56" y="254">papers &#183; citations &#183; affiliations</text>
+
+  <rect class="box" x="40" y="278" width="196" height="52"/>
+  <text class="t nt" x="56" y="303">Hack Nation</text>
+  <text class="t nl" x="56" y="320">teams &#183; pitches &#183; CVs</text>
+
+  <rect class="box" x="40" y="344" width="196" height="52" stroke-dasharray="5 4" stroke="rgba(14,14,12,.24)"/>
+  <text class="t nt" x="56" y="369" fill="#6F6F63">Zefix / SHAB</text>
+  <text class="t nl" x="56" y="386">Swiss registry &#183; next</text>
+
+  <text class="t nl" x="40" y="418">one connector framework &#8212; cursor, validate, idempotent MERGE</text>
+
+  <!-- sources manifold -->
+  <path class="flow" d="M236 172 H262 M236 238 H262 M236 304 H262 M236 370 H262"/>
+  <path class="flow" d="M262 172 V370"/>
+  <path class="flow" d="M262 271 H300" marker-end="url(#a)"/>
+
+  <!-- ============ warehouse ============ -->
+  <rect class="cont" x="300" y="112" width="470" height="330" rx="10"/>
+  <rect x="316" y="104" width="196" height="16" fill="#FAF7EA"/>
+  <text class="t hdr" x="322" y="116">DATABRICKS &#183; UNITY CATALOG</text>
+
+  <rect class="soft" x="320" y="140" width="190" height="52"/>
+  <rect class="box" x="320" y="140" width="190" height="52"/>
+  <text class="t nt" x="336" y="165">Bronze</text>
+  <text class="t nl" x="336" y="182">raw payloads, kept whole</text>
+
+  <path class="flow" d="M415 192 V216" marker-end="url(#a)"/>
+
+  <rect class="box" x="320" y="216" width="190" height="66"/>
+  <text class="t nt" x="336" y="241">Entity resolution</text>
+  <text class="t nl" x="336" y="258">8 rules &#183; Splink &#183; Claude</text>
+  <text class="t nl mono" x="336" y="273">person_source_record &#8594; link</text>
+
+  <path class="flow" d="M415 282 V306" marker-end="url(#a)"/>
+
+  <rect class="soft" x="320" y="306" width="190" height="52"/>
+  <rect class="box" x="320" y="306" width="190" height="52"/>
+  <text class="t nt" x="336" y="331">Silver</text>
+  <text class="t nl" x="336" y="348">one golden person per human</text>
+
+  <path class="flow" d="M510 332 H535 V173 H560" marker-end="url(#a)"/>
+
+  <!-- scoring: the decision path, electric -->
+  <rect class="box" x="560" y="140" width="190" height="66" stroke="#0037FF" stroke-width="1.8"/>
+  <text class="t elt" x="576" y="165">Stage A &#183; SQL</text>
+  <text class="t nl" x="576" y="182">ten signals &#183; embeddings</text>
+  <text class="t nl" x="576" y="197">missing stays null, never zero</text>
+
+  <path class="eflow" d="M655 206 V230" marker-end="url(#ae)"/>
+
+  <rect class="box" x="560" y="230" width="190" height="66" stroke="#0037FF" stroke-width="1.8"/>
+  <text class="t elt" x="576" y="255">Stage B &#183; Claude</text>
+  <text class="t nl" x="576" y="272">deep dive, web search capped</text>
+  <text class="t nl" x="576" y="287">top 25 ventures, must cite</text>
+
+  <path class="eflow" d="M655 296 V320" marker-end="url(#ae)"/>
+
+  <rect class="soft" x="560" y="320" width="190" height="66"/>
+  <rect class="box" x="560" y="320" width="190" height="66" stroke="#0037FF" stroke-width="1.8"/>
+  <text class="t elt" x="576" y="345">Gold</text>
+  <text class="t nl" x="576" y="362">ventures &#183; scores &#183; memos</text>
+  <text class="t nl" x="576" y="377">append-only behind is_latest</text>
+
+  <!-- warehouse -> app. The gap is 80px, so the label sets on two lines. -->
+  <path class="eflow" d="M750 365 H830" marker-end="url(#ae)"/>
+  <text class="t alab" x="790" y="341" text-anchor="middle">five read-only</text>
+  <text class="t alab" x="790" y="353" text-anchor="middle">views</text>
+
+  <!-- ============ app ============ -->
+  <rect class="cont" x="830" y="112" width="330" height="330" rx="10"/>
+  <rect x="846" y="104" width="200" height="16" fill="#FAF7EA"/>
+  <text class="t hdr" x="852" y="116">ONE STARLETTE PROCESS</text>
+
+  <rect class="box" x="850" y="140" width="290" height="76"/>
+  <text class="t nt" x="866" y="165">Investor instrument</text>
+  <text class="t nl" x="866" y="182">ranked list &#183; cited memo &#183; team graph</text>
+  <text class="t nl" x="866" y="197">nine weight sliders, re-ranks in browser</text>
+  <text class="t nl mono" x="866" y="209">React SPA + /v1 API</text>
+
+  <path class="flow" d="M995 216 V240" marker-end="url(#a)"/>
+  <text class="t alab" x="1005" y="232">partner decides</text>
+
+  <rect class="box" x="850" y="240" width="290" height="62"/>
+  <text class="t nt" x="866" y="265">Outreach</text>
+  <text class="t nl" x="866" y="282">consent-based, one-click opt-out</text>
+  <text class="t nl" x="866" y="296">single-use token, sha256 only</text>
+
+  <path class="flow" d="M995 302 V326" marker-end="url(#a)"/>
+
+  <rect class="box" x="850" y="326" width="290" height="62"/>
+  <text class="t nt" x="866" y="351">Founder interview</text>
+  <text class="t nl" x="866" y="368">fills exactly the gaps we flagged</text>
+  <text class="t nl" x="866" y="382">answers extracted against a schema</text>
+
+  <!-- feedback loop: answers re-run scoring, appending a fresh row to Gold -->
+  <path class="loop" d="M850 357 H800 V472 H655 V392" marker-end="url(#aq)"/>
+  <text class="t alab" x="645" y="476" text-anchor="end">interview answers &#8594; re-score &#8594; the list re-sorts</text>
+
+  <!-- ============ notes ============ -->
+  <line x1="40" y1="512" x2="1160" y2="512" stroke="rgba(14,14,12,.12)" stroke-width="1"/>
+
+  <text class="t hdr" x="40" y="542">WHY IT HOLDS UP</text>
+  <text class="t nl" x="40" y="566">Merges are reversible &#8212; a golden person is just the set of active link rows over</text>
+  <text class="t nl" x="40" y="581">immutable source records. Undoing a bad merge is a status flip, not a rewrite.</text>
+
+  <text class="t nl" x="440" y="566">Nothing auto-merges below 0.90, and a name alone is never enough. Claude</text>
+  <text class="t nl" x="440" y="581">adjudicates the 0.60&#8211;0.90 band; below that a human does.</text>
+
+  <text class="t nl" x="840" y="566">A category with no evidence redistributes its weight rather than</text>
+  <text class="t nl" x="840" y="581">inventing an average. Confidence is stored apart from score.</text>
+
+  <text class="t foot" x="40" y="614">Public sources only &#183; provenance on every fact &#183; erasure enforced in the write path</text>
+  <text class="t foot" x="1160" y="614" text-anchor="end">Embeddings judge topic, not rank &#8212; prestige and scale live in the feature layer</text>
+</svg>

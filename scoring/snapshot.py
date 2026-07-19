@@ -1,4 +1,4 @@
-# Copyright (c) 2026 Maschmeyer's Chosen Portfolio. All rights reserved.
+# Copyright (c) 2026 Venture Hunt. All rights reserved.
 # Proprietary and confidential. See LICENSE.
 """Typed JSONL snapshots: the immutable inputs every scoring job is a function of.
 

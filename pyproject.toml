@@ -1,7 +1,7 @@
 [project]
 name = "dealflow"
 version = "0.1.0"
-description = "Maschmeyer's Chosen Portfolio - You don't apply. You get chosen. Early-signal VC deal sourcing."
+description = "Venture Hunt - You don't apply. You get chosen. Early-signal VC deal sourcing."
 readme = "README.md"
 license = "LicenseRef-Proprietary"
 license-files = ["LICENSE"]

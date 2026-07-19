@@ -38,8 +38,13 @@ export default function LandingPage() {
       <section className="relative overflow-hidden">
         <PosterBackdrop subtle />
         <div className="relative mx-auto flex min-h-[85vh] w-full max-w-grid flex-col items-start justify-center px-gutter py-section">
-          <p className="mono-label mb-6 animate-fade-in">Maschmeyer's Chosen Portfolio</p>
-          <h1 className="font-display text-display-xl text-ink">CHOSEN</h1>
+          <p className="mono-label mb-6 animate-fade-in">Early-signal deal sourcing</p>
+          {/* Two words, so each gets its own line — at display-xl a single line
+              overflows below ~900px and hyphenates badly. */}
+          <h1 className="font-display text-display-xl leading-[0.95] text-ink">
+            <span className="block">Venture</span>
+            <span className="block">Hunt</span>
+          </h1>
           <p className="mt-6 max-w-measure-narrow text-h3 font-normal">
             {TAGLINE.map(({ word, tone }, i) => (
               <Fragment key={i}>
@@ -80,7 +85,7 @@ export default function LandingPage() {
 
       <footer className="hairline-t mt-auto">
         <div className="mx-auto flex w-full max-w-grid flex-col gap-2 px-gutter py-8 sm:flex-row sm:items-center sm:justify-between">
-          <span className="mono-label">Maschmeyer's Chosen Portfolio</span>
+          <span className="mono-label">Venture Hunt</span>
           <span className="mono-label">
             Public signals only · ask us to delete anything, any time
           </span>

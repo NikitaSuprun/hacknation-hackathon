@@ -1,4 +1,4 @@
-# Copyright (c) 2026 Maschmeyer's Chosen Portfolio. All rights reserved.
+# Copyright (c) 2026 Venture Hunt. All rights reserved.
 # Proprietary and confidential. See LICENSE.
 """Interview-completion sync: feed the interview into the WS-E targeted rescore.
 

@@ -1,6 +1,6 @@
-# Maschmeyer's Chosen Portfolio
-
-**You don't apply. You get chosen.**
+<p align="center">
+  <img src="logo.png" alt="Venture Hunt" width="380">
+</p>
 
 Early-signal deal sourcing for a VC fund: scrape public builder signals (GitHub,
 papers, Swiss registry, Hack Nation), resolve them to golden person records,
@@ -10,6 +10,41 @@ surface ranked candidates with cited memos and consent-based AI interviews.
 The full design and build plan live in [docs/plan/](docs/plan/) — start with
 [handover.md](docs/plan/handover.md). Conventions are in [AGENTS.md](AGENTS.md)
 and [docs/styleguide/](docs/styleguide/).
+
+![Venture Hunt architecture](docs/architecture.svg)
+
+## How it works
+
+Four connectors sweep public sources on a cursor and write whatever they find
+into Bronze untouched. Nothing is interpreted on the way in: a re-scrape that
+finds no change writes nothing, and a profile that fails validation lands in a
+rejects table instead of stopping the run.
+
+The hard part is deciding who is who. The same builder shows up as a GitHub
+login, a paper author and a hackathon profile, and those identities stay
+separate until there is evidence to link them. Eight deterministic rules go
+first, Splink scores the remainder, Claude adjudicates the uncertain middle
+band, and anything below that waits for a human. A golden person is never a
+rewrite — it is just the set of active link rows laid over immutable source
+records, so undoing a bad merge is a status flip.
+
+Scoring runs in two passes. Stage A computes ten signals in SQL and turns them
+into nine weighted categories; a signal we could not find stays null rather than
+becoming zero, because unknown and bad are not the same claim. Stage B sends the
+shortlist to Claude with web search for the judgements that don't reduce to a
+query — whether a product is genuinely defensible, whether the market is real —
+under a hard search cap, quoting its sources.
+
+What comes out is a ranked list the partner can re-sort in the browser by
+dragging weights, each venture carrying a cited memo and an explicit list of
+what we could not find. Those gaps are the interview: the founder gets a
+consent-based invitation, answers only what they want to, and their answers flow
+back as a fresh score. The founder never applies — that is the whole point, and
+it is why the word *chosen* appears in the product's vocabulary rather than in
+its name.
+
+Every fact carries provenance, the app reads five views and never a base table,
+and erasure is enforced in the write path rather than bolted on.
 
 ## Setup
 
@@ -118,5 +153,6 @@ average. Team scoring combines the average member with the best one. Confidence
 is stored separately from score, so thin evidence stays visible. The weights
 belong to the fund, and changing one re-sorts the list in the browser.
 
-A one-page architecture diagram and the pitch script live in
-[presentation/](presentation/).
+The pitch script lives in [presentation/](presentation/), which renders the
+diagram above to a slide PDF — one source, so the deck and the README cannot
+drift apart.

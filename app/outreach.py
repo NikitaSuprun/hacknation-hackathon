@@ -1,4 +1,4 @@
-# Copyright (c) 2026 Maschmeyer's Chosen Portfolio. All rights reserved.
+# Copyright (c) 2026 Venture Hunt. All rights reserved.
 # Proprietary and confidential. See LICENSE.
 """Consent-based outreach: compliant email render, suppression, state machine.
 
@@ -28,8 +28,8 @@ from contracts.models import Json, SinkRow
 from scoring.snapshot import get_float
 from scrapers.common.jsonutil import as_mapping, as_sink, get_str
 
-FUND_NAME: Final[str] = "Maschmeyer's Chosen Portfolio"
-SENDER_EMAIL: Final[str] = "partners@chosen-portfolio.example"
+FUND_NAME: Final[str] = "Venture Hunt"
+SENDER_EMAIL: Final[str] = "partners@venturehunt.example"
 TOKEN_TTL_DAYS: Final[int] = 14
 TOKEN_BYTES: Final[int] = 16
 RESEND_API_URL: Final[str] = "https://api.resend.com/emails"

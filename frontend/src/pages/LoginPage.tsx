@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Wordmark } from "@/components/brand/Wordmark";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { dataSource } from "@/lib/data";
@@ -34,12 +35,7 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-paper px-gutter">
       <div className="w-full max-w-sm">
-        <Link
-          to="/"
-          className="font-display text-[15px] font-semibold uppercase tracking-[0.08em] text-ink"
-        >
-          Chosen
-        </Link>
+        <Wordmark />
         <h1 className="mt-8 font-display text-h1 text-ink">Sign in</h1>
         <p className="mt-2 text-small text-quiet">
           The fund's working instrument. Founders don't sign in, they get chosen.

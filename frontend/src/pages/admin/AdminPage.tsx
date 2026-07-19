@@ -1,5 +1,5 @@
 /**
- * Admin · Database, the read-only instrument over everything CHOSEN holds:
+ * Admin · Database, the read-only instrument over everything Venture Hunt holds:
  * medallion-layer stats, the people/venture provenance graph, and a raw
  * table browser. All data is local (contract fixtures + the live demo
  * store); no network.

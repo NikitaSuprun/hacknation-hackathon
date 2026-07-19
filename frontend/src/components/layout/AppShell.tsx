@@ -1,6 +1,7 @@
-import { NavLink, Outlet, Link, useLocation } from "react-router-dom";
+import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { dataSource } from "@/lib/data";
+import { Wordmark } from "@/components/brand/Wordmark";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
@@ -10,7 +11,7 @@ const NAV_ITEMS = [
 ] as const;
 
 /**
- * The investor shell: hairline top bar with the CHOSEN wordmark, section nav,
+ * The investor shell: hairline top bar with the Venture Hunt wordmark, section nav,
  * and the data-mode chip. Content renders on the 1176px grid below.
  */
 export function AppShell() {
@@ -27,12 +28,7 @@ export function AppShell() {
       <header className="hairline-b sticky top-0 z-40 bg-paper/95 backdrop-blur-sm">
         <div className="mx-auto flex h-14 w-full max-w-grid items-center justify-between px-gutter">
           <div className="flex items-center gap-8">
-            <Link
-              to="/"
-              className="font-display text-[15px] font-semibold uppercase tracking-[0.08em] text-ink"
-            >
-              Chosen
-            </Link>
+            <Wordmark />
             <nav className="hidden items-center gap-1 md:flex">
               <NavLink
                 to="/thesis"

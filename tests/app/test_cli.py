@@ -1,4 +1,4 @@
-# Copyright (c) 2026 Maschmeyer's Chosen Portfolio. All rights reserved.
+# Copyright (c) 2026 Venture Hunt. All rights reserved.
 # Proprietary and confidential. See LICENSE.
 """Smoke: the fixtures app builds in-process and serves /healthz, /v1/ranking,
 and the static SPA shell."""
@@ -21,6 +21,6 @@ def test_static_spa_is_served_at_the_root() -> None:
     client = AppClient(build_fixture_deps(base_url="http://testserver"))
     index = client.get("/")
     assert index.status_code == 200
-    assert "Maschmeyer's Chosen Portfolio" in index.text
+    assert "Venture Hunt" in index.text
     assert client.get("/app.js").status_code == 200
     assert client.get("/style.css").status_code == 200

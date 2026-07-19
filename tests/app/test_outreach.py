@@ -1,4 +1,4 @@
-# Copyright (c) 2026 Maschmeyer's Chosen Portfolio. All rights reserved.
+# Copyright (c) 2026 Venture Hunt. All rights reserved.
 # Proprietary and confidential. See LICENSE.
 """Outreach: token minting (hash stored, not the token), compliant email,
 state transitions with history, and the suppression gate."""
@@ -50,7 +50,7 @@ def test_outreach_post_mints_token_and_sends_compliant_mail(
     mail = mailer.sent[0]
     assert mail.to_email == "lena.fischer@ethz.ch"
     # Compliance: sender identity, why contacted + data source, opt-out.
-    assert "Maschmeyer's Chosen Portfolio" in mail.body
+    assert "Venture Hunt" in mail.body
     assert "We came across your GitHub profile @lenafischer" in mail.body
     assert "public data only" in mail.body
     assert "/v1/optout/" in mail.body

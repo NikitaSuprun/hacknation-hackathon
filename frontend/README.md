@@ -1,6 +1,6 @@
-# CHOSEN — the WS-F frontend
+# Venture Hunt — the WS-F frontend
 
-The two-sided app for **Maschmeyer's Chosen Portfolio**: the investor instrument
+The two-sided app for **Venture Hunt**: the investor instrument
 (thesis → ranking → memo → choose → outreach board → admin) and the founder
 surfaces (the tokenized interview, and the inbound `/chosen` intake).
 

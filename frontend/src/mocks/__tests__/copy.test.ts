@@ -1,5 +1,5 @@
 /**
- * Copy audit: CHOSEN's founder-facing voice never uses the language of an
+ * Copy audit: the founder-facing voice never uses the language of an
  * application process ("You don't apply. You get chosen."). The interview
  * script is the founder-facing surface, every AI turn must stay clean.
  */

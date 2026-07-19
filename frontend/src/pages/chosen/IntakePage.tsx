@@ -23,7 +23,7 @@ export default function IntakePage() {
             to="/"
             className="mono-label inline-block transition-colors duration-120 ease-swift hover:text-ink"
           >
-            Chosen, Maschmeyer's Chosen Portfolio
+            Venture Hunt
           </Link>
           <h1 className="mt-10 font-display text-h1 text-ink">Put yourself on the radar.</h1>
           <p className="mt-4 max-w-measure-narrow text-body text-quiet">

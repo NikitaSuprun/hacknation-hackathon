@@ -1,10 +1,13 @@
-# Copyright (c) 2026 Maschmeyer's Chosen Portfolio. All rights reserved.
+# Copyright (c) 2026 Venture Hunt. All rights reserved.
 # Proprietary and confidential. See LICENSE.
 """Render the architecture slide from SVG to a vector PDF (and a PNG proof).
 
 The slide is hand-authored SVG so the layout is exact; this only converts it.
 `rsvg-convert` keeps the PDF genuinely vector (cairo embeds font subsets), which
 a screenshot-based path would not.
+
+The source lives in `docs/` because the README embeds the same file — one
+diagram serves both the repo and the deck, so the two cannot drift apart.
 """
 
 import argparse
@@ -15,7 +18,7 @@ from pathlib import Path
 from typing import Final
 
 HERE: Final[Path] = Path(__file__).resolve().parent
-SOURCE: Final[Path] = HERE / "architecture.svg"
+SOURCE: Final[Path] = HERE.parent / "docs" / "architecture.svg"
 OUT_DIR: Final[Path] = HERE / "out"
 PDF: Final[Path] = OUT_DIR / "architecture.pdf"
 PNG: Final[Path] = OUT_DIR / "preview.png"
