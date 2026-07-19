@@ -8,17 +8,31 @@
 ## Checklist
 
 - [ ] **P1 — arXiv client**
-  - [ ] Category × date-window paging (cs.AI/LG/CL/CV/stat.ML/RO/MA/DC/DB/SE), 1 req/3s, single connection, Atom parse, cross-list dedupe
-  - [ ] Code-link regex over abstract + comment (github/gitlab/huggingface)
-  - [ ] Emit unified `PublicationRecord` (source-agnostic core + `source_extras`) → `bronze.arxiv_papers_raw`
-  - [ ] *Acceptance*: 30-day window yields ≥2k unified records; dedupe verified; 20 extracted code links spot-checked; idempotent
+  - [x] Category × date-window paging (cs.AI/LG/CL/CV/stat.ML/RO/MA/DC/DB/SE), 1 req/3s, single connection, Atom parse, cross-list dedupe
+  - [x] Code-link regex over abstract + comment (github/gitlab/huggingface)
+  - [x] Emit unified `PublicationRecord` (source-agnostic core + `source_extras`) → `bronze.arxiv_papers_raw`
+  - [ ] *Acceptance*: 30-day window yields ≥2k unified records; dedupe verified *(green offline)*; 20 extracted code links spot-checked; idempotent *(green offline; live counts need creds — see run notes)*
 - [ ] **P2 — OpenAlex enrichment**
-  - [ ] Keyed DOI-batch lookups (50/call); merge authorships/institutions (ROR)/ORCID/citations; inverted-index abstract fallback → `bronze.openalex_works_raw`
-  - [ ] *Acceptance*: ≥80% match rate on sample; ≥60% of matched works have ≥1 institution; spend headers logged, within $1/day free
+  - [x] Keyed DOI-batch lookups (50/call); merge authorships/institutions (ROR)/ORCID/citations; inverted-index abstract fallback → `bronze.openalex_works_raw`
+  - [ ] *Acceptance*: ≥80% match rate on sample *(match rate is computed and logged per run)*; ≥60% of matched works have ≥1 institution; spend headers logged *(done)*, within $1/day free *(live check pending)*
 - [ ] **P3 — PwC archive + optional S2**
-  - [ ] One-time load of HF `pwc-archive/links-between-paper-and-code` → `bronze.paper_code_links`
-  - [ ] Optional Semantic Scholar layer (no-op without key)
-  - [ ] *Acceptance*: archive rows loaded & joinable on arxiv_id; pipeline unaffected when `S2_API_KEY` unset
+  - [x] One-time load of HF `pwc-archive/links-between-paper-and-code` → `bronze.paper_code_links`
+  - [x] Optional Semantic Scholar layer (no-op without key)
+  - [ ] *Acceptance*: archive rows loaded & joinable on arxiv_id *(loader drops non-joinable NULL-arxiv rows)*; pipeline unaffected when `S2_API_KEY` unset *(green offline: zero HTTP without the key)*
+
+## Run notes
+
+- CLI: `uv run python -m scrapers.papers {arxiv|openalex|s2} [--since YYYY-MM-DD] [--limit N] [--fixtures] [--dry-run]`
+  and `uv run python -m scrapers.papers pwc-load <file> [--dry-run]`. `--fixtures --dry-run` is the
+  credential-free CI path (replays `scrapers/papers/fixtures/`).
+- Live runs need `SCRAPER_CONTACT_EMAIL` (User-Agent) and, for openalex, `OPENALEX_API_KEY`;
+  `S2_API_KEY` stays optional. Databricks creds are needed unless `--dry-run`.
+- OpenAlex discovery is a stateless anti-join (arXiv bronze minus OpenAlex bronze); the lookup DOI
+  falls back to the DataCite DOI `10.48550/arxiv.<id>` when arXiv has no journal DOI — verify the
+  match rate log (≥80%) on the first live run; batch misses already fall back to single lookups.
+- PwC archive: download `links-between-paper-and-code` from the HF `pwc-archive` org manually and
+  load from the local file. The dataset is **CC-BY-SA-4.0 (attribution: Papers with Code)** — its
+  rows are never committed to this repo; the checked-in `pwc_links_sample.json` is synthetic.
 
 ## Notes & risks
 - OpenAlex 2026 requires a free API key (polite pool retired); request it Day 0.

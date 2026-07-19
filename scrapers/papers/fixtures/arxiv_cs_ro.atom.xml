@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/" xmlns:arxiv="http://arxiv.org/schemas/atom">
+  <opensearch:totalResults>3</opensearch:totalResults>
+  <entry>
+    <id>http://arxiv.org/abs/2506.11111v2</id>
+    <updated>2026-07-01T17:59:59Z</updated>
+    <published>2026-06-12T17:59:59Z</published>
+    <title>GraspFM: Foundation Models for Robotic Grasping</title>
+    <summary>We present GraspFM. Code: github.com/grasplab/grasp-anything.</summary>
+    <author><name>Léna Fischer</name></author>
+    <author><name>Wei Zhang</name></author>
+    <arxiv:comment>Project page: https://grasplab.ch</arxiv:comment>
+    <link href="http://arxiv.org/abs/2506.11111v2" rel="alternate" type="text/html"/>
+    <link title="pdf" href="http://arxiv.org/pdf/2506.11111v2" rel="related" type="application/pdf"/>
+    <arxiv:primary_category term="cs.RO" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="cs.RO" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="cs.LG" scheme="http://arxiv.org/schemas/atom"/>
+  </entry>
+  <entry>
+    <id>http://arxiv.org/abs/2507.22222v1</id>
+    <updated>2026-07-01T17:59:59Z</updated>
+    <published>2026-06-12T17:59:59Z</published>
+    <title>FastSim: Differentiable Contact Simulation</title>
+    <summary>Differentiable physics. Code: github.com/bergerlab/fastsim.git</summary>
+    <author><name>Nils Berger</name></author>
+    <arxiv:comment>Contact: nils@berger.dev</arxiv:comment>
+    <link href="http://arxiv.org/abs/2507.22222v1" rel="alternate" type="text/html"/>
+    <link title="pdf" href="http://arxiv.org/pdf/2507.22222v1" rel="related" type="application/pdf"/>
+    <arxiv:primary_category term="cs.RO" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="cs.RO" scheme="http://arxiv.org/schemas/atom"/>
+  </entry>
+  <entry>
+    <id>http://arxiv.org/abs/2507.44444v1</id>
+    <updated>2026-07-01T17:59:59Z</updated>
+    <published>2026-06-12T17:59:59Z</published>
+    <title>NewBot: Agents That Assemble Furniture</title>
+    <summary>A study without any code release.</summary>
+    <author><name>A. Patel</name></author>
+    <link href="http://arxiv.org/abs/2507.44444v1" rel="alternate" type="text/html"/>
+    <link title="pdf" href="http://arxiv.org/pdf/2507.44444v1" rel="related" type="application/pdf"/>
+    <arxiv:primary_category term="cs.RO" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="cs.RO" scheme="http://arxiv.org/schemas/atom"/>
+  </entry>
+</feed>

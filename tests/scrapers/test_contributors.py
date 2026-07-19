@@ -7,9 +7,7 @@ from scrapers.github.models import ContributorStat
 
 
 def stat(login: str, contributions: int, user_type: str = "User") -> ContributorStat:
-    return ContributorStat(
-        login=login, user_id=1, contributions=contributions, user_type=user_type
-    )
+    return ContributorStat(login=login, user_id=1, contributions=contributions, user_type=user_type)
 
 
 def test_bot_filter_catches_all_three_shapes() -> None:

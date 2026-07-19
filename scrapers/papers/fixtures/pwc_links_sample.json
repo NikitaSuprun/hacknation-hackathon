@@ -1,0 +1,26 @@
+[
+  {
+    "paper_arxiv_id": "2506.11111",
+    "repo_url": "https://github.com/grasplab/grasp-anything",
+    "is_official": true,
+    "mentioned_in_paper": true
+  },
+  {
+    "paper_arxiv_id": "2507.22222",
+    "repo_url": "https://github.com/bergerlab/fastsim",
+    "is_official": false,
+    "mentioned_in_paper": true
+  },
+  {
+    "paper_arxiv_id": null,
+    "repo_url": "https://github.com/orphan/no-paper",
+    "is_official": false,
+    "mentioned_in_paper": false
+  },
+  {
+    "paper_arxiv_id": "2506.11111",
+    "repo_url": "https://github.com/grasplab/grasp-anything",
+    "is_official": true,
+    "mentioned_in_paper": false
+  }
+]

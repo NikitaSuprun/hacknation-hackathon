@@ -1,0 +1,16 @@
+[
+  {
+    "paperId": "649def34f8be52c8b66281af98ae884c09aef38b",
+    "title": "GraspFM: Foundation Models for Robotic Grasping",
+    "citationCount": 44,
+    "tldr": {
+      "model": "tldr@v2.0.0",
+      "text": "A foundation model for robotic grasping."
+    },
+    "externalIds": {
+      "ArXiv": "2506.11111",
+      "DOI": "10.48550/arXiv.2506.11111"
+    }
+  },
+  null
+]

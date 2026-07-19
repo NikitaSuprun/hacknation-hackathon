@@ -1,0 +1,108 @@
+{
+  "results": [
+    {
+      "id": "https://openalex.org/W4400000001",
+      "doi": "https://doi.org/10.48550/arxiv.2506.11111",
+      "display_name": "GraspFM: Foundation Models for Robotic Grasping",
+      "publication_date": "2026-06-12",
+      "cited_by_count": 41,
+      "abstract_inverted_index": {
+        "We": [
+          0
+        ],
+        "present": [
+          1
+        ],
+        "GraspFM,": [
+          2
+        ],
+        "a": [
+          3
+        ],
+        "foundation": [
+          4
+        ],
+        "model": [
+          5
+        ],
+        "for": [
+          6
+        ],
+        "grasping.": [
+          7
+        ]
+      },
+      "primary_location": {
+        "landing_page_url": "https://arxiv.org/abs/2506.11111",
+        "source": {
+          "display_name": "arXiv (Cornell University)"
+        }
+      },
+      "locations": [
+        {
+          "landing_page_url": "https://arxiv.org/abs/2506.11111"
+        }
+      ],
+      "authorships": [
+        {
+          "author": {
+            "id": "https://openalex.org/A5000000001",
+            "display_name": "Léna Fischer",
+            "orcid": "https://orcid.org/0000-0002-1825-0097"
+          },
+          "author_position": "first",
+          "institutions": [
+            {
+              "display_name": "ETH Zürich",
+              "ror": "https://ror.org/05a28rw58"
+            }
+          ]
+        },
+        {
+          "author": {
+            "id": "https://openalex.org/A5000000002",
+            "display_name": "Wei Zhang",
+            "orcid": null
+          },
+          "author_position": "last",
+          "institutions": [
+            {
+              "display_name": "ETH Zürich",
+              "ror": "https://ror.org/05a28rw58"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "https://openalex.org/W4400000003",
+      "doi": "https://doi.org/10.48550/arxiv.2507.22222",
+      "display_name": "FastSim: Differentiable Contact Simulation",
+      "publication_date": "2026-07-05",
+      "cited_by_count": 3,
+      "abstract_inverted_index": null,
+      "primary_location": {
+        "landing_page_url": "https://arxiv.org/abs/2507.22222",
+        "source": {
+          "display_name": "arXiv (Cornell University)"
+        }
+      },
+      "locations": [
+        {
+          "landing_page_url": "https://arxiv.org/abs/2507.22222"
+        }
+      ],
+      "authorships": [
+        {
+          "author": {
+            "id": "https://openalex.org/A5000000004",
+            "display_name": "Nils Berger",
+            "orcid": null
+          },
+          "author_position": "first",
+          "institutions": []
+        }
+      ]
+    }
+  ]
+}
