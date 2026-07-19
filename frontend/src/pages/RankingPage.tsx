@@ -165,7 +165,10 @@ export default function RankingPage() {
               <span className="min-w-0">
                 <span className="block truncate">
                   <span className="text-body font-medium text-ink">{venture.name}</span>
-                  <span className="ml-3 text-small text-quiet">{venture.one_liner}</span>
+                  {/* A three-letter stub of the descriptor is noise — drop it on narrow screens. */}
+                  <span className="ml-3 hidden text-small text-quiet sm:inline">
+                    {venture.one_liner}
+                  </span>
                 </span>
                 {hit && <RelevanceTag hit={hit} />}
               </span>

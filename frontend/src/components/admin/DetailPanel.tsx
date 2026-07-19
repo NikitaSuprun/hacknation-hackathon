@@ -4,7 +4,7 @@
  * with a source label on every fact. Venture selection shows a lighter
  * summary whose members click through to their person nodes.
  */
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { cn, formatScore } from "@/lib/utils";
@@ -131,8 +131,6 @@ function PersonPanel({
   const db = getDB();
   const thesisId = db.thesis.thesis_id;
   const p = dossier.person;
-  const [avatarFailed, setAvatarFailed] = useState(false);
-  const avatarUrl = str(p.avatar_url);
   const name = str(p.full_name) ?? "Unknown";
   const initials = name
     .split(/\s+/)
@@ -148,17 +146,10 @@ function PersonPanel({
     <div>
       {/* identity */}
       <div className="flex items-start gap-3">
+        {/* Monogram, never the remote avatar: the demo makes no network
+            requests, and photos would break the monochrome instrument. */}
         <div className="flex h-12 w-12 shrink-0 items-center justify-center bg-ink font-mono text-mono-data text-paper">
-          {avatarUrl && !avatarFailed ? (
-            <img
-              src={avatarUrl}
-              alt=""
-              className="h-12 w-12 object-cover"
-              onError={() => setAvatarFailed(true)}
-            />
-          ) : (
-            initials
-          )}
+          {initials}
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
