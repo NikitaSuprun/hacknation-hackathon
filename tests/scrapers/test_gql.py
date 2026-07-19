@@ -128,3 +128,48 @@ def test_request_body_is_the_query_document() -> None:
     query = seen[0]["query"]
     assert isinstance(query, str)
     assert query.startswith("query Profiles {")
+
+
+def custom_gql_client(handler: httpx.MockTransport, time: FakeTime) -> GithubGraphql:
+    http = HttpClient(
+        user_agent="test-agent",
+        headers={},
+        buckets={"graphql": TokenBucket(1000.0, 10.0, timing=time.timing())},
+        transport=handler,
+        timing=time.timing(),
+    )
+    return GithubGraphql(http, get_logger("test"))
+
+
+def test_gateway_timeout_bisects_batch_instead_of_dying() -> None:
+    # GitHub 502s on heavy multi-alias queries; halves must succeed independently.
+    def handler(request: httpx.Request) -> httpx.Response:
+        body = request.content.decode()
+        if "alpha" in body and "beta" in body:
+            return httpx.Response(502)
+        if "alpha" in body:
+            return httpx.Response(200, json={"data": {"n0": {"databaseId": 1}}})
+        return httpx.Response(200, json={"data": {"n0": {"databaseId": 2}}})
+
+    time = FakeTime()
+    gql = custom_gql_client(httpx.MockTransport(handler), time)
+    results, failures = gql.hydrate_repos(STUBS, None)
+    assert results["octo/alpha"] == {"databaseId": 1}
+    assert results["octo/beta"] == {"databaseId": 2}
+    assert failures == []
+
+
+def test_persistently_heavy_single_alias_becomes_failure() -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        body = request.content.decode()
+        if "beta" in body and "alpha" not in body:
+            return httpx.Response(502)
+        if "alpha" in body and "beta" in body:
+            return httpx.Response(502)
+        return httpx.Response(200, json={"data": {"n0": {"databaseId": 1}}})
+
+    time = FakeTime()
+    gql = custom_gql_client(httpx.MockTransport(handler), time)
+    results, failures = gql.hydrate_repos(STUBS, None)
+    assert set(results) == {"octo/alpha"}
+    assert failures == [GqlFailure(key="octo/beta", message="HTTP 502 from GraphQL")]

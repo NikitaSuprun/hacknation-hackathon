@@ -2,6 +2,7 @@
 # Proprietary and confidential. See LICENSE.
 """Settings fail fast; the offline CI path reads no environment at all."""
 
+from pathlib import Path
 from typing import Final
 
 import pytest
@@ -29,14 +30,19 @@ def _clean_env(monkeypatch: pytest.MonkeyPatch) -> None:  # pyright: ignore[repo
         monkeypatch.delenv(key, raising=False)
 
 
-def test_missing_contact_email_fails_fast() -> None:
+def test_missing_contact_email_fails_fast(tmp_path: Path) -> None:
+    # An explicit empty dotenv keeps the test hermetic when a real .env exists.
+    empty = tmp_path / "empty.env"
+    empty.write_text("")
     with pytest.raises(MissingConfigError, match="SCRAPER_CONTACT_EMAIL"):
-        load_scraper_settings()
+        load_scraper_settings(env_file=empty)
 
 
-def test_source_keys_stay_optional(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_source_keys_stay_optional(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    empty = tmp_path / "empty.env"
+    empty.write_text("")
     monkeypatch.setenv("SCRAPER_CONTACT_EMAIL", "dev@example.org")
-    settings = load_scraper_settings()
+    settings = load_scraper_settings(env_file=empty)
     assert settings.contact_email == "dev@example.org"
     assert settings.github_token is None
     assert settings.openalex_api_key is None

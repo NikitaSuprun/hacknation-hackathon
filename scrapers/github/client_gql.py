@@ -16,14 +16,17 @@ from typing import Final
 from structlog.typing import FilteringBoundLogger
 
 from contracts.models import Json
-from scrapers.common.http import HttpClient
+from scrapers.common.http import HttpClient, HttpStatusError
 from scrapers.common.jsonutil import as_list, as_mapping, get_list, get_map, get_str
 from scrapers.github.models import RepoStub
 
 GQL_URL: Final[str] = "https://api.github.com/graphql"
 GQL_BUCKET: Final[str] = "graphql"
-HYDRATE_BATCH_SIZE: Final[int] = 25
+# 10 (not the spec's 25): commit histories with additions/deletions are the
+# expensive part, and larger batches trip GitHub's own gateway timeout (502).
+HYDRATE_BATCH_SIZE: Final[int] = 10
 PROFILE_BATCH_SIZE: Final[int] = 50
+SPLIT_STATUSES: Final[frozenset[int]] = frozenset({502, 504})
 NOT_FOUND: Final[str] = "NOT_FOUND"
 RATE_LIMIT_TAIL: Final[str] = "rateLimit { cost remaining resetAt }"
 
@@ -215,13 +218,37 @@ class GithubGraphql:
                 retryable[key] = message
         return results, retryable
 
+    def _query_map_split(
+        self, keys: Sequence[str], build: QueryBuilder
+    ) -> tuple[dict[str, dict[str, Json]], dict[str, str]]:
+        """Run one batch, bisecting on gateway timeouts.
+
+        GitHub answers 502/504 when a batched query (commit histories with
+        diff stats) is too expensive server-side; retrying the same query is
+        futile, but halving it usually isolates the one heavy alias.
+        """
+        try:
+            return self._query_map(keys, build)
+        except HttpStatusError as error:
+            if error.status not in SPLIT_STATUSES:
+                raise
+            if len(keys) == 1:
+                self._log.warning("graphql alias too heavy", key=keys[0], status=error.status)
+                return {}, {keys[0]: f"HTTP {error.status} from GraphQL"}
+        middle = len(keys) // 2
+        results, retryable = self._query_map_split(keys[:middle], build)
+        more_results, more_retryable = self._query_map_split(keys[middle:], build)
+        results.update(more_results)
+        retryable.update(more_retryable)
+        return results, retryable
+
     def _with_retry(
         self, keys: Sequence[str], build: QueryBuilder
     ) -> tuple[dict[str, dict[str, Json]], list[GqlFailure]]:
-        results, retryable = self._query_map(keys, build)
+        results, retryable = self._query_map_split(keys, build)
         failures: list[GqlFailure] = []
         for key, message in retryable.items():
-            retry_results, retry_bad = self._query_map([key], build)
+            retry_results, retry_bad = self._query_map_split([key], build)
             if key in retry_results:
                 results[key] = retry_results[key]
             else:
