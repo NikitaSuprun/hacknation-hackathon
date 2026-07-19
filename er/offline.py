@@ -35,6 +35,24 @@ WEI_A_PAIR_ID: Final[str] = adjudicate.pair_id(
 JONAS_PAIR_ID: Final[str] = adjudicate.pair_id(
     fixture_build.PSR_JONAS_GITHUB, fixture_build.PSR_JONAS_ZEFIX
 )
+WEI_HN_A_PAIR_ID: Final[str] = adjudicate.pair_id(
+    fixture_build.PSR_WEI_A_OPENALEX, fixture_build.PSR_WEI_HN
+)
+WEI_HN_B_PAIR_ID: Final[str] = adjudicate.pair_id(
+    fixture_build.PSR_WEI_B_OPENALEX, fixture_build.PSR_WEI_HN
+)
+WEI_HN_GH_PAIR_ID: Final[str] = adjudicate.pair_id(
+    fixture_build.PSR_WEI_A_GITHUB, fixture_build.PSR_WEI_HN
+)
+LENA_HN_ZEFIX_PAIR_ID: Final[str] = adjudicate.pair_id(
+    fixture_build.PSR_LENA_ZEFIX, fixture_build.PSR_LENA_HN
+)
+LENA_HN_OPENALEX_PAIR_ID: Final[str] = adjudicate.pair_id(
+    fixture_build.PSR_LENA_OPENALEX, fixture_build.PSR_LENA_HN
+)
+LENA_HN_GITHUB_PAIR_ID: Final[str] = adjudicate.pair_id(
+    fixture_build.PSR_LENA_GITHUB, fixture_build.PSR_LENA_HN
+)
 # Mirrors the WeiA fixture link evidence byte-for-byte.
 WEI_A_VERDICT: Final[dict[str, Json]] = {
     "verdict": "match",
@@ -45,6 +63,21 @@ JONAS_VERDICT: Final[dict[str, Json]] = {
     "verdict": "no_match",
     "rationale": "Berlin software developer versus Zug corporate advisor",
     "fields_supporting": [],
+}
+WEI_HN_A_VERDICT: Final[dict[str, Json]] = {
+    "verdict": "match",
+    "rationale": "Same ETH robot-learning Wei; the hackathon profile mirrors the scholar",
+    "fields_supporting": ["name_norm", "org_norm", "keywords"],
+}
+WEI_HN_B_VERDICT: Final[dict[str, Json]] = {
+    "verdict": "no_match",
+    "rationale": "Name twin only; the ETH hackathon builder is not the EPFL theorist",
+    "fields_supporting": [],
+}
+LENA_HN_VERDICT: Final[dict[str, Json]] = {
+    "verdict": "match",
+    "rationale": "Same ETH grasping founder across the hackathon and registry records",
+    "fields_supporting": ["name_norm", "org_norm", "country_code"],
 }
 
 
@@ -77,6 +110,12 @@ def scripted_responses(inputs: ErInputs) -> dict[str, LLMResponse]:
     responses: dict[str, LLMResponse] = {
         f"TASK:adjudicate pair={WEI_A_PAIR_ID}": _verdict_response(WEI_A_VERDICT),
         f"TASK:adjudicate pair={JONAS_PAIR_ID}": _verdict_response(JONAS_VERDICT),
+        f"TASK:adjudicate pair={WEI_HN_A_PAIR_ID}": _verdict_response(WEI_HN_A_VERDICT),
+        f"TASK:adjudicate pair={WEI_HN_B_PAIR_ID}": _verdict_response(WEI_HN_B_VERDICT),
+        f"TASK:adjudicate pair={WEI_HN_GH_PAIR_ID}": _verdict_response(WEI_HN_A_VERDICT),
+        f"TASK:adjudicate pair={LENA_HN_ZEFIX_PAIR_ID}": _verdict_response(LENA_HN_VERDICT),
+        f"TASK:adjudicate pair={LENA_HN_OPENALEX_PAIR_ID}": _verdict_response(LENA_HN_VERDICT),
+        f"TASK:adjudicate pair={LENA_HN_GITHUB_PAIR_ID}": _verdict_response(LENA_HN_VERDICT),
     }
     for row in inputs.person_rows:
         person_id = get_str(row, "person_id")

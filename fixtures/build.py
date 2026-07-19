@@ -986,6 +986,8 @@ def _persons() -> list[Row]:
             github_login="lenafischer",
             orcid="0000-0002-1825-0097",
             website_url="https://grasplab.ch",
+            # D7 spine: survivorship carries the github-side raw spelling.
+            linkedin_url=LENA_LINKEDIN_GITHUB_RAW,
             affiliation="ETH Zürich",
             location="Zurich, Switzerland",
             country_code="CH",
@@ -998,9 +1000,12 @@ def _persons() -> list[Row]:
             "Wei Zhang",
             github_login="weizhang-robotics",
             affiliation="ETH Zürich",
+            # The hacknation identity is Wei's third independent source: the
+            # github PSR's location survives and the quality score caps out.
+            location="Zurich",
             country_code="CH",
             headline="Robot learning researcher at ETH Zurich.",
-            data_quality_score=0.7,
+            data_quality_score=0.9,
         ),
         _person(
             WEI_B,
@@ -1062,7 +1067,8 @@ def _persons() -> list[Row]:
             location="Stockholm, Sweden",
             headline="Care coordination copilot for hospitals",
             avatar_url="https://cdn.hack-nation.ai/avatars/hn-selin-0003.png",
-            data_quality_score=0.7,
+            # Single-source person (hacknation only): base quality, no bonus.
+            data_quality_score=0.5,
         ),
     ]
 

@@ -135,6 +135,19 @@ def _has_verified_identifier(views: Sequence[PsrView]) -> bool:
     return any(view.orcid is not None or view.source in _CURATED_SOURCES for view in views)
 
 
+def _psr_or(carried: str | None, fallback: str | None) -> str | None:
+    """Prefer the PSR-carried pointer; fall back to the payload lookup.
+
+    Args:
+        carried: The value survived from the PSR columns.
+        fallback: The legacy bronze-payload lookup result.
+
+    Returns:
+        The first non-None of the two.
+    """
+    return carried if carried is not None else fallback
+
+
 def _avatar_url(ranked: Sequence[PsrView], bronze_users: Sequence[dict[str, Json]]) -> str | None:
     by_ref = {
         f"bronze.github_users_raw:user_id={row.get('user_id')}": get_str(
@@ -244,13 +257,15 @@ def build_person(  # noqa: PLR0913 - the survivorship inputs are irreducible
         "orcid": _first(view.orcid for view in ranked),
         "website_url": f"https://{website}" if website is not None else None,
         "linkedin_url": _first(view.linkedin_url for view in ranked),
-        "cv_url": _cv_url(ranked, cv_by_user),
+        "cv_url": _psr_or(_first(view.cv_url for view in ranked), _cv_url(ranked, cv_by_user)),
         "twitter_handle": _first(view.twitter_handle for view in ranked),
         "affiliation": _most_recent_affiliation(ranked),
         "location": _first(view.location_raw for view in ranked),
         "country_code": _first(view.country_code for view in ranked),
         "headline": _headline(person_id, ranked, llm),
-        "avatar_url": _avatar_url(ranked, bronze_users),
+        "avatar_url": _psr_or(
+            _first(view.avatar_url for view in ranked), _avatar_url(ranked, bronze_users)
+        ),
         "data_quality_score": data_quality_score(ranked),
         "status": "active",
         "merged_into_person_id": None,

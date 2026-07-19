@@ -98,8 +98,8 @@ class PersonSourceRecord:
     last_seen_at: datetime
     scraped_at: datetime
     ingested_at: datetime
-    avatar_url: str | None
-    cv_url: str | None
+    avatar_url: str | None = None
+    cv_url: str | None = None
 
     def to_row(self) -> SinkRow:
         """Render as a sink-loadable row in DDL column order (tuples become lists).

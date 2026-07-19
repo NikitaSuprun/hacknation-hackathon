@@ -18,7 +18,7 @@ METHOD_PRIORITY: Final[tuple[str, ...]] = (
     "det_handle",
     "det_linkedin",
     "det_crosslink",
-    "det_github_contrib",
+    "det_hn_repo",
     "splink",
     "llm_adjudication",
 )
@@ -48,6 +48,8 @@ class PsrView:
     country_code: str | None
     keywords: tuple[str, ...]
     bio: str | None
+    avatar_url: str | None
+    cv_url: str | None
     bronze_ref: str | None
     last_seen_at: str
 
@@ -99,6 +101,8 @@ def psr_view(row: Mapping[str, object]) -> PsrView:
         country_code=_text(row.get("country_code")),
         keywords=_texts(row.get("keywords")),
         bio=_text(row.get("bio")),
+        avatar_url=_text(row.get("avatar_url")),
+        cv_url=_text(row.get("cv_url")),
         bronze_ref=_text(row.get("bronze_ref")),
         last_seen_at=_stamp(row.get("last_seen_at")),
     )

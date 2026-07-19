@@ -453,7 +453,7 @@ def hacknation_matches(
         candidates: D8 candidate pairs mapped to their shared repo URL.
 
     Returns:
-        Auto matches at confidence 0.90 (method det_github_contrib).
+        Auto matches at confidence 0.90 (method det_hn_repo).
     """
     matches: list[RuleMatch] = []
     for (left, right), url in sorted(candidates.items()):
@@ -470,7 +470,7 @@ def hacknation_matches(
                 left,
                 right,
                 "D8",
-                "det_github_contrib",
+                "det_hn_repo",
                 _CONF_GITHUB_CONTRIB,
                 auto=True,
                 evidence=evidence,
