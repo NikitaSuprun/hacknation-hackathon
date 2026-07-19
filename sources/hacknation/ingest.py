@@ -102,10 +102,9 @@ def project_ids(data: dict[str, Json]) -> list[str]:
     ids: set[str] = set()
     for contributions in get_map(data, "contributionsByUserId").values():
         for entry in as_list(contributions):
-            if isinstance(entry, dict):
-                project_id = _key_str(as_mapping(entry).get("id"))
-                if project_id is not None:
-                    ids.add(project_id)
+            project_id = _key_str(as_mapping(entry).get("id"))
+            if project_id is not None:
+                ids.add(project_id)
     return sorted(ids)
 
 
