@@ -3,13 +3,14 @@
 """Thesis, weights, and ideal editors: persistence to the overlay and validation."""
 
 import json
+from typing import Final
 
 from contracts.models import Json
 from fixtures import build
 from scrapers.common.jsonutil import as_mapping, get_str
 from tests.app.conftest import AppClient
 
-NEW_WEIGHTS: dict[str, Json] = {
+NEW_WEIGHTS: Final[dict[str, Json]] = {
     "w_individual_experience": 0.2,
     "w_schools": 0.05,
     "w_network_ties": 0.05,
@@ -21,7 +22,7 @@ NEW_WEIGHTS: dict[str, Json] = {
     "w_ideal_match": 0.05,
 }
 
-VALID_IDEAL: dict[str, Json] = {
+VALID_IDEAL: Final[dict[str, Json]] = {
     "schema_version": 1,
     "narrative": "Hands-on robotics researcher turned founder.",
     "education": [{"institution": "ETH Zurich", "level": "PhD", "field": "robotics"}],

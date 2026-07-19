@@ -3,13 +3,14 @@
 """Memo endpoint: nine sections, cited bullets, missing-data markers."""
 
 import json
+from typing import Final
 
 from contracts.models import Json
 from fixtures import build
 from scrapers.common.jsonutil import as_mapping, get_str
 from tests.app.conftest import AppClient, dict_items
 
-SECTION_KEYS = {
+SECTION_KEYS: Final[set[str]] = {
     "company_snapshot",
     "investment_hypotheses",
     "swot",

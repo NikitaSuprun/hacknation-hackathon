@@ -3,8 +3,22 @@
   "pythonVersion": "3.13",
   "venvPath": ".",
   "venv": ".venv",
-  "include": ["contracts", "fixtures", "tools", "scrapers", "tests", "scripts"],
-  "exclude": ["**/__pycache__", ".venv"],
+  "include": [
+    "contracts",
+    "fixtures",
+    "tools",
+    "scrapers",
+    "er",
+    "scoring",
+    "sources",
+    "app",
+    "tests",
+    "scripts"
+  ],
+  "exclude": [
+    "**/__pycache__",
+    ".venv"
+  ],
   "reportExplicitAny": "error",
   "reportUnannotatedClassAttribute": "error",
   "reportInvalidCast": "error",

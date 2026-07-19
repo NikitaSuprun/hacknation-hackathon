@@ -4,6 +4,7 @@
 and the client re-rank mirror."""
 
 import json
+from typing import Final
 
 import pytest
 
@@ -14,7 +15,7 @@ from scoring.snapshot import get_float
 from scrapers.common.jsonutil import as_mapping, get_str
 from tests.app.conftest import AppClient
 
-S_COLUMNS = (
+S_COLUMNS: Final[tuple[str, ...]] = (
     "s_individual_experience",
     "s_schools",
     "s_network_ties",
@@ -25,7 +26,7 @@ S_COLUMNS = (
     "s_traction",
     "ideal_match",
 )
-CATEGORY_NAMES = (
+CATEGORY_NAMES: Final[tuple[str, ...]] = (
     "individual_experience",
     "schools",
     "network_ties",
@@ -59,7 +60,10 @@ def test_ranking_returns_the_fixture_venture_with_all_score_columns(
     assert response.status_code == 200
     assert response.body["thesis_id"] == build.THESIS_ID
     ventures = response.items("ventures")
-    assert [get_str(row, "venture_id") for row in ventures] == [build.GRASP_VENTURE]
+    # GraspLab (78.4) ranks above the WS-G VoiceLab hackathon venture (54.9).
+    ranked_ids = [get_str(row, "venture_id") for row in ventures]
+    assert ranked_ids[0] == build.GRASP_VENTURE
+    assert len(ranked_ids) == 2
     row = ventures[0]
     body = response.body
     assert row["final_score"] == 78.4

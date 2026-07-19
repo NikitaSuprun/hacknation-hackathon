@@ -19,8 +19,8 @@ from app.deps import AppDeps, build_fixture_deps
 from contracts.models import Json
 from scrapers.common.jsonutil import as_list, as_mapping
 
-BASE_URL = "http://testserver"
-PASSWORD = "demo"
+BASE_URL: Final[str] = "http://testserver"
+PASSWORD: Final[str] = "demo"
 
 
 def dict_items(value: Json) -> list[dict[str, Json]]:

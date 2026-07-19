@@ -83,6 +83,8 @@ def load_silver_snapshot(store: DataStore) -> SilverSnapshot:
         persons=_tuple_rows(store, "silver.person"),
         connections=_tuple_rows(store, "silver.person_connection"),
         sogc=_tuple_rows(store, "bronze.zefix_sogc_raw"),
+        hacknation_projects=_tuple_rows(store, "bronze.hacknation_projects_raw"),
+        person_links=_tuple_rows(store, "silver.person_source_link"),
     )
 
 

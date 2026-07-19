@@ -4,6 +4,7 @@
 completion sync into gold.interview plus the targeted rescore."""
 
 import hashlib
+from typing import Final
 
 from app.deps import AppDeps
 from app.interview import CONSENT_PROMPT
@@ -11,9 +12,9 @@ from fixtures import build
 from scrapers.common.jsonutil import get_str
 from tests.app.conftest import AppClient, dict_items, mint_interview_token
 
-DEVICE_A = {"X-Interview-Session": "device-a"}
-DEVICE_B = {"X-Interview-Session": "device-b"}
-CONSENT_TEXT = "Yes, I consent to this interview and to my answers being stored."
+DEVICE_A: Final[dict[str, str]] = {"X-Interview-Session": "device-a"}
+DEVICE_B: Final[dict[str, str]] = {"X-Interview-Session": "device-b"}
+CONSENT_TEXT: Final[str] = "Yes, I consent to this interview and to my answers being stored."
 
 
 def test_open_requires_a_session_header(client: AppClient, auth: dict[str, str]) -> None:
