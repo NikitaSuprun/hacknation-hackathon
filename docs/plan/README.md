@@ -25,10 +25,12 @@ flowchart TB
     GH[github scraper]
     PA[papers scraper - arXiv + OpenAlex]
     ZF[zefix + SHAB scraper]
+    HN[hack nation showcase - projects + people]
   end
   GH --> BR
   PA --> BR
   ZF --> BR
+  HN --> BR
   subgraph DBX[Databricks - Delta + Unity Catalog]
     BR[bronze - raw, Parquet to UC Volume then MERGE] --> ER[entity resolution - normalize, deterministic D1-D6, Splink DuckDB, LLM adjudication, survivorship]
     ER --> SI[silver - entities + facts]
@@ -56,6 +58,7 @@ We optimize for **correct, corroborated, traceable** records and a **reproducibl
 **Overview**
 - [README.md](README.md) — this file: scope, decisions, architecture, index
 - [roadmap.md](roadmap.md) — stages, milestones, Day-0 checklist, verification (checkboxes)
+- [handover.md](handover.md) — **read first**: confirmed decisions, verified facts (with sources), open items (orients a fresh session without re-exploring)
 
 **Reference specs (the "what/how it's designed")**
 - [reference/data-model.md](reference/data-model.md) — full Unity Catalog DDLs (bronze/silver/gold/ops), ID strategy, join paths, views
@@ -75,6 +78,7 @@ We optimize for **correct, corroborated, traceable** records and a **reproducibl
 - [workstreams/ws-d-entity-resolution.md](workstreams/ws-d-entity-resolution.md)
 - [workstreams/ws-e-scoring-and-memo.md](workstreams/ws-e-scoring-and-memo.md)
 - [workstreams/ws-f-frontend-and-outreach.md](workstreams/ws-f-frontend-and-outreach.md)
+- [workstreams/ws-g-hacknation-source.md](workstreams/ws-g-hacknation-source.md) — Hack Nation showcase (plug-and-play; pre-assembled ventures + `githubUrl` ER spine)
 
 ## How to use these docs
 

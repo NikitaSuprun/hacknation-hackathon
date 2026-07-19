@@ -8,6 +8,7 @@ Parallel work stays unblocked only if the *seams* between components are explici
 |---|---|---|---|
 | Scrapers → lakehouse | bronze DDLs + `Sink.upsert` | WS0 | WS-A/B/C |
 | Scraper internals | `BaseScraper`, `SourceNormalizer` ABCs | WS0 | WS-A/B/C |
+| Hack Nation source | isolated script + `HacknationNormalizer(SourceNormalizer)` (+ ER rules D7/D8, `hackathon_project` anchor — all additive) | WS-G | bronze / WS-D / WS-E |
 | Bronze → identities | `person_source_record` schema | WS0 | WS-D |
 | ER → analytics | silver DDLs (person/facts/edges) | WS0/WS-D | WS-E |
 | Analytics → product | gold **views** (`v_ranked_ventures`…) | WS0/WS-E | WS-F |

@@ -23,6 +23,7 @@ There is **no** compliant "GitHub → LinkedIn magic resolver" — vendors that 
 - `openalex_author`: one PSR per OpenAlex author id (inherit their disambiguation); carries ORCID + institution when present.
 - `arxiv_author`: PSR per `(arxiv_id, position)` only for papers with no OpenAlex coverage (fallback spine).
 - `zefix_officer`: PSR per `(uid, name_norm)` from company payload + SOGC text (no registry person-id — a known Swiss-registry limitation).
+- `hacknation`: PSR per Hack Nation `user_id` (from the people list + each project's `authorProfile` + `team[]`); carries `linkedin_url`, `cv_url`, university→`org_norm`, `field_of_study`/`techStack`→`keywords`, country/city. Feeds D7 (LinkedIn) and D8 (project `githubUrl`).
 - Normalizers in `tools/norm.py`, unit-tested: `name_norm` (lower, strip diacritics/titles), `email_norm` (+ generic-inbox blacklist info@/admin@…), `org_norm` (strip AG/GmbH/SA/Sàrl; alias table folds ETHZ/ETH Zürich/Swiss Federal Institute of Technology → `eth zurich`, same EPFL/UZH), `url_norm`.
 
 **Stage 1 — Artifact cross-links** (high-precision priors, before person matching): regex arXiv ids out of READMEs → `project.arxiv_ids_in_readme`; GitHub URLs out of OpenAlex/S2 metadata → `publication.code_urls`; also the PwC-archive `bronze.paper_code_links`. Each repo↔paper pair generates candidate person pairs (top contributors × authors).
@@ -37,6 +38,8 @@ There is **no** compliant "GitHub → LinkedIn magic resolver" — vendors that 
 | D4 | Twitter/handle equality, or GitHub URL listed on the author's OpenAlex/homepage record | 0.95 | yes |
 | D5 | Cross-linked artifact (Stage 1) + name match (Jaro-Winkler ≥ 0.92 on name_norm, or login ≈ concatenated name) | 0.92 | yes |
 | D6 | Exact `name_norm` + same `org_norm` | 0.85 | **no** → band |
+| D7 | LinkedIn-URL equality (Hack Nation `linkedin_url` == GitHub `socialAccounts` LinkedIn / another source) | 0.97 | yes |
+| D8 | Hack Nation project `githubUrl` → GitHub repo → core contributor, name JW≥0.9 | 0.90 | yes |
 
 A PSR ending all stages with no active link → mint a new `person` (UUIDv4).
 

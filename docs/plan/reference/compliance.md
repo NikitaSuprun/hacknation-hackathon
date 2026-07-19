@@ -8,7 +8,7 @@ Processing rests on **legitimate interest** (GDPR Art. 6(1)(f) / revFADP) for B2
 
 ## C2 — Data minimization
 
-Professional public signals only. **Never stored**: nationality, place-of-origin (`Heimatort`), private home addresses (Zefix parser drops them pre-bronze), special-category data. Age/gender: store only self-declared values by default; **photo-based inference is a capability behind an off-by-default flag requiring legal sign-off**; age/gender are **excluded from all scoring** either way. `avatar_url` is stored as an opaque display URL; no face/image inference by default. Scoring prompts are instructed to ignore protected characteristics that leak through free text.
+Professional public signals only. **Never stored**: nationality, place-of-origin (`Heimatort`), private home addresses (Zefix parser drops them pre-bronze), special-category data. Age/gender: store only self-declared values by default; **photo-based inference is a capability behind an off-by-default flag requiring legal sign-off**; age/gender are **excluded from all scoring** either way. `avatar_url` is stored as an opaque display URL; no face/image inference by default. CVs (e.g. Hack Nation `cvUrl`) are stored as pointers; **fetching/parsing CV content is behind the same off-by-default legal-sign-off flag**, and CVs are included in the erasure cascade. Scoring prompts are instructed to ignore protected characteristics that leak through free text.
 
 ## C3 — Provenance
 
@@ -35,4 +35,4 @@ Bronze payloads and non-linked persons (no venture attachment, no outreach) purg
 
 ## Source etiquette
 
-Official APIs only, published rate limits, ETags, descriptive User-Agent with contact email, backoff on 429/`Retry-After`, no login-walled scraping. **LinkedIn scraping is banned in the core pipeline**; the optional self-scraper (if ever enabled) is isolated behind the `EnrichmentProvider` interface and is the user's explicit, flagged decision — a licensed provider is the compliant "responsibility-separation" path at scale.
+Official APIs only, published rate limits, ETags, descriptive User-Agent with contact email, backoff on 429/`Retry-After`, no login-walled scraping. **LinkedIn scraping is banned in the core pipeline**; the optional self-scraper (if ever enabled) is isolated behind the `EnrichmentProvider` interface and is the user's explicit, flagged decision — a licensed provider is the compliant "responsibility-separation" path at scale. **Hack Nation**: people/project data is public and participant-disclosed on the showcase; gentle volume, public endpoints, login optional with own account, no login-walled bypass; `hacknation` added to erasure suppression + cascade.

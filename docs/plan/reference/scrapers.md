@@ -44,6 +44,17 @@ Goal: top ~500 most-starred repos created in a rolling 30-day window; harvest co
 - **Pipeline/filtering**: daily SHAB HR01 → extract UID → Zefix company detail → LLM officer extraction + **purpose→startup-likeness** classification (`tech_startup_candidate|traditional|holding_shell|other`). Hard filters first: `legalForm ∈ {GmbH, AG}`, ACTIVE, exclude branches; cheap negative keywords (Immobilien/Treuhand/Holding/Gastro/Coiffeur) short-circuit before the LLM. **Capital-increase filings** feed the funding backbone (see [scoring-and-memo](scoring-and-memo.md)).
 - Post-MVP analogues: UK Companies House (free API, officers included — best next target); German Handelsregister (via OpenCorporates/North Data); Austria Firmenbuch (paid).
 
+## Hack Nation scraper (project showcase) — plug-and-play source
+
+An **isolated script** (`sources/hacknation/`, not the shared `BaseScraper`) that writes to the same Databricks bronze and conforms to the PSR/venture contracts, so ER + scoring consume it with zero engine changes. See [WS-G](../workstreams/ws-g-hacknation-source.md) for the checklist. API mapped by Playwright 2026-07-18 (public JSON, login optional).
+
+- **`GET https://projects.hack-nation.ai/.netlify/functions/bff-public-people-v2?limit=5000`** → `{data:{people:[…1000…], contributionsByUserId:{user_id:[{id,title}]}}}`. Person: `user_id, display_name, first/last_name, avatar_url, university, field_of_study, academic_degree, professional_situation, tagline, country, city`. Returned 200 unauthenticated → public. 317 users have contributions.
+- **`GET .../bff-projects-public-v2?id={projectId}`** → full project: `title, summary, detail, category, techStack[], tags[], eventTitle, challengeTitle, winner, demoUrl, `**`githubUrl`**`, structured{usp,impact,problem,solution,implementation,targetAudience,jury_scope}, authorProfile{…,linkedinUrl,cvUrl}, team[{…,linkedinUrl,cvUrl,role}]`.
+- **Flow**: people-v2 (1 req) → collect unique project ids → per-project detail (gentle rate limit + content_hash skip) → normalize.
+- **Gotcha**: Netlify SPA-fallbacks unknown routes to `index.html` with HTTP 200 — always check `content-type: application/json` before parsing (only `bff-public-people-v2` and `bff-projects-public-v2` are real).
+- **Value**: pre-assembled ventures (project + team + roles), the `githubUrl` ER spine (D8), founder education/location/LinkedIn, and a memo-grade structured pitch. Each project → a `hackathon_project` venture that auto-merges with the GitHub-repo venture on `githubUrl`.
+- **Compliance**: participant-disclosed public data; LinkedIn URLs + CVs stored with provenance + erasure; CV content parsing behind a legal-sign-off flag; gentle volume; login optional with own account. See [compliance.md](compliance.md).
+
 ## Compliance & etiquette
 
 GitHub API within limits (no HTML scraping); arXiv ≤1 req/3s single connection; OpenAlex CC0 keyed tier; Zefix/SHAB statutory public registers (officer names are personal data → keep provenance + erasure). Descriptive User-Agent with contact email, backoff on 429, ETags, no login-walled pages. **LinkedIn scraping banned in the runbook.**

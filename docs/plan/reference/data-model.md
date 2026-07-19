@@ -153,6 +153,28 @@ CREATE TABLE IF NOT EXISTS bronze.zefix_sogc_raw (     -- SOGC/SHAB publications
   CONSTRAINT pk_zefix_sogc_raw PRIMARY KEY (sogc_id)
 ) TBLPROPERTIES (delta.enableChangeDataFeed = true);
 
+CREATE TABLE IF NOT EXISTS bronze.hacknation_people_raw (  -- Hack Nation showcase participants (public JSON API)
+  user_id        STRING NOT NULL,
+  payload        VARIANT,                    -- bff-public-people-v2 person object
+  content_hash   STRING NOT NULL,
+  source_url     STRING NOT NULL,
+  scraped_at     TIMESTAMP NOT NULL,
+  ingested_at    TIMESTAMP NOT NULL,
+  scrape_run_id  STRING NOT NULL,
+  CONSTRAINT pk_hacknation_people_raw PRIMARY KEY (user_id)
+) TBLPROPERTIES (delta.enableChangeDataFeed = true);
+
+CREATE TABLE IF NOT EXISTS bronze.hacknation_projects_raw ( -- Hack Nation projects (team, githubUrl, structured pitch)
+  project_id     STRING NOT NULL,
+  payload        VARIANT,                    -- bff-projects-public-v2 detail (authorProfile, team[], githubUrl, structured)
+  content_hash   STRING NOT NULL,
+  source_url     STRING NOT NULL,
+  scraped_at     TIMESTAMP NOT NULL,
+  ingested_at    TIMESTAMP NOT NULL,
+  scrape_run_id  STRING NOT NULL,
+  CONSTRAINT pk_hacknation_projects_raw PRIMARY KEY (project_id)
+) TBLPROPERTIES (delta.enableChangeDataFeed = true);
+
 CREATE TABLE IF NOT EXISTS bronze._rejects (           -- validation failures never crash a run; they land here
   source STRING, natural_key STRING, error STRING, raw STRING, scrape_run_id STRING, ingested_at TIMESTAMP
 );
@@ -181,6 +203,7 @@ CREATE TABLE IF NOT EXISTS silver.person (          -- golden record; survivorsh
   orcid                 STRING,
   website_url           STRING,                     -- personal site/portfolio (enrichment source)
   linkedin_url          STRING,                     -- pointer only; investor click-through
+  cv_url                STRING,                     -- pointer (e.g. Hack Nation cvUrl); content parsing gated by legal sign-off
   twitter_handle        STRING,
   affiliation           STRING,                     -- current best org guess
   location              STRING,
@@ -263,6 +286,11 @@ CREATE TABLE IF NOT EXISTS silver.project (          -- GitHub repo as a signal 
   stars             INT, forks INT,
   license           STRING,
   homepage_url      STRING,
+  source_platform   STRING,                         -- github | hacknation
+  github_url        STRING,                         -- for hacknation projects (the ER spine, rule D8)
+  structured        VARIANT,                        -- hacknation pitch {problem,solution,usp,impact,implementation,targetAudience}
+  event_title       STRING, challenge_title STRING, -- hacknation hackathon + challenge
+  is_winner         BOOLEAN,
   arxiv_ids_in_readme ARRAY<STRING>,
   funding_signals   ARRAY<STRING>,                 -- regex/LLM hits: "backed by", sponsors, YC, etc.
   is_corporate_oss  BOOLEAN,
@@ -416,7 +444,7 @@ CREATE TABLE IF NOT EXISTS gold.venture (
   updated_at   TIMESTAMP NOT NULL,
   CONSTRAINT pk_venture PRIMARY KEY (venture_id)
 );
-ALTER TABLE gold.venture ADD CONSTRAINT chk_venture_anchor CHECK (anchor_type IN ('repo','company','paper_cluster'));
+ALTER TABLE gold.venture ADD CONSTRAINT chk_venture_anchor CHECK (anchor_type IN ('repo','company','paper_cluster','hackathon_project'));
 ALTER TABLE gold.venture ADD CONSTRAINT chk_venture_status CHECK (status IN ('sourced','scored','shortlisted','outreach','interviewing','passed','archived'));
 
 CREATE TABLE IF NOT EXISTS gold.venture_member (
