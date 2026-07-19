@@ -15,6 +15,10 @@ dist/
 .env
 .env.local
 
+# Slide renders: the PDF is committed as the deliverable, the PNG is only
+# a proof used while iterating on the layout
+presentation/out/preview.png
+
 # OS
 .DS_Store
 .claude/worktrees/

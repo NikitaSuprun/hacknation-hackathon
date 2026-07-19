@@ -1,0 +1,248 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <style>
+    .bg     { fill: #0B0E14; }
+    .panel  { fill: #131924; stroke: #232C3D; stroke-width: 1; }
+    .card   { fill: #171E2B; stroke: #273246; stroke-width: 1; }
+    .dim    { fill: #121723; stroke: #202939; stroke-width: 1; stroke-dasharray: 4 4; }
+    .t      { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; fill: #E8ECF2; }
+    .mono   { font-family: Menlo, 'DejaVu Sans Mono', monospace; fill: #C7D0DE; }
+    .title  { font-size: 31px; font-weight: 600; letter-spacing: -0.3px; }
+    .tag    { font-size: 14.5px; fill: #E5B769; }
+    .hdr    { font-size: 11.5px; font-weight: 600; letter-spacing: 1.7px; fill: #6F7C91; }
+    .ct     { font-size: 13.5px; font-weight: 600; }
+    .cb     { font-size: 10.8px; fill: #8B97AB; }
+    .cbq    { font-size: 10.8px; fill: #5D6879; }
+    .band   { font-size: 13px; font-weight: 600; letter-spacing: 1.1px; }
+    .utitle { font-size: 18px; font-weight: 600; }
+    .usub   { font-size: 11.5px; fill: #8B97AB; }
+    .uct    { font-size: 12.5px; font-weight: 600; fill: #E5B769; }
+    .ub     { font-size: 10.6px; fill: #98A4B7; }
+    .uf     { font-size: 10.4px; fill: #E5B769; }
+    .fm     { font-size: 11.2px; }
+    .foot   { font-size: 10px; fill: #4E5768; }
+    .arrow  { stroke: #3E4C66; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .key    { stroke: #E5B769; stroke-width: 1.4; fill: none; stroke-linecap: round; }
+    .thread { stroke: #E5B769; stroke-width: 1.2; stroke-dasharray: 3 5; fill: none; opacity: 0.55; }
+  </style>
+
+  <rect class="bg" x="0" y="0" width="1600" height="900"/>
+  <rect x="0" y="0" width="1600" height="3" fill="#E5B769"/>
+
+  <!-- title -->
+  <text class="t title" x="56" y="70">Maschmeyer&#8217;s Chosen Portfolio</text>
+  <text class="t tag" x="56" y="96">You don&#8217;t apply. You get chosen.</text>
+  <text class="t cb" x="1544" y="66" text-anchor="end">Early-signal deal sourcing: public builder signals &#8594; golden people &#8594; ranked ventures</text>
+  <text class="t cbq" x="1544" y="92" text-anchor="end">One warehouse. One person_id. Every score carries its evidence.</text>
+
+  <!-- column headers -->
+  <text class="t hdr" x="56" y="150">SOURCES &#183; WHAT WE SCRAPE</text>
+  <text class="t hdr" x="358" y="150">BRONZE &#183; RAW</text>
+  <text class="t hdr" x="660" y="150">SILVER &#183; IDENTITY</text>
+  <text class="t hdr" x="962" y="150">GOLD &#183; SCORING</text>
+  <text class="t hdr" x="1264" y="150">APP &#183; THE LOOP</text>
+
+  <!-- ============ 1. SOURCES ============ -->
+  <rect class="panel" x="56" y="166" width="276" height="330" rx="10"/>
+
+  <rect class="card" x="70" y="180" width="248" height="70" rx="8"/>
+  <text class="t ct" x="84" y="203">GitHub</text>
+  <text class="t cb" x="84" y="221">Newly created trending repos,</text>
+  <text class="t cb" x="84" y="236">core contributors, commit history</text>
+
+  <rect class="card" x="70" y="258" width="248" height="70" rx="8"/>
+  <text class="t ct" x="84" y="281">arXiv &#43; OpenAlex</text>
+  <text class="t cb" x="84" y="299">Papers, citations, affiliations;</text>
+  <text class="t cb" x="84" y="314">Semantic Scholar, Papers-with-Code</text>
+
+  <rect class="card" x="70" y="336" width="248" height="84" rx="8"/>
+  <rect x="70" y="336" width="3" height="84" fill="#E5B769"/>
+  <text class="t ct" x="84" y="359">Hack Nation</text>
+  <text class="t uf" x="84" y="376">our own connector</text>
+  <text class="t cb" x="84" y="393">People &#43; projects JSON API,</text>
+  <text class="t cb" x="84" y="408">teams, pitches, CVs</text>
+
+  <rect class="dim" x="70" y="428" width="248" height="54" rx="8"/>
+  <text class="t ct" x="84" y="451" fill="#5D6879">Zefix / SHAB</text>
+  <text class="t cbq" x="84" y="469">Swiss registry &#8212; schema ready</text>
+  <rect x="266" y="437" width="40" height="16" rx="8" fill="none" stroke="#4E5768" stroke-width="1"/>
+  <text class="t cbq" x="286" y="449" text-anchor="middle">next</text>
+
+  <!-- ============ 2. BRONZE ============ -->
+  <rect class="panel" x="358" y="166" width="276" height="330" rx="10"/>
+  <text class="t ct" x="378" y="200">Immutable landing zone</text>
+  <text class="t cb" x="378" y="228">One row per source object, kept</text>
+  <text class="t cb" x="378" y="243">whole as a VARIANT payload.</text>
+
+  <text class="t uf" x="378" y="277">Idempotent by construction</text>
+  <text class="t cb" x="378" y="298">Parquet staged to a UC Volume,</text>
+  <text class="t cb" x="378" y="313">then a single MERGE.</text>
+  <text class="t cb" x="378" y="328">content_hash skips unchanged rows,</text>
+  <text class="t cb" x="378" y="343">so re-runs are free.</text>
+
+  <text class="t uf" x="378" y="377">Nothing crashes a run</text>
+  <text class="t cb" x="378" y="398">Validation failures land in</text>
+  <text class="t cb" x="378" y="413">bronze._rejects and the sweep</text>
+  <text class="t cb" x="378" y="428">continues.</text>
+
+  <text class="t cbq" x="378" y="462">Erasure suppression is enforced</text>
+  <text class="t cbq" x="378" y="477">inside the MERGE &#8212; a re-scrape</text>
+  <text class="t cbq" x="378" y="492">cannot resurrect a deleted person.</text>
+
+  <!-- ============ 3. SILVER ============ -->
+  <rect class="panel" x="660" y="166" width="276" height="330" rx="10"/>
+
+  <rect class="card" x="674" y="180" width="248" height="52" rx="8"/>
+  <text class="t ct" x="688" y="202">person_source_record</text>
+  <text class="t cb" x="688" y="220">one identity per source &#8212; facts hang here</text>
+
+  <path class="arrow" d="M798 236 v20" />
+  <path class="arrow" d="M793 250 l5 6 l5 -6" />
+  <text class="t cbq" x="808" y="252">person_source_link</text>
+
+  <rect class="card" x="674" y="262" width="248" height="58" rx="8"/>
+  <rect x="674" y="262" width="3" height="58" fill="#E5B769"/>
+  <g class="key" transform="translate(690,286)">
+    <circle cx="3" cy="0" r="3"/>
+    <path d="M6 0 h9 M11 0 v3.5 M14.5 0 v3.5"/>
+  </g>
+  <text class="t ct" x="714" y="291">person_id</text>
+  <text class="t cb" x="688" y="311">one per human, whatever the source</text>
+
+  <text class="t cbq" x="674" y="340">Every downstream table joins on it &#8212;</text>
+  <text class="t cbq" x="674" y="355">contributions, papers, roles, venture teams.</text>
+
+  <text class="t uf" x="674" y="385">Reversible by design</text>
+  <text class="t cb" x="674" y="406">Links are append-only, so unmerging</text>
+  <text class="t cb" x="674" y="421">a mistake never touches a fact row.</text>
+
+  <text class="t uf" x="674" y="449">How we decide</text>
+  <text class="t cb" x="674" y="470">8 deterministic rules &#8594; Splink &#8594;</text>
+  <text class="t cb" x="674" y="485">Claude settles the ambiguous band.</text>
+
+  <!-- ============ 4. GOLD ============ -->
+  <rect class="panel" x="962" y="166" width="276" height="330" rx="10"/>
+
+  <rect class="card" x="976" y="180" width="248" height="58" rx="8"/>
+  <text class="t ct" x="990" y="203">venture</text>
+  <text class="t cb" x="990" y="221">a repo, a company or a hackathon</text>
+  <text class="t cb" x="990" y="236">project &#8212; plus the people behind it</text>
+
+  <g class="key" transform="translate(990,262)">
+    <circle cx="3" cy="0" r="3"/>
+    <path d="M6 0 h9 M11 0 v3.5 M14.5 0 v3.5"/>
+  </g>
+  <text class="t cbq" x="1014" y="266">members joined on person_id</text>
+
+  <text class="t uf" x="976" y="300">9 category scores</text>
+  <text class="t cb" x="976" y="321">Experience, schools, network, prior</text>
+  <text class="t cb" x="976" y="336">collaboration, problem, product,</text>
+  <text class="t cb" x="976" y="351">market, traction, ideal-candidate fit.</text>
+
+  <text class="t uf" x="976" y="385">Confidence, not just a number</text>
+  <text class="t cb" x="976" y="406">Thin evidence lowers confidence and</text>
+  <text class="t cb" x="976" y="421">flags the venture for more data.</text>
+
+  <text class="t uf" x="976" y="453">Cited memo</text>
+  <text class="t cb" x="976" y="474">Every bullet carries a source URL,</text>
+  <text class="t cb" x="976" y="489">or is marked missing on purpose.</text>
+
+  <!-- ============ 5. APP ============ -->
+  <rect class="panel" x="1264" y="166" width="276" height="330" rx="10"/>
+
+  <rect class="card" x="1278" y="180" width="248" height="58" rx="8"/>
+  <text class="t ct" x="1292" y="203">Lovable UI</text>
+  <text class="t cb" x="1292" y="221">Ranked list, memo, weight sliders,</text>
+  <text class="t cb" x="1292" y="236">ideal-candidate editor</text>
+
+  <path class="arrow" d="M1402 244 v18" />
+  <path class="arrow" d="M1397 256 l5 6 l5 -6" />
+
+  <rect class="card" x="1278" y="268" width="248" height="58" rx="8"/>
+  <text class="t ct" x="1292" y="291">Edge proxy &#183; /v1</text>
+  <text class="t cb" x="1292" y="309">Holds the OAuth credential server-</text>
+  <text class="t cb" x="1292" y="324">side; the browser never sees a token</text>
+
+  <text class="t cbq" x="1278" y="354">Reads gold.v_* views only, never base</text>
+  <text class="t cbq" x="1278" y="369">tables. Precomputed, so pages load fast.</text>
+
+  <text class="t uf" x="1278" y="403">The loop that closes it</text>
+  <text class="t cb" x="1278" y="424">Shortlist &#8594; consent-based outreach &#8594;</text>
+  <text class="t cb" x="1278" y="439">AI interview fills the known gaps &#8594;</text>
+  <text class="t cb" x="1278" y="454">rescore &#8594; the memo rewrites itself.</text>
+  <text class="t cbq" x="1278" y="475">Move a weight slider and the list</text>
+  <text class="t cbq" x="1278" y="490">re-ranks in the browser &#8212; no job runs.</text>
+
+  <!-- flow chevrons -->
+  <path class="arrow" d="M340 325 l7 7 l-7 7"/>
+  <path class="arrow" d="M642 325 l7 7 l-7 7"/>
+  <path class="arrow" d="M944 325 l7 7 l-7 7"/>
+  <path class="arrow" d="M1246 325 l7 7 l-7 7"/>
+
+  <!-- ============ platform band ============ -->
+  <rect x="358" y="516" width="880" height="46" rx="9" fill="#1B1416" stroke="#4A2A26" stroke-width="1"/>
+  <rect x="358" y="516" width="3" height="46" fill="#E8543C"/>
+  <text class="t band" x="378" y="545" fill="#E8543C">DATABRICKS</text>
+  <text class="t cb" x="486" y="545">Unity Catalog &#183; Delta &#183; serverless SQL warehouse &#183; ai_query &#183; gte-large-en embeddings &#183; UC Volumes</text>
+
+  <rect x="1264" y="516" width="276" height="46" rx="9" fill="#141B21" stroke="#26404B" stroke-width="1"/>
+  <rect x="1264" y="516" width="3" height="46" fill="#4A9EDB"/>
+  <text class="t band" x="1284" y="545" fill="#4A9EDB">LOVABLE CLOUD</text>
+  <text class="t cb" x="1424" y="545">Supabase</text>
+
+  <!-- ============ USP panel ============ -->
+  <rect class="panel" x="56" y="586" width="1488" height="270" rx="10"/>
+  <rect x="56" y="586" width="3" height="270" fill="#E5B769"/>
+
+  <text class="t utitle" x="80" y="618">How we score &#8212; and why an embedding on its own would be wrong</text>
+  <text class="t usub" x="80" y="640">Everything below is computed inside the warehouse, over the same feature layer, and every weight is the fund&#8217;s to change.</text>
+
+  <!-- card A -->
+  <rect class="card" x="72" y="656" width="350" height="184" rx="8"/>
+  <text class="t uct" x="90" y="682">1 &#183; The feature layer</text>
+  <text class="t ub" x="90" y="704">Ten signals per person, deterministic</text>
+  <text class="t ub" x="90" y="719">first, computed in SQL:</text>
+  <text class="mono fm" x="90" y="742">stars_weighted = log1p(&#931; stars &#215; share)</text>
+  <text class="mono fm" x="90" y="760">recency = 0.5 ^ (days / 90)</text>
+  <text class="mono fm" x="90" y="778">commits_12mo &#183; graph_centrality</text>
+  <text class="mono fm" x="90" y="796">school_tier &#183; citations &#183; founder flag</text>
+  <text class="t uf" x="90" y="822">A missing signal stays NULL &#8212; never 0.</text>
+
+  <!-- card B -->
+  <rect class="card" x="440" y="656" width="350" height="184" rx="8"/>
+  <text class="t uct" x="458" y="682">2 &#183; Embeddings, deliberately limited</text>
+  <text class="t ub" x="458" y="704">databricks-gte-large-en, 1024 dimensions,</text>
+  <text class="t ub" x="458" y="719">normalized, compared as a dot product</text>
+  <text class="t ub" x="458" y="734">in plain SQL. No vector database.</text>
+  <text class="t ub" x="458" y="757">We use them for one thing only: does this</text>
+  <text class="t ub" x="458" y="772">person work on that kind of problem?</text>
+  <text class="t uf" x="458" y="800">An embedding cannot know that MIT outranks</text>
+  <text class="t uf" x="458" y="815">KTH, or that 8,200 stars dwarf 82 &#8212; so</text>
+  <text class="t uf" x="458" y="830">prestige and scale live in the feature layer.</text>
+
+  <!-- card C -->
+  <rect class="card" x="808" y="656" width="350" height="184" rx="8"/>
+  <text class="t uct" x="826" y="682">3 &#183; From person to team to rank</text>
+  <text class="mono fm" x="826" y="706">final = &#931; w&#183;s / &#931; w_available</text>
+  <text class="mono fm" x="826" y="726">team  = 0.6 &#183; mean &#43; 0.4 &#183; max</text>
+  <text class="mono fm" x="826" y="746">conf  = &#931; w&#183;coverage&#183;diversity / &#931; w</text>
+  <text class="t ub" x="826" y="772">One strong founder should lift a team without</text>
+  <text class="t ub" x="826" y="787">hiding a weak one, so we blend the average</text>
+  <text class="t ub" x="826" y="802">with the best member.</text>
+  <text class="t uf" x="826" y="828">A category with no evidence hands its weight to the rest.</text>
+
+  <!-- card D -->
+  <rect class="card" x="1176" y="656" width="350" height="184" rx="8"/>
+  <text class="t uct" x="1194" y="682">4 &#183; Where Claude does real work</text>
+  <text class="t ub" x="1194" y="704">Called from inside SQL, over the whole</text>
+  <text class="t ub" x="1194" y="719">table at once, to judge what a query</text>
+  <text class="t ub" x="1194" y="734">cannot: is this commit history any good,</text>
+  <text class="t ub" x="1194" y="749">is this product actually defensible,</text>
+  <text class="t ub" x="1194" y="764">are these two records the same person.</text>
+  <text class="t ub" x="1194" y="789">For the shortlist, Opus researches the</text>
+  <text class="t ub" x="1194" y="804">market on the open web and must quote</text>
+  <text class="t ub" x="1194" y="819">its sources &#8212; capped and cached.</text>
+
+  <!-- footer -->
+  <text class="t foot" x="56" y="880">GitHub &#183; arXiv &#183; OpenAlex &#183; Hack Nation scraped by our own connectors &#183; public sources only, with provenance and erasure throughout</text>
+  <text class="t foot" x="1544" y="880" text-anchor="end">Databricks Free Edition &#183; total demo spend under $150</text>
+</svg>
