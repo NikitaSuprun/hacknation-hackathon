@@ -1,0 +1,3 @@
+{"cursor": {"window_end": "2026-07-15"}, "items_upserted": 7, "last_error": null, "last_run_at": "2026-07-15T08:00:00+00:00", "last_status": "ok", "source": "github", "updated_at": "2026-07-15T08:05:00+00:00"}
+{"cursor": {"window_end": "2026-07-15"}, "items_upserted": 4, "last_error": null, "last_run_at": "2026-07-15T08:00:00+00:00", "last_status": "ok", "source": "papers", "updated_at": "2026-07-15T08:05:00+00:00"}
+{"cursor": {"window_end": "2026-07-15"}, "items_upserted": 3, "last_error": null, "last_run_at": "2026-07-15T08:00:00+00:00", "last_status": "ok", "source": "zefix", "updated_at": "2026-07-15T08:05:00+00:00"}

@@ -1,0 +1,2 @@
+{"category": "traction", "created_at": "2026-07-15T09:00:00+00:00", "field": "traction.revenue", "importance": 0.9, "question_text": "Do you have paying pilots or revenue today?", "venture_id": "81963541-592e-5edf-8b82-9fe0b26b4555"}
+{"category": "market", "created_at": "2026-07-15T09:00:00+00:00", "field": "market.tam", "importance": 0.7, "question_text": "Which customer segment do you serve first, and how large is it?", "venture_id": "81963541-592e-5edf-8b82-9fe0b26b4555"}
