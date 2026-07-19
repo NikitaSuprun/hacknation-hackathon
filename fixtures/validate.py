@@ -277,12 +277,30 @@ def _check_bronze_consistency(tables: Tables) -> list[str]:
     return errors
 
 
+def _expected_project_id(row: Row) -> str:
+    """Recompute a project_id from the row's natural key.
+
+    Hacknation rows have no repo_id; their key is the trailing id= of the
+    source_url (the bff-projects endpoint's query parameter).
+
+    Args:
+        row: One silver.project fixture row.
+
+    Returns:
+        The deterministic id the row must carry.
+    """
+    repo_id = row.get("repo_id")
+    if repo_id is None:
+        return ids.hacknation_project_id(str(row.get("source_url")).rpartition("id=")[2])
+    return ids.project_id(int(str(repo_id)))
+
+
 def _check_artifact_ids(tables: Tables) -> list[str]:
     errors: list[str] = []
     errors.extend(
-        f"project {row.get('full_name')}: project_id does not recompute"
+        f"project {row.get('full_name') or row.get('name')}: project_id does not recompute"
         for row in tables.get("silver.project", [])
-        if row.get("project_id") != ids.project_id(int(str(row.get("repo_id"))))
+        if row.get("project_id") != _expected_project_id(row)
     )
     errors.extend(
         f"company {row.get('uid')}: company_id does not recompute"
@@ -348,19 +366,26 @@ def _check_personas(tables: Tables) -> list[str]:
             person = str(row.get("person_id"))
             by_person.setdefault(person, set()).add(psr_source[str(row.get("source_record_id"))])
     lena = "11111111-1111-4111-8111-000000000001"
-    # WS-G extends Lena with her Hack Nation identity (D8), on top of the
-    # original P1 github+openalex+zefix triangle.
     if by_person.get(lena) != {"github", "openalex_author", "zefix_officer", "hacknation"}:
-        errors.append("persona P1: Lena must link github+openalex+zefix+hacknation sources")
-    mira = "88888888-8888-4888-8888-000000000008"
-    if by_person.get(mira) != {"github", "hacknation"}:
-        errors.append("persona WS-G: Mira must link exactly github+hacknation (D7)")
-    noah = "99999999-9999-4999-8999-000000000009"
-    if by_person.get(noah) != {"hacknation"}:
-        errors.append("persona WS-G: Noah must be hacknation-only")
+        errors.append("persona P1: Lena must link exactly github+openalex+zefix+hacknation")
     retracted = [row for row in links if row.get("status") == "retracted"]
     if len(retracted) != 1:
         errors.append("persona P6: expected exactly one retracted link")
+    selin_psr = ids.psr_id("hacknation", "hn-selin-0003")
+    selin_cv_urls = [
+        row.get("cv_url")
+        for row in tables.get("silver.person_source_record", [])
+        if row.get("source_record_id") == selin_psr
+    ]
+    if not any(isinstance(url, str) and url.endswith("hn-selin-0003.pdf") for url in selin_cv_urls):
+        errors.append("persona HN: Selin's hacknation PSR must carry her cv_url")
+    hn_spines = [
+        row
+        for row in tables.get("silver.project", [])
+        if row.get("source_platform") == "hacknation" and row.get("github_url") is not None
+    ]
+    if len(hn_spines) != 1:
+        errors.append("persona HN: exactly one hacknation project must pitch a github_url (D8)")
     if not tables.get("ops.er_review_queue"):
         errors.append("personas P2/P3: review queue must hold the ambiguous Wei Zhang pair")
     features = {
