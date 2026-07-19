@@ -158,7 +158,9 @@ export class DemoEngine {
     this.search = qs ? `?${qs}` : "";
     window.addEventListener("keydown", this.onKeyDown, true);
     window.addEventListener("pointerdown", this.onPointerDown, true);
-    this.setState({ status: "paused", hudVisible: opts.autopilot });
+    // Demo mode always shows the control bar: presenters must never hunt for
+    // it. Ctrl+period still hides it for clean screen-recording moments.
+    this.setState({ status: "paused", hudVisible: true });
     void this.ensureCtx();
     if (opts.beat) void this.gotoBeat(opts.beat);
   }
