@@ -49,7 +49,7 @@ Stages, integration milestones, the Day-0 external checklist, and the end-to-end
 - [ ] **OpenAlex API key** (self-serve, free) · **Semantic Scholar key** (request form, optional) · **GitHub PAT per developer** · **Anthropic API key** (web-search budget)
 - [ ] **Lovable project + Lovable Cloud** enabled; Supabase secrets for the service principal
 - [ ] **Resend** account + outreach subdomain **SPF/DKIM DNS** records (propagation is the long pole)
-- [ ] Repo scaffold + full pre-commit gate green on skeleton (see [engineering-standards](reference/engineering-standards.md))
+- [x] Repo scaffold + full pre-commit gate green on skeleton (see [engineering-standards](reference/engineering-standards.md))
 - [ ] Optional demo boosters (terms verified): People Data Labs free tier (100 lookups/mo, no card), Coresignal trial, Serper.dev key (2,500 free queries). Do **not** sign up for Enrichlayer/Lix (LinkedIn-scraping lineage).
 
 ---
