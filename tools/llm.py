@@ -172,7 +172,7 @@ def resolve_endpoint(preferred: str) -> str:
     return os.environ.get(ENDPOINT_OVERRIDE_ENV) or preferred
 
 
-def _response_format(schema: Mapping[str, Json]) -> str:
+def response_format(schema: Mapping[str, Json]) -> str:
     """The ai_query responseFormat envelope for a JSON schema.
 
     Strict mode is on: without it the model treats required properties as
@@ -275,7 +275,7 @@ class AiQueryLLMClient:
         endpoint = resolve_endpoint(model or self._default_model)
         arguments = f"{_sql_quote(endpoint)}, {_sql_quote(prompt)}"
         if schema is not None:
-            arguments += f", responseFormat => {_sql_quote(_response_format(schema))}"
+            arguments += f", responseFormat => {_sql_quote(response_format(schema))}"
         rows = self._runner.execute(f"SELECT ai_query({arguments})")
         if not rows or rows[0][0] is None:
             raise EmptyAiQueryResultError(endpoint)

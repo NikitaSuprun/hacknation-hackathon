@@ -19,7 +19,7 @@ from app.outreach import token_hash, transition_outreach
 from app.store import DataStore
 from contracts.interfaces import LLMClient
 from contracts.models import Json, SinkValue
-from contracts.validation import load_schema, payload_errors
+from contracts.validation import bundled_schema, payload_errors
 from scoring.rescore import RescoreOutcome
 from scoring.snapshot import as_utc
 from scrapers.common.jsonutil import as_mapping, as_sink, get_list, get_map, get_str
@@ -298,7 +298,7 @@ class InterviewEngine:
             "team_commitment, traction_claims, funding_status) from this "
             f"transcript as JSON:\n{transcript_text}"
         )
-        response = self._llm.complete(prompt, schema=load_schema("interview"))
+        response = self._llm.complete(prompt, schema=bundled_schema("interview"))
         if response.parsed is None:
             raise ExtractionInvalidError([])
         extracted = dict(response.parsed)

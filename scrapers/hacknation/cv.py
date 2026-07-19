@@ -26,6 +26,7 @@ from pypdf.errors import PyPdfError
 from contracts.models import Json, SinkRow, SinkValue
 from scrapers.common.http import HttpClient, HttpStatusError
 from tools.db import content_hash
+from tools.llm import response_format
 from tools.warehouse import Warehouse
 
 __all__ = [
@@ -60,20 +61,56 @@ VOLUME_PATH_TEMPLATE: Final[str] = "/Volumes/{catalog}/ops/cv/hacknation/{user_i
 DEFAULT_LLM_ENDPOINT: Final[str] = "databricks-claude-sonnet-4-6"
 ENDPOINT_ENV_VAR: Final[str] = "HACKNATION_CV_ENDPOINT"
 # Values travel as named parameters; CV text must never be interpolated into SQL.
-AI_QUERY_SQL: Final[str] = "SELECT ai_query(:endpoint, :prompt) AS extracted"
+AI_QUERY_SQL: Final[str] = (
+    "SELECT ai_query(:endpoint, :prompt, responseFormat => :response_format) AS extracted"
+)
 
 # Mirrors the gold.interview.extracted vocabulary (education[], career-like experience[]).
 EXTRACTION_PROMPT: Final[str] = (
-    "Extract structured facts from the CV text below. Respond with JSON only - "
-    "no prose, no markdown fences - using exactly this shape:\n"
-    '{"education": [{"institution": ..., "degree": ..., "field": ..., '
-    '"start_year": ..., "end_year": ...}], '
-    '"experience": [{"organization": ..., "title": ..., "start_year": ..., '
-    '"end_year": ..., "summary": ...}], '
-    '"skills": ["..."]}\n'
-    "Years are integers. Every unknown field must be null. Never invent facts "
-    "that are not stated in the CV.\nCV text:\n"
+    "Extract structured facts from the CV text below. Years are integers. Every "
+    "unknown field must be null. Never invent facts that are not stated in the "
+    "CV.\nCV text:\n"
 )
+
+_YEAR: Final[dict[str, Json]] = {"type": ["integer", "null"]}
+_TEXT: Final[dict[str, Json]] = {"type": ["string", "null"]}
+# The shape the prompt used to describe in prose; ai_query constrains the model
+# to it, so an unparseable answer means the endpoint failed, not the wording.
+EXTRACTION_SCHEMA: Final[dict[str, Json]] = {
+    "type": "object",
+    "properties": {
+        "education": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "institution": {"type": "string"},
+                    "degree": _TEXT,
+                    "field": _TEXT,
+                    "start_year": _YEAR,
+                    "end_year": _YEAR,
+                },
+                "required": ["institution"],
+            },
+        },
+        "experience": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "organization": {"type": "string"},
+                    "title": _TEXT,
+                    "start_year": _YEAR,
+                    "end_year": _YEAR,
+                    "summary": _TEXT,
+                },
+                "required": ["organization"],
+            },
+        },
+        "skills": {"type": "array", "items": {"type": "string"}},
+    },
+    "required": ["education", "experience", "skills"],
+}
 
 # Signed storage URLs often serve PDFs as octet-stream.
 _PDF_CONTENT_TYPES: Final[frozenset[str]] = frozenset(
@@ -236,7 +273,14 @@ def extract_facts(
         # Same double-cast as tools.warehouse: widen the minimal seam to the
         # vendor cursor's parameter binding without touching shared code.
         param_cursor = cast("_ParamCursor", cast("object", cursor))
-        param_cursor.execute(AI_QUERY_SQL, {"endpoint": endpoint, "prompt": build_prompt(cv_text)})
+        param_cursor.execute(
+            AI_QUERY_SQL,
+            {
+                "endpoint": endpoint,
+                "prompt": build_prompt(cv_text),
+                "response_format": response_format(EXTRACTION_SCHEMA),
+            },
+        )
         rows = param_cursor.fetchall()
     cell = rows[0][0] if rows else None
     raw = "" if cell is None else str(cell)
