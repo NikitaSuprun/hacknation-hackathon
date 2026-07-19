@@ -19,3 +19,9 @@ runtime-evaluated-decorators = ["dataclasses.dataclass"]
 
 [lint.per-file-ignores]
 "tests/**" = ["S101", "S105", "S106", "D", "PLR2004", "SLF001", "PLR0913", "TC"]
+# SQL text in these modules is assembled from DDL-contract identifiers only
+# (guarded by tools.db identifier validation); values travel via Parquet
+# staging or named parameters, never string interpolation.
+"tools/db.py" = ["S608"]
+"tools/verify_merge.py" = ["S608"]
+"fixtures/load.py" = ["S608"]

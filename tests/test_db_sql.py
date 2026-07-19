@@ -4,10 +4,9 @@
 
 from typing import Final
 
-import pyarrow as pa
-
 from contracts.interfaces import Sink
 from contracts.models import UpsertResult
+from tools._arrow import arrow_schema
 from tools.db import (
     SUPPRESSION_RULES,
     DatabricksSink,
@@ -15,12 +14,12 @@ from tools.db import (
     build_merge_sql,
     build_suppressed_count_sql,
     canonical_json,
-    classify_complex,
     content_hash,
     parquet_bytes,
     prepare_rows,
     stage_table,
 )
+from tools.ddl_registry import table_schema
 from tools.settings import DatabricksSettings
 
 _SETTINGS: Final[DatabricksSettings] = DatabricksSettings(
@@ -49,13 +48,6 @@ def test_prepare_rows_encodes_variants_only() -> None:
     assert prepared[0]["note"] is None
     assert prepared[0]["id"] == 1
     assert rows[0]["payload"] == {"b": 1, "a": 2}
-
-
-def test_classify_complex_finds_lists_and_maps() -> None:
-    rows: list[dict[str, object]] = [
-        {"id": 1, "emails": ["a@b.c"], "languages": {"Python": 12}, "name": "x"}
-    ]
-    assert classify_complex(rows, ["id"]) == frozenset({"emails", "languages"})
 
 
 def test_merge_sql_hash_table_with_suppression() -> None:
@@ -114,17 +106,23 @@ def test_psr_suppression_uses_per_row_source() -> None:
     assert "sha2(CAST(src.source_key AS STRING), 256)" in sql
 
 
-def test_stage_table_builds_map_and_list_columns() -> None:
+def test_stage_table_builds_ddl_typed_columns() -> None:
+    columns = ["project_id", "stars", "languages", "topics"]
     rows: list[dict[str, object]] = [
-        {"id": 1, "languages": {"Python": 12, "Rust": 3}, "emails": ["a@b.c"]},
-        {"id": 2, "languages": None, "emails": []},
+        {
+            "project_id": "p1",
+            "stars": 8200,
+            "languages": {"Python": 12, "Rust": 3},
+            "topics": ["robotics"],
+        },
+        {"project_id": "p2", "stars": None, "languages": None, "topics": []},
     ]
-    arrow_table, columns = stage_table(rows, "silver.project")
-    assert columns == ["id", "languages", "emails"]
-    languages_type = arrow_table.schema.field("languages").type  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType] - stub returns Field[Unknown]
-    emails_type = arrow_table.schema.field("emails").type  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType] - stub returns Field[Unknown]
-    assert pa.types.is_map(languages_type)  # pyright: ignore[reportUnknownArgumentType] - stub returns Field[Unknown]
-    assert pa.types.is_list(emails_type)  # pyright: ignore[reportUnknownArgumentType] - stub returns Field[Unknown]
+    staging = arrow_schema(table_schema("silver.project"), columns)
+    arrow_table = stage_table(rows, staging, "silver.project")
+    rendered = str(arrow_table.schema)
+    assert "stars: int32" in rendered
+    assert "languages: map<string, int64>" in rendered
+    assert "topics: list<item: string>" in rendered
     assert len(parquet_bytes(arrow_table)) > 0
 
 

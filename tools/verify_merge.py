@@ -36,7 +36,7 @@ def _user_row(user_id: int, login: str, bio: str) -> dict[str, object]:
 
 def _seed_suppression(warehouse: Warehouse) -> None:
     statement = (
-        "MERGE INTO dealflow_dev.ops.erasure_suppression t "  # noqa: S608 - constant test key, no user input
+        "MERGE INTO dealflow_dev.ops.erasure_suppression t "
         f"USING (SELECT 'github' AS source, sha2('{_SUPPRESSED_USER_ID}', 256) AS source_key_hash, "
         "current_timestamp() AS created_at) s "
         "ON t.source = s.source AND t.source_key_hash = s.source_key_hash "
@@ -89,7 +89,7 @@ def main() -> int:
         variant_cols=frozenset({"payload"}),
     )
     count_rows = warehouse.execute(
-        f"SELECT count(*) FROM dealflow_dev.{_TABLE} WHERE user_id = {_SUPPRESSED_USER_ID}"  # noqa: S608 - constant test key, no user input
+        f"SELECT count(*) FROM dealflow_dev.{_TABLE} WHERE user_id = {_SUPPRESSED_USER_ID}"
     )
     absent = int(str(count_rows[0][0])) == 0
     _check("suppressed key is blocked and absent", blocked.suppressed == 1 and absent, failures)

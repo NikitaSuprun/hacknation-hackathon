@@ -237,6 +237,10 @@ def _github_bronze() -> Tables:
             ),
         },
     ]
+    for commit in commits:
+        # Commits are immutable and keyed (repo_id, sha); the DDL carries no
+        # change-detection hash for them.
+        del commit["content_hash"]
     return {
         "bronze.github_repos_raw": repos,
         "bronze.github_users_raw": users,

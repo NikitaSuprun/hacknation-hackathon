@@ -3,88 +3,22 @@
 # pyright: basic
 """Load the fixture JSONL into dealflow_dev through the shared sink (T5).
 
-Validates first, converts temporal strings to typed values, MERGEs every
-table idempotently, then proves the three contract views return persona data.
+Validates first, coerces every cell to its DDL type via the registry (no
+naming heuristics, no hand-kept column lists), MERGEs each table
+idempotently, then proves the three contract views return persona data.
 Run twice: the second pass must report 0 inserted / 0 updated everywhere.
 """
 
 import sys
-from datetime import date, datetime
 from pathlib import Path
 from typing import Final
 
 from fixtures.build import DATA_DIR, LENA
 from fixtures.validate import Tables, load_tables, validate
 from tools.db import DatabricksSink
+from tools.ddl_registry import coerce, table_schema
 from tools.settings import load_databricks_settings
 from tools.warehouse import Warehouse
-
-MERGE_KEYS: Final[dict[str, list[str]]] = {
-    "bronze.github_repos_raw": ["repo_id"],
-    "bronze.github_users_raw": ["user_id"],
-    "bronze.github_commits_raw": ["repo_id", "sha"],
-    "bronze.arxiv_papers_raw": ["arxiv_id"],
-    "bronze.openalex_works_raw": ["openalex_id"],
-    "bronze.zefix_companies_raw": ["uid"],
-    "bronze.zefix_sogc_raw": ["sogc_id"],
-    "silver.person": ["person_id"],
-    "silver.person_source_record": ["source_record_id"],
-    "silver.person_source_link": ["link_id"],
-    "silver.project": ["project_id"],
-    "silver.publication": ["publication_id"],
-    "silver.company": ["company_id"],
-    "silver.contribution": ["contribution_id"],
-    "silver.authorship": ["authorship_id"],
-    "silver.officer": ["officer_id"],
-    "silver.person_connection": ["person_a_id", "person_b_id", "connection_type"],
-    "gold.venture": ["venture_id"],
-    "gold.venture_member": ["venture_id", "person_id"],
-    "gold.thesis": ["thesis_id"],
-    "gold.candidate_pool": ["thesis_id", "venture_id"],
-    "gold.ideal_candidate": ["profile_id"],
-    "gold.institution_score": ["institution_id"],
-    "gold.score_weights": ["weights_id"],
-    "gold.venture_score": ["score_id"],
-    "gold.person_features": ["person_id"],
-    "gold.venture_gaps": ["venture_id", "field"],
-    "gold.memo": ["memo_id"],
-    "gold.outreach": ["outreach_id"],
-    "gold.interview": ["interview_id"],
-    "ops.scrape_state": ["source"],
-    "ops.er_review_queue": ["review_id"],
-    "ops.erasure_suppression": ["source", "source_key_hash"],
-}
-
-VARIANT_COLS: Final[dict[str, frozenset[str]]] = {
-    "bronze.github_repos_raw": frozenset({"payload"}),
-    "bronze.github_users_raw": frozenset({"payload"}),
-    "bronze.github_commits_raw": frozenset({"payload"}),
-    "bronze.arxiv_papers_raw": frozenset({"payload"}),
-    "bronze.openalex_works_raw": frozenset({"payload"}),
-    "bronze.zefix_companies_raw": frozenset({"payload"}),
-    "bronze.zefix_sogc_raw": frozenset({"payload"}),
-    "silver.person_source_link": frozenset({"evidence"}),
-    "silver.project": frozenset({"structured"}),
-    "silver.publication": frozenset({"source_extras"}),
-    "gold.venture_member": frozenset({"evidence"}),
-    "gold.ideal_candidate": frozenset({"profile_json"}),
-    "gold.institution_score": frozenset({"provenance"}),
-    "gold.venture_score": frozenset({"breakdown"}),
-    "gold.memo": frozenset({"sections"}),
-    "gold.outreach": frozenset({"question_plan"}),
-    "gold.interview": frozenset({"transcript", "extracted"}),
-    "ops.scrape_state": frozenset({"cursor"}),
-    "ops.er_review_queue": frozenset({"features"}),
-}
-
-# Columns whose DDL type is DATE; everything else ending in _at is TIMESTAMP.
-DATE_COLS: Final[dict[str, frozenset[str]]] = {
-    "bronze.zefix_sogc_raw": frozenset({"published_date"}),
-    "silver.publication": frozenset({"published_at"}),
-    "silver.company": frozenset({"incorporation_date"}),
-    "silver.officer": frozenset({"registered_at", "deregistered_at"}),
-    "silver.person_connection": frozenset({"first_seen", "last_seen"}),
-}
 
 _VIEW_QUERIES: Final[tuple[tuple[str, str], ...]] = (
     (
@@ -99,40 +33,34 @@ _VIEW_QUERIES: Final[tuple[tuple[str, str], ...]] = (
     ),
     (
         "gold.v_person_signals",
-        "SELECT signal_type, artifact_name FROM dealflow_dev.gold.v_person_signals "  # noqa: S608 - constant fixture id, no user input
+        "SELECT signal_type, artifact_name FROM dealflow_dev.gold.v_person_signals "
         f"WHERE person_id = '{LENA}' ORDER BY signal_type",
     ),
 )
 
 
-def _typed_value(table: str, column: str, value: object) -> object:
-    if not isinstance(value, str):
-        return value
-    if column in DATE_COLS.get(table, frozenset()):
-        return date.fromisoformat(value)
-    if column.endswith("_at"):
-        return datetime.fromisoformat(value)
-    return value
-
-
 def typed_rows(table: str, rows: list[dict[str, object]]) -> list[dict[str, object]]:
-    """Convert ISO temporal strings into typed values for Parquet staging.
+    """Coerce JSONL cells to their DDL types (timestamps/dates at any depth).
 
     Args:
         table: Schema-qualified table name.
         rows: Rows as parsed from JSONL.
 
     Returns:
-        New rows with dates and timestamps as Python objects.
+        New rows with temporal strings converted per the DDL registry.
     """
+    schema = table_schema(table)
     return [
-        {column: _typed_value(table, column, value) for column, value in row.items()}
+        {column: coerce(value, schema.column_type(column)) for column, value in row.items()}
         for row in rows
     ]
 
 
 def load_all(tables: Tables, sink: DatabricksSink) -> tuple[int, int]:
     """MERGE every fixture table into the sink's catalog.
+
+    Merge keys and VARIANT columns come from the DDL registry, so the loader
+    cannot drift from schemas/ddl.
 
     Args:
         tables: Parsed fixture tables.
@@ -144,11 +72,12 @@ def load_all(tables: Tables, sink: DatabricksSink) -> tuple[int, int]:
     inserted = 0
     updated = 0
     for table in sorted(tables):
+        schema = table_schema(table)
         result = sink.upsert(
             table,
             typed_rows(table, tables[table]),
-            MERGE_KEYS[table],
-            variant_cols=VARIANT_COLS.get(table, frozenset()),
+            list(schema.primary_key),
+            variant_cols=schema.variant_cols,
         )
         inserted += result.inserted
         updated += result.updated
