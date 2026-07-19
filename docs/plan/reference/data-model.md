@@ -175,6 +175,17 @@ CREATE TABLE IF NOT EXISTS bronze.hacknation_projects_raw ( -- Hack Nation proje
   CONSTRAINT pk_hacknation_projects_raw PRIMARY KEY (project_id)
 ) TBLPROPERTIES (delta.enableChangeDataFeed = true);
 
+CREATE TABLE IF NOT EXISTS bronze.hacknation_cvs_raw (      -- fetched + LLM-parsed CVs (default-on; owner decision 2026-07-19)
+  user_id        STRING NOT NULL,            -- PDF at /Volumes/${catalog}/ops/cv/hacknation/{user_id}.pdf (deterministic → erasable)
+  payload        VARIANT,                    -- {cv_url, volume_path, text_sha256, extracted{education[],experience[],skills[]}, model}
+  content_hash   STRING NOT NULL,
+  source_url     STRING NOT NULL,
+  scraped_at     TIMESTAMP NOT NULL,
+  ingested_at    TIMESTAMP NOT NULL,
+  scrape_run_id  STRING NOT NULL,
+  CONSTRAINT pk_hacknation_cvs_raw PRIMARY KEY (user_id)
+) TBLPROPERTIES (delta.enableChangeDataFeed = true);
+
 CREATE TABLE IF NOT EXISTS bronze._rejects (           -- validation failures never crash a run; they land here
   source STRING, natural_key STRING, error STRING, raw STRING, scrape_run_id STRING, ingested_at TIMESTAMP
 );
@@ -203,7 +214,7 @@ CREATE TABLE IF NOT EXISTS silver.person (          -- golden record; survivorsh
   orcid                 STRING,
   website_url           STRING,                     -- personal site/portfolio (enrichment source)
   linkedin_url          STRING,                     -- pointer only; investor click-through
-  cv_url                STRING,                     -- pointer (e.g. Hack Nation cvUrl); content parsing gated by legal sign-off
+  cv_url                STRING,                     -- pointer (e.g. Hack Nation cvUrl); hacknation fetch+parse default-on (owner decision 2026-07-19)
   twitter_handle        STRING,
   affiliation           STRING,                     -- current best org guess
   location              STRING,
@@ -221,7 +232,7 @@ ALTER TABLE silver.person ADD CONSTRAINT chk_person_status CHECK (status IN ('ac
 
 CREATE TABLE IF NOT EXISTS silver.person_source_record (  -- immutable per-source identity; ER input
   source_record_id  STRING NOT NULL,              -- UUIDv5(ns, source || ':' || source_key)
-  source            STRING NOT NULL,              -- github | openalex_author | arxiv_author | s2_author | zefix_officer | interview | enrichment
+  source            STRING NOT NULL,              -- github | openalex_author | arxiv_author | s2_author | zefix_officer | interview | enrichment | hacknation
   source_key        STRING NOT NULL,
   bronze_ref        STRING,                       -- e.g. 'bronze.github_users_raw:user_id=123'
   full_name         STRING,
@@ -247,6 +258,8 @@ CREATE TABLE IF NOT EXISTS silver.person_source_record (  -- immutable per-sourc
   last_seen_at      TIMESTAMP NOT NULL,
   scraped_at        TIMESTAMP NOT NULL,
   ingested_at       TIMESTAMP NOT NULL,
+  avatar_url        STRING,                       -- profile photo (e.g. Hack Nation avatar_url)
+  cv_url            STRING,                       -- CV pointer (e.g. Hack Nation cvUrl); content fetched to the ops volume
   CONSTRAINT pk_psr PRIMARY KEY (source_record_id)
 ) TBLPROPERTIES (delta.enableChangeDataFeed = true);
 
@@ -255,7 +268,7 @@ CREATE TABLE IF NOT EXISTS silver.person_source_link (  -- the ER decisions; app
   person_id         STRING NOT NULL,
   source_record_id  STRING NOT NULL,
   match_confidence  DOUBLE NOT NULL,              -- 0..1
-  match_method      STRING NOT NULL,              -- det_email | det_orcid | det_website | det_handle | det_crosslink | splink | llm_adjudication | human_review | interview_claim | seed_fixture
+  match_method      STRING NOT NULL,              -- det_email | det_orcid | det_website | det_handle | det_crosslink | splink | llm_adjudication | human_review | interview_claim | seed_fixture | det_linkedin | det_hn_repo
   evidence          VARIANT,
   pipeline_version  STRING NOT NULL,
   matched_at        TIMESTAMP NOT NULL,
@@ -417,6 +430,8 @@ CREATE TABLE IF NOT EXISTS silver.person_connection ( -- collaboration graph, ed
 ALTER TABLE silver.person_connection ADD CONSTRAINT chk_conn_type CHECK (connection_type IN ('coauthor','co_contributor','co_officer'));
 ALTER TABLE silver.person_connection ADD CONSTRAINT chk_conn_order CHECK (person_a_id < person_b_id);
 ```
+
+**Hack Nation projects** land in the same `silver.project` table with `source_platform='hacknation'`, written by WS-G — the `github_url`/`structured`/`event_title`/`is_winner` columns exist for them.
 
 **Why an edge table, not a `people_connected` array inside `person`**: arrays can't carry per-edge type/weight/evidence, cause write amplification (every new collaboration rewrites person rows), and go stale after merges. The UI still gets a sorted array via `gold.v_person_network` (one `sort_array(collect_list(...))`).
 

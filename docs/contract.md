@@ -64,7 +64,7 @@ The Statement Execution API returns VARIANT columns (`breakdown`, `evidence`,
 
 | Entity | Input string |
 |---|---|
-| person_source_record | `{source}:{source_key}` (zefix source_key is `{uid}:{name_norm}`; arxiv author is `{arxiv_id}:{position}`) |
+| person_source_record | `{source}:{source_key}` (zefix source_key is `{uid}:{name_norm}`; arxiv author is `{arxiv_id}:{position}`; hacknation is `{user_id}`) |
 | project | `github_repo:{repo_id}` |
 | publication | `{doi}` else `arxiv:{arxiv_id}` else `{openalex_id}` |
 | company | `zefix:{uid}` |
@@ -137,10 +137,31 @@ ON t.weights_id = s.weights_id
 WHEN MATCHED THEN UPDATE SET w_market = :w_market, updated_at = current_timestamp();
 ```
 
+## Realized additions (WS-G, 2026-07-19 - all additive)
+
+`sources/hacknation/` + `HacknationNormalizer` + ER rules D7/D8 moved out of
+"reserved" - built. The deltas:
+
+- `silver.person_source_record` + `avatar_url`, `cv_url` (nullable, appended
+  last).
+- New table `bronze.hacknation_cvs_raw` (PK `user_id`; payload `{cv_url,
+  volume_path, text_sha256, extracted{education[],experience[],skills[]},
+  model}`; CDF on). Fetched CV PDFs land at
+  `/Volumes/{catalog}/ops/cv/hacknation/{user_id}.pdf` - deterministic from
+  `user_id` so erasure can delete the file.
+- `match_method` additions: `det_linkedin` (0.97), `det_hn_repo` (0.90).
+- Hack Nation PSR semantics: one PSR per `user_id` (`source='hacknation'`,
+  `source_key={user_id}`); fragments from the people list + each project's
+  `authorProfile`/`team[]` are merged field-wise before upsert (prefer
+  non-null, union keywords).
+- `silver.project` gains rows with `source_platform='hacknation'`, written by
+  WS-G.
+- Venture anchor: `anchor_id` for `hackathon_project` = the Hack Nation
+  project id, so `venture_id = uuid5(ns, 'hackathon_project:{project_id}')`.
+
 ## Reserved additions (planned, additive - do not block on them)
 
 - `ops.llm_adjudications` (WS-D stage 4), `gold.score_run` (WS-E triggers)
-- `sources/hacknation/` + `HacknationNormalizer` + ER rules D7/D8 (WS-G)
 - `scrapers/common/` shared runner library (WS-A/B/C half-day task)
 - Model smoke-test outcome: after `poe smoke`, record here which
   `databricks-claude-*` endpoints resolve and whether the Anthropic-API

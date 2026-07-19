@@ -35,6 +35,10 @@ app = [
   "starlette>=0.41",
   "uvicorn>=0.32",
 ]
+sources = [
+  "httpx>=0.28",
+  "pypdf>=5.0",
+]
 dev = [
   "basedpyright>=1.29",
   "pip-licenses>=5.0",

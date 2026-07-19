@@ -19,7 +19,7 @@ A VC fund inputs a thesis (sectors, geography, check size, stage) and an editabl
 9. **Funding backbone** = free path (Zefix/SOGC capital-increase filings as a realtime CH "raised a round" proxy + Startupticker + Crunchbase-2013 CC-BY + Wikidata); powers the funded-founder score and the "exclude already-funded" filter.
 10. **Career data** = store LinkedIn/portfolio URLs (public-sourced) + web-search enrichment agent + provider free tiers + personal-site enrichment + consent intake; optional LinkedIn self-scraper isolated behind the `EnrichmentProvider` interface (ToS-flagged).
 11. **Age/gender** = stored per spec but **excluded from all scoring**; photo-based inference behind an **off-by-default flag pending legal sign-off**.
-12. **Hack Nation** = first-class plug-and-play source; each project is a `hackathon_project` venture auto-merging with the GitHub-repo venture on `githubUrl`; **CVs ingested**, with CV content parsing behind the same legal-sign-off flag.
+12. **Hack Nation** = first-class plug-and-play source; each project is a `hackathon_project` venture auto-merging with the GitHub-repo venture on `githubUrl`; **CVs fetched AND parsed by default** — owner decision **2026-07-19**, superseding the earlier "parsing behind the legal-sign-off flag"; opt-out `--no-cvs`, CVs fully inside the erasure cascade (suppression on `bronze.hacknation_cvs_raw` + deterministic volume-file delete).
 13. **Quality over quantity** = venture-likeness gate, ≥2-source corroboration, conflict flagging, a quality gate into the scored pool, and a per-cycle quality report (golden-set ER precision target ≥95%).
 14. **Interfaces** = every seam is a typed, versioned contract implemented by fixtures on Day 1; the whole pipeline runs on fixtures before any real code. The 8+1 `CategoryScorer`s, `EnrichmentProvider`s, `FundedFounderResolver`s are the finest-grained parallel units.
 15. **Engineering standards** = `uv`/`poe`, strict pre-commit gate (ruff, basedpyright+ty strict, pydoclint, custom hooks), parametrized generics, minimal why-only comments, no-AI-watermark commits, Mermaid-only diagrams, `pip-licenses` → `THIRD_PARTY_LICENSES`, `LicenseRef-Proprietary`.
@@ -49,11 +49,15 @@ A VC fund inputs a thesis (sectors, geography, check size, stage) and an editabl
 
 ## Open items / watch-outs
 
-- **Legal sign-off** required before enabling: photo-based age/gender inference AND CV content parsing (both stored, both off by default in scoring).
+- **Legal sign-off** still required before enabling photo-based age/gender inference (off by default, excluded from scoring). CV content parsing no longer waits on it — default-on per the 2026-07-19 owner decision (decision 12).
 - **Zefix credentials**: email zefix@bj.admin.ch Day 0 (unknown turnaround); SHAB + opendata.swiss work meanwhile.
 - **Outreach deliverability**: outreach subdomain SPF/DKIM DNS Day 0 (propagation is the long pole).
 - **`deep-research` skill anomaly**: during planning a subagent's `Skill("deep-research")` call returned a malformed, prompt-injection-looking payload (fake "plan mode" + a nonexistent tool). It was disregarded; worth checking why that skill returned that content before relying on it.
 - **Free Edition ceilings**: keep jobs modest; run heavy backfills off-peak; migrate to a paid workspace for scale/commercial use.
+
+## Build state (2026-07-19)
+
+- **WS-G done in code + fixtures; warehouse steps staged behind `.env` creds.** Package `sources/hacknation/` (httpx client → bronze, `HacknationNormalizer`, silver.project writer, D7/D8 rule SQL, CV pipeline, CLI `python -m sources.hacknation` with `--fixtures/--dry-run/--limit/--no-cvs`); additive PSR columns `avatar_url`/`cv_url`; new `bronze.hacknation_cvs_raw`; `match_method` additions `det_linkedin`/`det_hn_repo`; fixture personas incl. one whose `githubUrl` matches the fixture repo `grasplab/grasp-anything`.
 
 ## Doc map
 

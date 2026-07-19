@@ -30,6 +30,7 @@
 | networkx                  | 3.6.1           | BSD-3-Clause                                       | https://networkx.org/                                                            |
 | oauthlib                  | 3.3.1           | BSD-3-Clause                                       | https://github.com/oauthlib/oauthlib                                             |
 | pycparser                 | 3.0             | BSD-3-Clause                                       | https://github.com/eliben/pycparser                                              |
+| pypdf                     | 6.14.2          | BSD-3-Clause                                       | https://github.com/py-pdf/pypdf                                                  |
 | python-dotenv             | 1.2.2           | BSD-3-Clause                                       | https://github.com/theskumar/python-dotenv                                       |
 | starlette                 | 1.3.1           | BSD-3-Clause                                       | https://github.com/Kludex/starlette                                              |
 | uvicorn                   | 0.51.0          | BSD-3-Clause                                       | https://uvicorn.dev/                                                             |
