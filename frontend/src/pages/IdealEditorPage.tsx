@@ -90,7 +90,7 @@ function toProfile(base: IdealCandidateProfile, form: IdealForm): IdealCandidate
   };
 }
 
-/** Structured editor over gold.ideal_candidate.profile_json — saving queues a re-embed. */
+/** Structured editor over gold.ideal_candidate.profile_json, saving queues a re-embed. */
 export default function IdealEditorPage() {
   const { thesisId = "" } = useParams();
   const ds = dataSource();
@@ -106,10 +106,10 @@ export default function IdealEditorPage() {
     mutationFn: (next: IdealCandidateProfile) => ds.saveIdealCandidate(thesisId, next),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["ideal", thesisId] });
-      toast("Saved — re-embedding queued.");
+      toast("Saved, re-embedding queued.");
     },
     onError: (err) =>
-      toast.error(`Save failed${err instanceof Error ? ` — ${err.message}` : ""}.`),
+      toast.error(`Save failed${err instanceof Error ? `, ${err.message}` : ""}.`),
   });
 
   const set = <K extends keyof IdealForm>(key: K, value: IdealForm[K]) =>
@@ -142,7 +142,7 @@ export default function IdealEditorPage() {
       <div className="max-w-measure-narrow py-gutter-lg">
         <p className="mono-label mb-2">Profile unavailable</p>
         <p className="text-body text-quiet">
-          The ideal-candidate query failed{error instanceof Error ? ` — ${error.message}` : ""}.
+          The ideal-candidate query failed{error instanceof Error ? `, ${error.message}` : ""}.
         </p>
         <Button variant="outline" size="sm" className="mt-4" onClick={() => refetch()}>
           Retry
@@ -173,7 +173,7 @@ export default function IdealEditorPage() {
       <p className="mono-label mb-2">Ideal candidate</p>
       <h1 className="font-display text-h1">Ideal-candidate profile</h1>
       <p className="mt-3 max-w-measure text-body text-quiet">
-        The profile ventures are matched against — narrative for the embedding, features for the
+        The profile ventures are matched against, narrative for the embedding, features for the
         structured score.
       </p>
 

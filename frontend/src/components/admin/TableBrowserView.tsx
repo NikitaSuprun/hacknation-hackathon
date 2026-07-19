@@ -1,5 +1,5 @@
 /**
- * Admin · Table browser — the "we can query the database" surface. Left rail
+ * Admin · Table browser, the "we can query the database" surface. Left rail
  * of contract-fixture tables with counts; right side a paginated mono table
  * (20/page) with a text filter. Object/array cells render as truncated JSON
  * and expand into a pretty-printed Dialog.
@@ -77,7 +77,7 @@ function Cell({
   onExpand: (cell: ExpandedCell) => void;
 }) {
   if (value == null) {
-    return <span className="text-quiet">—</span>;
+    return <span className="text-quiet">-</span>;
   }
   if (typeof value === "object") {
     const compact = JSON.stringify(value) ?? "";
@@ -223,7 +223,7 @@ export function TableBrowserView() {
 
         <div className="hairline-t flex items-center justify-between px-4 py-2">
           <span className="font-mono text-[11px] tabular text-quiet">
-            rows {from}–{to} of {filtered.length} · page {safePage + 1}/{pageCount}
+            rows {from}-{to} of {filtered.length} · page {safePage + 1}/{pageCount}
           </span>
           <div className="flex gap-1">
             <Button

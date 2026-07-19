@@ -1,5 +1,5 @@
 /**
- * Track E — demo autopilot type surface.
+ * Track E, demo autopilot type surface.
  *
  * The whole scripted demo is data: an ordered list of DemoStep, each belonging
  * to one of 14 beats. The engine executes steps against the *real* UI by
@@ -36,7 +36,7 @@ export type StepAction =
 export interface DemoStep {
   /** Stable id, shown in the stall toast ("Demo stalled at b4-open-evidence"). */
   id: string;
-  /** 1..14 — the beat this step belongs to. */
+  /** 1..14, the beat this step belongs to. */
   beat: number;
   /**
    * Route for `navigate` actions; on the FIRST step of a beat it also defines
@@ -58,6 +58,11 @@ export interface DemoStep {
   waitFor?: () => boolean;
   /** Poll budget for waitFor/target lookup. Default 5000ms. */
   timeoutMs?: number;
+  /**
+   * Centered act announcement shown BEFORE this step's action, so the room
+   * knows whose perspective the demo is about to show.
+   */
+  interstitial?: { act: string; title: string; sub: string };
 }
 
 export type EngineStatus = "idle" | "playing" | "paused" | "stalled" | "done";
@@ -79,4 +84,6 @@ export interface EngineState {
   spotlight: string | null;
   /** Step id the engine stalled on (target/waitFor timeout), for the HUD. */
   stalledStepId: string | null;
+  /** Centered act announcement currently on screen, or null. */
+  interstitial: { act: string; title: string; sub: string } | null;
 }

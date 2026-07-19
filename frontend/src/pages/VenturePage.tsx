@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -19,6 +19,7 @@ import { CategoryBreakdown } from "@/components/scores/CategoryBreakdown";
 import { FundingBadge } from "@/components/scores/FundingBadge";
 import { QualityChip } from "@/components/scores/QualityChip";
 import { StatusChip } from "@/components/scores/StatusChip";
+import { InterviewThread } from "@/components/memo/InterviewThread";
 import { MemoSectionView } from "@/components/memo/MemoSectionView";
 import { MissingDataPanel } from "@/components/memo/MissingDataPanel";
 import {
@@ -41,7 +42,7 @@ import type {
 } from "@/lib/domain/types";
 import { MEMO_SECTION_KEYS } from "@/lib/domain/types";
 import { categoryScoresOf, computeFinalScore } from "@/lib/ranking/rerank";
-import { FUND_EMAIL, FUND_NAME } from "@/mocks/state";
+import { FUND_EMAIL, FUND_NAME, getDB, getVersion, mutate, subscribe } from "@/mocks/state";
 import { cn, formatPercent, formatScore } from "@/lib/utils";
 
 /** ASCII-fold a name into an email-safe token: "Léna Fischer" → "lena.fischer". */
@@ -122,7 +123,7 @@ function ComposeDialog({
         founderName: founder?.full_name,
         origin: originRef.current,
       });
-      toast(`Candidacy sent — ${venture.name} has been chosen.`);
+      toast(`Invitation sent. ${venture.name} has been chosen.`);
       queryClient.invalidateQueries({ queryKey: ["ranking"] });
       queryClient.invalidateQueries({ queryKey: ["outreach"] });
       onOpenChange(false);
@@ -145,7 +146,7 @@ function ComposeDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-xl">
         <DialogHeader>
-          <DialogTitle>Choose {venture.name} for outreach</DialogTitle>
+          <DialogTitle>Schedule the AI interview with {venture.name}</DialogTitle>
           <DialogDescription>
             Provenance-first email to the founder&rsquo;s public contact.
           </DialogDescription>
@@ -178,7 +179,7 @@ function ComposeDialog({
             />
           </div>
           <p className="font-mono text-[11px] text-quiet">
-            Source disclosure + opt-out are required and included automatically.
+            Source disclosure and opt-out are required and included automatically.
           </p>
         </div>
         <DialogFooter>
@@ -191,7 +192,7 @@ function ComposeDialog({
             onClick={confirm}
             disabled={send.isPending || toEmail.length === 0}
           >
-            {send.isPending ? "Sending…" : "Send candidacy"}
+            {send.isPending ? "Sending…" : "Send invitation"}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -246,8 +247,9 @@ function TeamSection({ members }: { members: VentureTeamMember[] }) {
 
 /**
  * The venture memo detail: score header with the post-interview delta banner,
- * 9-category breakdown, evidence-cited memo, missing-data panel, team, and
- * the choose-for-outreach action (the page's single accent).
+ * 9-category breakdown, evidence-cited memo, the completed-interview thread,
+ * missing-data panel, team, and the action rail — schedule the AI interview
+ * (the page's single accent) and start the investment process.
  */
 export default function VenturePage() {
   const { ventureId = "", thesisId = "" } = useParams();
@@ -303,6 +305,20 @@ export default function VenturePage() {
   const founder = teamQuery.data?.find((m) => m.is_founder_guess) ?? teamQuery.data?.[0];
   const needsMore = venture?.quality_tier === "needs_more_data";
 
+  // Mock-store subscription: "in process" state renders live after the click.
+  useSyncExternalStore(subscribe, getVersion);
+  const inProcess = getDB().investmentProcess.includes(ventureId);
+
+  const startInvestment = () => {
+    if (!venture || inProcess) return;
+    mutate((db) => {
+      if (!db.investmentProcess.includes(venture.venture_id)) {
+        db.investmentProcess.push(venture.venture_id);
+      }
+    });
+    toast(`Investment process started for ${venture.name}.`);
+  };
+
   if (rankingLoading) {
     return (
       <div className="py-gutter-lg">
@@ -355,6 +371,11 @@ export default function VenturePage() {
             <StatusChip status={venture.status} />
             <QualityChip tier={venture.quality_tier} />
             <FundingBadge signal={venture.funding_signal} dense={false} />
+            {inProcess && (
+              <span className="font-mono text-[11px] uppercase tracking-[0.06em] text-quiet">
+                in process
+              </span>
+            )}
           </div>
         </div>
         <div className="text-right">
@@ -482,6 +503,8 @@ export default function VenturePage() {
               </div>
             )}
           </section>
+
+          <InterviewThread ventureId={ventureId} />
         </div>
 
         <aside className="space-y-10">
@@ -491,7 +514,15 @@ export default function VenturePage() {
               onClick={() => setComposeOpen(true)}
               disabled={needsMore}
             >
-              Choose for outreach
+              Schedule AI interview
+            </Button>
+            <Button
+              variant="ink"
+              data-demo-id="btn-start-investment"
+              onClick={startInvestment}
+              disabled={needsMore || inProcess}
+            >
+              {inProcess ? "In investment process" : "Start investment process"}
             </Button>
             {needsMore && (
               <p className="max-w-[16rem] text-right font-mono text-[11px] leading-relaxed text-quiet">

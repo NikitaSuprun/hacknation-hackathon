@@ -110,7 +110,7 @@ function fold(s: string): string {
     .toLowerCase();
 }
 
-/** Basic suffix trim — deliberately crude but deterministic. */
+/** Basic suffix trim, deliberately crude but deterministic. */
 function stem(t: string): string {
   if (t.length > 4 && t.endsWith("ies")) return t.slice(0, -3) + "y";
   if (t.length > 4 && t.endsWith("ing")) return t.slice(0, -3);
@@ -278,7 +278,7 @@ function docOf(v: RankedVenture): DocField[] {
 }
 
 // ---------------------------------------------------------------------------
-// locationOf — city derivation (explicit mention or institution inference)
+// locationOf, city derivation (explicit mention or institution inference)
 // ---------------------------------------------------------------------------
 
 const CITY_PATTERNS: [RegExp, string][] = [
@@ -546,7 +546,7 @@ function buildSnippet(field: DocField, toks: Tok[]): MatchedSnippet {
 /**
  * Apply structured filters, then (if the query has text) score and re-rank.
  * With text: only relevance > 0 hits are returned, sorted by relevance desc
- * (tie: final_score desc) — the UI shows "n of m match".
+ * (tie: final_score desc), the UI shows "n of m match".
  * Without text: relevance is null and the input (ranking) order is preserved.
  */
 export function runQuery(ventures: RankedVenture[], q: VentureQuery): QueryHit[] {

@@ -4,7 +4,7 @@ import type { QualityTier } from "@/lib/domain/types";
 /**
  * Quality-tier chip: dashed for needs_more_data, quiet "unscored tier" for
  * null (fresh signals the pipeline hasn't tiered). Fully scored ventures show
- * nothing — the score column already carries that information.
+ * nothing, the score column already carries that information.
  */
 export function QualityChip({
   tier,

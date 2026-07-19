@@ -1,5 +1,5 @@
 /**
- * Admin · Overview — the pipeline at a glance. Row counts per table grouped
+ * Admin · Overview, the pipeline at a glance. Row counts per table grouped
  * by medallion layer, a thin silver→gold flow strip, and ER health over
  * person_source_links. Read-only; gold counts come from the live store.
  */
@@ -60,7 +60,7 @@ function LayerSection({ stats }: { stats: LayerStats }) {
 }
 
 export function OverviewView() {
-  // The store mutates in place — key derived data on the store version.
+  // The store mutates in place, key derived data on the store version.
   const version = useLiveVersion();
   const db = getDB();
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -76,7 +76,7 @@ export function OverviewView() {
     <div className="animate-fade-up pb-gutter-lg">
       {/* Medallion flow strip */}
       <div className="mt-8 flex flex-wrap items-center gap-y-2 rounded-none border border-line bg-paper px-4 py-3">
-        <FlowStage count="—" label="bronze · raw scrapes" />
+        <FlowStage count="-" label="bronze · raw scrapes" />
         <FlowArrow />
         <FlowStage count={String(countOf("source records"))} label="source records" />
         <FlowArrow />
@@ -87,7 +87,7 @@ export function OverviewView() {
         <FlowStage count={String(memoCount)} label="memos" />
       </div>
       <p className="mt-2 font-mono text-[11px] text-quiet">
-        Bronze lands in the warehouse only — see bronze_ref pointers on source records.
+        Bronze lands in the warehouse only, see bronze_ref pointers on source records.
       </p>
 
       {layers.map((stats) => (

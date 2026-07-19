@@ -2,7 +2,7 @@
  * Admin data layer: read-only joins over the contract fixtures (silver/gold
  * mirrors in @/mocks/fixtures/generated) plus the LIVE demo store
  * (@/mocks/state) so venture/outreach/interview facts stay in sync with the
- * rest of the demo. Everything is defensive — fixture rows are treated as
+ * rest of the demo. Everything is defensive, fixture rows are treated as
  * Record<string, unknown>.
  */
 import { useSyncExternalStore } from "react";
@@ -38,12 +38,12 @@ export function arr(v: unknown): unknown[] {
 
 export function fmtConfidence(v: unknown): string {
   const n = num(v);
-  return n == null ? "—" : n.toFixed(2);
+  return n == null ? "-" : n.toFixed(2);
 }
 
 export function fmtDate(v: unknown): string {
   const s = str(v);
-  if (!s) return "—";
+  if (!s) return "-";
   return s.slice(0, 10);
 }
 
@@ -68,7 +68,7 @@ const T = (key: string, label: string, layer: Layer, rows: unknown[]): TableDef 
 /** Static fixture tables in medallion order. Rebuilt cheaply; rows are shared refs. */
 export function fixtureTables(): TableDef[] {
   return [
-    // silver — resolved entities and signals
+    // silver, resolved entities and signals
     T("persons", "persons", "silver", GEN.persons),
     T("personSourceRecords", "person_source_records", "silver", GEN.personSourceRecords),
     T("personSourceLinks", "person_source_links", "silver", GEN.personSourceLinks),
@@ -80,7 +80,7 @@ export function fixtureTables(): TableDef[] {
     T("contributions", "contributions", "silver", GEN.contributions),
     T("officers", "officers", "silver", GEN.officers),
     T("personFeatures", "person_features", "silver", GEN.personFeatures),
-    // gold — the investable views
+    // gold, the investable views
     T("ventures", "ventures", "gold", GEN.ventures),
     T("ventureMembers", "venture_members", "gold", GEN.ventureMembers),
     T("ventureScores", "venture_scores", "gold", GEN.ventureScores),
@@ -102,7 +102,7 @@ export function fixtureTables(): TableDef[] {
 export interface StatCard {
   label: string;
   count: number;
-  /** Where the number comes from — the admin is the provenance story. */
+  /** Where the number comes from, the admin is the provenance story. */
   source: "fixture" | "live";
 }
 

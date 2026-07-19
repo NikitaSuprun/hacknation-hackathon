@@ -1,5 +1,5 @@
 /**
- * useStreamingChat — owns the founder-side interview conversation.
+ * useStreamingChat, owns the founder-side interview conversation.
  *
  * Local state is the source of truth during the session: messages seed once
  * from the bootstrap transcript, every later turn is appended here (reconciled
@@ -9,7 +9,7 @@
  *
  * End detection: a stream that closes with done and zero tokens means the
  * interviewer has nothing left to say (mock: script exhausted; live: server
- * closed the interview) — `ended` flips and the UI surfaces the finish action.
+ * closed the interview), `ended` flips and the UI surfaces the finish action.
  */
 import { useCallback, useEffect, useRef, useState } from "react";
 import { dataSource } from "@/lib/data";
@@ -22,7 +22,7 @@ export interface StreamingChat {
   streamingText: string;
   /** True from send until the stream settles (drives the typing indicator). */
   isStreaming: boolean;
-  /** The interviewer is done — surface the finish action. */
+  /** The interviewer is done, surface the finish action. */
   ended: boolean;
   error: string | null;
   send: (text: string) => void;
@@ -43,7 +43,7 @@ export function useStreamingChat(
 
   const busyRef = useRef(false);
   const controllerRef = useRef<AbortController | null>(null);
-  /** Defensive counter — one empty stream ends the interview, two can never loop. */
+  /** Defensive counter, one empty stream ends the interview, two can never loop. */
   const emptyStreamsRef = useRef(0);
 
   const run = useCallback(
@@ -89,7 +89,7 @@ export function useStreamingChat(
       } catch (err) {
         if (!controller.signal.aborted) {
           failed = true;
-          setError(err instanceof Error ? err.message : "The connection dropped — try again.");
+          setError(err instanceof Error ? err.message : "The connection dropped, try again.");
         }
       }
 
@@ -99,7 +99,7 @@ export function useStreamingChat(
       }
 
       if (doneId && buffer) {
-        // Move the buffer into messages under the server's id (dedup by id —
+        // Move the buffer into messages under the server's id (dedup by id -
         // a refetch-reconciled transcript can never double this turn).
         const id = doneId;
         const finished: ChatMessage = {

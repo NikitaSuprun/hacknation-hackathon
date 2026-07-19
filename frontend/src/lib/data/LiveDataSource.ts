@@ -5,7 +5,7 @@
  *
  * Wire conventions (see app/api.py): investor routes take a bearer session
  * token; interview routes take the URL token + an X-Interview-Session header;
- * VARIANT columns arrive as JSON strings; chat is turn-based JSON — this
+ * VARIANT columns arrive as JSON strings; chat is turn-based JSON, this
  * class fakes token streaming client-side so the UI matches mock mode.
  */
 import type { ChatStreamEvent, DataSource } from "@/lib/data/DataSource";
@@ -35,7 +35,7 @@ import type {
 
 /**
  * VARIANT columns arrive as JSON strings from the Statement Execution API.
- * (Some payloads — interview transcript, outreach history — arrive as native
+ * (Some payloads, interview transcript, outreach history, arrive as native
  * JSON already; both shapes are accepted.)
  */
 function parseVariant<T>(value: unknown): T | null {
@@ -97,7 +97,7 @@ export class LiveDataSource implements DataSource {
       // Sessions are in-memory server-side: {"error":"unauthorized"} after a
       // restart (or a bad password on /v1/login). Either way, re-login.
       clearSessionToken();
-      throw new Error("Session expired — sign in again.");
+      throw new Error("Session expired, sign in again.");
     }
     if (!response.ok) {
       const body: unknown = await response.json().catch(() => null);
@@ -128,7 +128,7 @@ export class LiveDataSource implements DataSource {
 
   async getWeights(thesisId: string): Promise<ScoreWeights> {
     const { weights } = await this.thesisEnvelope();
-    // Server-side "active" is `is_active is not False` — mirror that here.
+    // Server-side "active" is `is_active is not False`, mirror that here.
     const row =
       weights.find((w) => w.thesis_id === thesisId && w.is_active !== false) ?? weights[0];
     if (!row) throw new Error("No weights configured for this thesis.");
@@ -137,7 +137,7 @@ export class LiveDataSource implements DataSource {
 
   async saveWeights(thesisId: string, weights: ScoreWeights): Promise<void> {
     // Verified: the server reads exactly the nine w_* keys and tolerates the
-    // rest of the row (bookkeeping fields in the body are ignored) — 422 with
+    // rest of the row (bookkeeping fields in the body are ignored), 422 with
     // {"error": "missing or non-numeric weights: ..."} only when one is absent.
     await this.request(`/v1/thesis/${thesisId}/weights`, {
       method: "PUT",
@@ -159,7 +159,7 @@ export class LiveDataSource implements DataSource {
     thesisId: string,
     profile: IdealCandidateProfile,
   ): Promise<RunHandle> {
-    // Synchronous server-side (re-render + re-embed inline) — no job to poll.
+    // Synchronous server-side (re-render + re-embed inline), no job to poll.
     await this.request(`/v1/thesis/${thesisId}/ideal-candidate`, {
       method: "PUT",
       body: JSON.stringify(profile),
@@ -172,7 +172,7 @@ export class LiveDataSource implements DataSource {
       `/v1/ranking?thesis_id=${encodeURIComponent(thesisId)}`,
     );
     return ventures.map((row) => {
-      // Verified: breakdown is null for pool ventures without a score row —
+      // Verified: breakdown is null for pool ventures without a score row -
       // degrade to an empty breakdown instead of failing the whole ranking.
       const breakdown = parseVariant(row.breakdown);
       return {
@@ -183,7 +183,7 @@ export class LiveDataSource implements DataSource {
         breakdown: breakdown
           ? (scoreBreakdownSchema.parse(breakdown) as unknown as ScoreBreakdown)
           : { schema_version: 1, categories: {} },
-        // Verified absent from /v1/ranking (it lives on gold.candidate_pool) —
+        // Verified absent from /v1/ranking (it lives on gold.candidate_pool) -
         // null keeps the badge hidden.
         funding_signal: (row.funding_signal as RankedVenture["funding_signal"]) ?? null,
       };
@@ -223,7 +223,7 @@ export class LiveDataSource implements DataSource {
   }
 
   async getVentureGaps(_ventureId: string): Promise<VentureGap[]> {
-    // No /gaps endpoint upstream — the memo's `missing` bullets carry the gap
+    // No /gaps endpoint upstream, the memo's `missing` bullets carry the gap
     // list in live mode; the UI treats this as a supplement.
     return [];
   }
@@ -359,7 +359,7 @@ export class LiveDataSource implements DataSource {
     } catch (error) {
       const { status, message } = error as Error & { status?: number };
       // 410 covers both "link has expired" and "no longer usable (status: X)";
-      // an interviewed link means the founder already finished — show that.
+      // an interviewed link means the founder already finished, show that.
       const stage =
         status === 410
           ? message.includes("status: interviewed")
@@ -386,12 +386,12 @@ export class LiveDataSource implements DataSource {
     // Upstream convention: the FIRST chat message answers the consent prompt.
     await this.interviewRequest(`/${token}/message`, {
       method: "POST",
-      body: JSON.stringify({ text: consent.agreed ? "I agree — continue." : "No, thank you." }),
+      body: JSON.stringify({ text: consent.agreed ? "I agree, continue." : "No, thank you." }),
     });
   }
 
   async submitStructuredAsks(_token: string, _asks: StructuredAsks): Promise<void> {
-    // Uploads/structured asks are deferred upstream — collected client-side only.
+    // Uploads/structured asks are deferred upstream, collected client-side only.
   }
 
   async uploadInterviewFile(
@@ -419,7 +419,7 @@ export class LiveDataSource implements DataSource {
       yield { type: "error", message: (error as Error).message };
       return;
     }
-    // Turn-based server — fake token streaming so the UI matches mock mode.
+    // Turn-based server, fake token streaming so the UI matches mock mode.
     const chunks = reply.assistant.split(/(?<=\s)/);
     for (const chunk of chunks) {
       if (signal?.aborted) return;

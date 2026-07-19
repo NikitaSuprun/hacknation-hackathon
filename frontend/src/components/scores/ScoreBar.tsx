@@ -9,7 +9,7 @@ export function ScoreBar({
   flash = false,
   className,
 }: {
-  /** 0–100. */
+  /** 0-100. */
   value: number;
   flash?: boolean;
   className?: string;

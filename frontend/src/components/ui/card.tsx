@@ -1,7 +1,7 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
-/** Swiss square by default (radius 0, hairline border) — founder-side surfaces override with rounded-warm. */
+/** Swiss square by default (radius 0, hairline border), founder-side surfaces override with rounded-warm. */
 const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
     <div

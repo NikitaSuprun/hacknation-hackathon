@@ -1,5 +1,5 @@
 /**
- * Step 3 — the conversation. Letter-style: the interviewer speaks flush-left
+ * Step 3, the conversation. Letter-style: the interviewer speaks flush-left
  * behind a 2px ink rule (no bubble); the founder answers in warm wash bubbles
  * on the right. Tokens stream in live; three pulsing dots while the
  * interviewer thinks; the scroll stays pinned to the bottom unless the
@@ -104,7 +104,7 @@ export function ChatStep({
   };
 
   // Mini progress: questions asked so far (interviewer turns beyond the
-  // greeting) over the planned count — omitted until it's derivable.
+  // greeting) over the planned count, omitted until it's derivable.
   const planned = session.question_plan.length;
   const interviewerTurns = chat.messages.filter((m) => m.role === "interviewer").length;
   const asked = Math.min(Math.max(interviewerTurns - 1, 0), planned);
@@ -121,7 +121,7 @@ export function ChatStep({
           </p>
           {showProgress ? (
             <p className="shrink-0 font-mono text-mono-label text-quiet">
-              question {asked} of {planned || "—"}
+              question {asked} of {planned || "-"}
             </p>
           ) : null}
         </div>
@@ -146,7 +146,7 @@ export function ChatStep({
             <Card className="animate-fade-up rounded-warm border-line bg-paper p-6 shadow-lift">
               <p className="mono-label mb-2">That's everything</p>
               <p className="text-body text-ink">
-                Nothing more to ask — your answers are saved to your candidacy.
+                Nothing more to ask. Your answers are saved as part of your candidacy.
               </p>
               <Button
                 data-demo-id="btn-interview-done"
@@ -154,7 +154,7 @@ export function ChatStep({
                 disabled={finish.isPending}
                 onClick={() => finish.mutate()}
               >
-                {finish.isPending ? "One moment…" : "Finish — complete my candidacy"}
+                {finish.isPending ? "One moment…" : "Finish my candidacy"}
               </Button>
               {finish.isError ? (
                 <p className="mt-3 text-small text-danger">

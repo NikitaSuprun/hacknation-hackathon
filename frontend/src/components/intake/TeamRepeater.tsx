@@ -11,7 +11,7 @@ export interface TeamRow {
 export const EMPTY_TEAM_ROW: TeamRow = { name: "", role: "", github: "" };
 
 /**
- * Repeater for teammates on the intake card. Starts empty — "Add your team"
+ * Repeater for teammates on the intake card. Starts empty, "Add your team"
  * appends a row; the small × removes one. Every field is optional; rows left
  * fully blank are dropped by the caller before persisting.
  */

@@ -1,6 +1,6 @@
 /**
  * Named points in the demo story, implemented as a synchronous replay of the
- * same mutations the UI performs — so a scenario jump always lands in a state
+ * same mutations the UI performs, so a scenario jump always lands in a state
  * the app could genuinely reach by clicking.
  */
 import { getDB, mutate, resetDB } from "@/mocks/state";
@@ -29,7 +29,7 @@ export const SCENARIO_ORDER: ScenarioId[] = [
 /**
  * Interview completion: flip statuses, apply the post-interview score patch,
  * swap in the post memo. Shared by MockDataSource.completeInterview() and the
- * scenario replay — one code path for the beat-13 re-score.
+ * scenario replay, one code path for the beat-13 re-score.
  */
 export function completeInterviewMutation(): void {
   mutate((db) => {

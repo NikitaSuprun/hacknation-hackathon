@@ -25,9 +25,9 @@ export type ChatStreamEvent =
 
 /**
  * The mock/live seam. MockDataSource serves bundled fixtures with simulated
- * latency (fully client-side — the presentation demo); LiveDataSource calls
+ * latency (fully client-side, the presentation demo); LiveDataSource calls
  * the Supabase edge-function proxy over Databricks. Same interface, chosen at
- * boot by lib/data/index.ts — the app cannot tell the difference.
+ * boot by lib/data/index.ts, the app cannot tell the difference.
  */
 export interface DataSource {
   /** Live gates the investor routes on a Supabase session; mock bypasses by construction. */
@@ -42,7 +42,7 @@ export interface DataSource {
   getIdealCandidate(thesisId: string): Promise<IdealCandidateProfile>;
   saveIdealCandidate(thesisId: string, profile: IdealCandidateProfile): Promise<RunHandle>;
   getRanking(thesisId: string): Promise<RankedVenture[]>;
-  /** Full score history, newest first — [0] is current, [1] the pre-interview state. */
+  /** Full score history, newest first, [0] is current, [1] the pre-interview state. */
   getVentureScores(ventureId: string): Promise<ScoreSnapshot[]>;
   getVentureMemo(ventureId: string): Promise<Memo>;
   getVentureTeam(ventureId: string): Promise<VentureTeamMember[]>;
@@ -52,7 +52,7 @@ export interface DataSource {
   listOutreach(thesisId: string): Promise<OutreachRow[]>;
   getRunStatus(handle: RunHandle): Promise<RunStatus>;
 
-  // Founder (outreach token is the credential — never account auth)
+  // Founder (outreach token is the credential, never account auth)
   getInterviewSession(token: string): Promise<InterviewBootstrap>;
   submitConsent(token: string, consent: ConsentPayload): Promise<void>;
   submitStructuredAsks(token: string, asks: StructuredAsks): Promise<void>;

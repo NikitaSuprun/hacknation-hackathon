@@ -1,7 +1,7 @@
 /**
  * Live-mode auth against the in-repo app: POST /v1/login {password} → bearer
  * token, held in localStorage and attached by LiveDataSource. Sessions are
- * in-memory server-side (single-process demo scope) — a 401 means re-login.
+ * in-memory server-side (single-process demo scope), a 401 means re-login.
  */
 
 const SESSION_KEY = "chosen.session";
@@ -14,7 +14,7 @@ export function apiBase(): string {
   return ((import.meta.env.VITE_API_BASE as string | undefined) ?? "").replace(/\/$/, "");
 }
 
-/** Snapshot at module load — kept for import stability; prefer apiBase(). */
+/** Snapshot at module load, kept for import stability; prefer apiBase(). */
 export const API_BASE = apiBase();
 
 export function getSessionToken(): string | null {

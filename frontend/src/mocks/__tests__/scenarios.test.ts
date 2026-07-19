@@ -65,7 +65,7 @@ describe("applyScenario replay", () => {
     expect(db.scoreHistory[GRASPLAB_ID]?.[0]?.score_id).toBe("score-post-interview");
   });
 
-  it("replay is idempotent — re-applying a scenario rebuilds identical state", () => {
+  it("replay is idempotent, re-applying a scenario rebuilds identical state", () => {
     applyScenario("interview-done");
     const first = JSON.stringify(getDB().ventures.find((v) => v.venture_id === GRASPLAB_ID));
     applyScenario("interview-done");

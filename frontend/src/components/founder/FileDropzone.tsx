@@ -2,7 +2,7 @@
  * Founder-side PDF dropzone (CV / pitch). Drop or click to pick a file;
  * the upload runs through the data seam while a transform-only progress bar
  * sweeps for a set duration; then the stored file row with a delete action.
- * Ink-only — the page's single accent belongs to the primary CTA.
+ * Ink-only, the page's single accent belongs to the primary CTA.
  */
 import { useEffect, useRef, useState } from "react";
 import { FileText, X } from "lucide-react";
@@ -29,7 +29,7 @@ function formatSize(bytes: number): string {
   return `${Math.max(1, Math.round(bytes / 1024))} KB`;
 }
 
-/** Transform-only progress sweep — scaleX from ~0 to 1 over durationMs. */
+/** Transform-only progress sweep, scaleX from ~0 to 1 over durationMs. */
 function ProgressBar({ durationMs }: { durationMs: number }) {
   const [go, setGo] = useState(false);
   useEffect(() => {
@@ -93,7 +93,7 @@ export function FileDropzone({
     }
     if (picked.size > maxBytes) {
       setProblem(
-        `That file is over ${Math.round(maxBytes / (1024 * 1024))} MB — a lighter export will do.`,
+        `That file is over ${Math.round(maxBytes / (1024 * 1024))} MB, a lighter export will do.`,
       );
       return;
     }
@@ -104,7 +104,7 @@ export function FileDropzone({
       onDone(ref);
     } catch {
       if (!mountedRef.current) return;
-      setProblem("That didn't go through — try again.");
+      setProblem("That didn't go through, try again.");
     } finally {
       if (mountedRef.current) setUploadingName(null);
     }

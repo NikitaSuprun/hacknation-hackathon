@@ -1,5 +1,5 @@
 /**
- * The founder flow — a single route (/interview/:token) that walks a step
+ * The founder flow, a single route (/interview/:token) that walks a step
  * machine derived from the server's stage plus minimal local progression:
  *
  *   invalid | expired          → InvalidStep
@@ -68,7 +68,7 @@ export default function InterviewPage() {
             We couldn't open your invitation.
           </h1>
           <p className="mt-3 text-body text-quiet">
-            The connection hiccuped — nothing is lost.
+            The connection hiccuped, nothing is lost.
           </p>
           <Button variant="outline" className="mt-6" onClick={() => void refetch()}>
             Try again

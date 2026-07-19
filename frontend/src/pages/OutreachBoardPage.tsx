@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 import { OutreachBoard } from "@/components/outreach/OutreachBoard";
 
-/** Kanban over the outreach state machine — advances via status changes only. */
+/** Kanban over the outreach state machine, advances via status changes only. */
 export default function OutreachBoardPage() {
   const { thesisId = "" } = useParams();
   return (

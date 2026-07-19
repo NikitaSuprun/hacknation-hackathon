@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import type { RankedVenture } from "@/lib/domain/types";
 import { formatScore } from "@/lib/utils";
 
-/** Compact ranked-venture card — the pool you would send outreach to next. */
+/** Compact ranked-venture card, the pool you would send outreach to next. */
 export function ShortlistCard({
   venture,
   thesisId,

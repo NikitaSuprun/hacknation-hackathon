@@ -3,7 +3,7 @@ import type { ChatStreamEvent } from "@/lib/data/DataSource";
 /**
  * Parses a text/event-stream Response into ChatStreamEvents. Used by
  * LiveDataSource against the interview edge function; MockDataSource yields
- * the same events from the canned script — the chat UI can't tell them apart.
+ * the same events from the canned script, the chat UI can't tell them apart.
  */
 export async function* parseSSE(
   response: Response,

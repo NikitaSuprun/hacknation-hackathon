@@ -42,7 +42,7 @@ export default function LoginPage() {
         </Link>
         <h1 className="mt-8 font-display text-h1 text-ink">Sign in</h1>
         <p className="mt-2 text-small text-quiet">
-          The fund's working instrument. Founders don't sign in — they get chosen.
+          The fund's working instrument. Founders don't sign in, they get chosen.
         </p>
         <form onSubmit={handleSubmit} className="mt-8 space-y-4">
           <div className="space-y-2">
@@ -67,7 +67,7 @@ export default function LoginPage() {
           </Button>
         </form>
         {!ds.requiresAuth && (
-          <p className="mono-label mt-6">Demo data — no account needed</p>
+          <p className="mono-label mt-6">Demo data, no account needed</p>
         )}
       </div>
     </div>

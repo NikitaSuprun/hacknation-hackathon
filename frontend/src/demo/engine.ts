@@ -1,15 +1,15 @@
 /**
- * Track E — the demo autopilot engine.
+ * Track E, the demo autopilot engine.
  *
  * Executes DEMO_STEPS against the live DOM by dispatching synthetic events at
  * `[data-demo-id]` targets, so autopilot exercises the exact code paths a
  * hand-driven demo would. Every dependency on other tracks is defensive:
- * targets are polled (up to 5s), and a miss stalls quietly with a toast —
+ * targets are polled (up to 5s), and a miss stalls quietly with a toast -
  * never a hang, never a throw.
  *
  * Checkpoints (mocks/scenarios) are applied only on JUMPS (prev/next/scrubber/
  * ?beat= deep links). Continuous play produces each state organically through
- * the UI itself — including the beat-5 weight change, which a checkpoint
+ * the UI itself, including the beat-5 weight change, which a checkpoint
  * replay would wipe.
  */
 import { useSyncExternalStore } from "react";
@@ -46,7 +46,11 @@ const INITIAL_STATE: EngineState = {
   hudVisible: false,
   spotlight: null,
   stalledStepId: null,
+  interstitial: null,
 };
+
+/** How long an act interstitial owns the screen (scaled by playback speed). */
+const INTERSTITIAL_MS = 2_800;
 
 function isEditable(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) return false;
@@ -114,7 +118,7 @@ function setNativeValue(el: HTMLInputElement | HTMLTextAreaElement, value: strin
 export class DemoEngine {
   private state: EngineState = INITIAL_STATE;
   private readonly listeners = new Set<() => void>();
-  /** Cancellation token — every pause/jump bumps it; stale loops exit quietly. */
+  /** Cancellation token, every pause/jump bumps it; stale loops exit quietly. */
   private gen = 0;
   private armed = false;
   private navigateFn: NavigateFunction | null = null;
@@ -205,7 +209,7 @@ export class DemoEngine {
     if (this.state.status !== "playing" && this.state.status !== "stalled") return;
     this.gen += 1;
     setMockLatencyDisabled(false);
-    this.setState({ status: "paused", stalledStepId: null });
+    this.setState({ status: "paused", stalledStepId: null, interstitial: null });
   }
 
   togglePlay(): void {
@@ -240,10 +244,11 @@ export class DemoEngine {
       caption: beatCaption(beat),
       spotlight: null,
       stalledStepId: null,
+      interstitial: null,
     });
   }
 
-  /** Shift+R — full reset: seed DB, back to /login, engine to step 0, paused. */
+  /** Shift+R, full reset: seed DB, back to /login, engine to step 0, paused. */
   reset(): void {
     this.gen += 1;
     setMockLatencyDisabled(false);
@@ -260,6 +265,7 @@ export class DemoEngine {
       caption: null,
       spotlight: null,
       stalledStepId: null,
+      interstitial: null,
     });
   }
 
@@ -276,7 +282,7 @@ export class DemoEngine {
     this.setState({ hudVisible: !this.state.hudVisible });
   }
 
-  // --- global input (trusted events only — synthetic ones are ours) ---
+  // --- global input (trusted events only, synthetic ones are ours) ---
 
   private readonly onKeyDown = (e: KeyboardEvent): void => {
     if (!e.isTrusted) return;
@@ -332,6 +338,13 @@ export class DemoEngine {
       }
       const step = DEMO_STEPS[index];
       this.setState({ beat: step.beat, ...(step.caption ? { caption: step.caption } : {}) });
+      // Act announcement first: hold the room's attention, then act.
+      if (step.interstitial) {
+        this.setState({ interstitial: step.interstitial });
+        await sleep(INTERSTITIAL_MS / this.state.speed);
+        this.setState({ interstitial: null });
+        if (gen !== this.gen) return;
+      }
       let ok = false;
       try {
         ok = await this.execStep(step, gen);
@@ -352,14 +365,19 @@ export class DemoEngine {
   private finish(): void {
     this.gen += 1;
     setMockLatencyDisabled(false);
-    this.setState({ status: "done", stepIndex: DEMO_STEPS.length, stalledStepId: null });
+    this.setState({
+      status: "done",
+      stepIndex: DEMO_STEPS.length,
+      stalledStepId: null,
+      interstitial: null,
+    });
   }
 
   private stall(step: DemoStep): void {
     this.gen += 1;
     setMockLatencyDisabled(false);
-    this.setState({ status: "stalled", stalledStepId: step.id });
-    toast(`Demo stalled at ${step.id} — → to skip`);
+    this.setState({ status: "stalled", stalledStepId: step.id, interstitial: null });
+    toast(`Demo stalled at ${step.id}, → to skip`);
   }
 
   /** Poll a predicate; resolves on the store's subscribe() too, so transcript
@@ -520,7 +538,7 @@ export class DemoEngine {
     thumb.focus();
     const read = () => parseFloat(thumb.getAttribute("aria-valuenow") ?? "NaN");
     const max = parseFloat(thumb.getAttribute("aria-valuemax") ?? "1");
-    // Sliders may run 0–1 (weights) or 0–100 (percent display) — adapt.
+    // Sliders may run 0-1 (weights) or 0-100 (percent display), adapt.
     const scale = Number.isFinite(max) && max > 1.5 ? 100 : 1;
     const goal = to * scale;
     const epsilon = 0.004 * scale;
@@ -535,10 +553,10 @@ export class DemoEngine {
       const next = read();
       if (next === value) {
         stuck += 1;
-        if (stuck >= 3) break; // slider isn't keyboard-driven — keep the show going
+        if (stuck >= 3) break; // slider isn't keyboard-driven, keep the show going
       } else {
         stuck = 0;
-        // Crossed the goal — the step size overshoots the epsilon; stop here.
+        // Crossed the goal, the step size overshoots the epsilon; stop here.
         if ((value < goal && next >= goal - epsilon) || (value > goal && next <= goal + epsilon)) break;
       }
     }

@@ -17,7 +17,7 @@ export type VentureStatus =
 
 export type QualityTier = "scored" | "needs_more_data";
 
-/** gold.candidate_pool.funding_signal — the ranked-list funding badge. */
+/** gold.candidate_pool.funding_signal, the ranked-list funding badge. */
 export type FundingSignal = "none_found" | "suspected" | "confirmed_none";
 
 export type OutreachStatus =
@@ -171,7 +171,7 @@ export interface ScoreWeights {
   updated_by: string;
 }
 
-/** Weight column for a category — the names line up as w_<category>. */
+/** Weight column for a category, the names line up as w_<category>. */
 export function weightKey(category: CategoryKey): keyof ScoreWeights {
   return `w_${category}` as keyof ScoreWeights;
 }
@@ -357,7 +357,7 @@ export interface InterviewBootstrap {
   transcript: ChatMessage[];
 }
 
-/** interview.schema.json — consent-based facts filling scored gaps. */
+/** interview.schema.json, consent-based facts filling scored gaps. */
 export interface InterviewExtracted {
   schema_version: number;
   education?: { institution: string; degree?: string | null; field?: string | null; start_year?: number | null; end_year?: number | null }[];

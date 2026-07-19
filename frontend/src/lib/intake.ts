@@ -1,5 +1,5 @@
 /**
- * Inbound "radar" intake — a tiny standalone client-side store. Deliberately
+ * Inbound "radar" intake, a tiny standalone client-side store. Deliberately
  * NOT part of the DataSource seam: it has no investor-side reads yet and the
  * founder page must work with zero auth or app shell.
  *
@@ -22,7 +22,7 @@ export interface IntakeSubmission {
   contact_email: string | null;
 }
 
-/** What the intake card collects — ids and timestamps are generated here. */
+/** What the intake card collects, ids and timestamps are generated here. */
 export type IntakeDraft = Omit<IntakeSubmission, "intake_id" | "created_at">;
 
 export const IDEA_MAX_CHARS = 600;
@@ -64,13 +64,13 @@ export async function submitIntake(data: IntakeDraft): Promise<IntakeSubmission>
   try {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
   } catch {
-    // Private mode / quota failures must not break the founder flow — the
+    // Private mode / quota failures must not break the founder flow, the
     // record is still returned so the UI can confirm.
   }
   return record;
 }
 
-/** All locally stored intakes, oldest first — for the future admin surface. */
+/** All locally stored intakes, oldest first, for the future admin surface. */
 export function listIntakes(): IntakeSubmission[] {
   return readAll();
 }

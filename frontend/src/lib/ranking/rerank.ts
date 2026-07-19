@@ -27,7 +27,7 @@ export function categoryScoresOf(v: RankedVenture): Record<CategoryKey, number |
 }
 
 /**
- * final = round(Σ w·s / Σ w, 1) over categories with a score — N/A weight is
+ * final = round(Σ w·s / Σ w, 1) over categories with a score, N/A weight is
  * redistributed pro-rata. Mirrors the canonical implementations exactly
  * (app/rescoring.py::client_final_score and app/static/app.js::rerankScore),
  * so mock, live re-rank, and server rescore all agree to the decimal.
@@ -52,7 +52,7 @@ export function computeFinalScore(
 
 /**
  * Recompute every final score under the given weights and sort descending.
- * Returns new objects — never mutates. Fast enough to run on slider input
+ * Returns new objects, never mutates. Fast enough to run on slider input
  * (10 ventures × 9 categories); the WS-F acceptance is <100 ms with no network.
  */
 export function rerank(ventures: RankedVenture[], weights: ScoreWeights): RankedVenture[] {

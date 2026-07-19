@@ -1,5 +1,5 @@
 /**
- * Admin · Database — the read-only instrument over everything CHOSEN holds:
+ * Admin · Database, the read-only instrument over everything CHOSEN holds:
  * medallion-layer stats, the people/venture provenance graph, and a raw
  * table browser. All data is local (contract fixtures + the live demo
  * store); no network.
@@ -27,7 +27,7 @@ export default function AdminPage() {
 
   return (
     <div className="py-gutter-lg">
-      <p className="mono-label mb-2">Admin — internal database</p>
+      <p className="mono-label mb-2">Admin, internal database</p>
       <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
         <h1 className="font-display text-h1">Database</h1>
         <p className="font-mono text-mono-data tabular text-quiet">

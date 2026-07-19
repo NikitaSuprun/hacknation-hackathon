@@ -1,5 +1,5 @@
 /**
- * Track B data hooks — thin, typed wrappers over the mock/live seam.
+ * Track B data hooks, thin, typed wrappers over the mock/live seam.
  * Query keys follow the shared contract: ["theses"], ["ranking", thesisId],
  * ["memo", ventureId], ["scores", ventureId], ["team", ventureId],
  * ["gaps", ventureId], ["weights", thesisId], ["ideal", thesisId].
@@ -46,7 +46,7 @@ export function useVentureScores(ventureId: string) {
   });
 }
 
-/** retry: false — "no memo" is a real state (VoiceLab), not a transient failure. */
+/** retry: false, "no memo" is a real state (VoiceLab), not a transient failure. */
 export function useVentureMemo(ventureId: string) {
   const ds = dataSource();
   return useQuery({
@@ -106,7 +106,7 @@ const SNAPSHOT_COLUMN: Record<CategoryKey, keyof ScoreSnapshot> = {
   ideal_match: "ideal_match",
 };
 
-/** Category scores of a history snapshot — mirrors rerank.categoryScoresOf(). */
+/** Category scores of a history snapshot, mirrors rerank.categoryScoresOf(). */
 export function categoryScoresOfSnapshot(
   snapshot: ScoreSnapshot,
 ): Record<CategoryKey, number | null> {
@@ -122,11 +122,11 @@ export function isNeedsMoreData(v: RankedVenture): boolean {
 }
 
 /**
- * Live cold start runs 5–10s — after ~3s of continuous loading, surface the
+ * Live cold start runs 5-10s, after ~3s of continuous loading, surface the
  * "Warming the warehouse" microcopy.
  */
 export const COLD_START_HINT =
-  "Warming the warehouse — first load takes a few seconds";
+  "Warming the warehouse, first load takes a few seconds";
 
 export function useColdStartHint(loading: boolean): boolean {
   const [show, setShow] = useState(false);

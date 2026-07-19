@@ -1,7 +1,7 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
-/** Hairline rule — the Swiss divider. */
+/** Hairline rule, the Swiss divider. */
 const Separator = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement> & { orientation?: "horizontal" | "vertical" }

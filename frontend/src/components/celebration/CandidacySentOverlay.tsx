@@ -5,16 +5,16 @@ import "./celebration.css";
 
 /**
  * The brand's signature "candidacy sent" moment (~1600ms, CSS only).
- * Mounted once at the app root; plays whenever lib/celebration fires —
+ * Mounted once at the app root; plays whenever lib/celebration fires -
  * the real send action and the demo engine share this one code path.
  *
  * Timeline (normal):
- *   0–120ms    circular clip-path reveal of the paint burst from event.origin
- *   300–900ms  center card rises
+ *   0-120ms    circular clip-path reveal of the paint burst from event.origin
+ *   300-900ms  center card rises
  *   1100ms     fade-out begins (320ms ease-travel)
  *   1600ms     unmount, body scroll restored
  * Skippable: any pointerdown/keydown jumps straight to the fade-out.
- * Reduced motion: no burst — 150ms card crossfade, auto-dismiss at 900ms.
+ * Reduced motion: no burst, 150ms card crossfade, auto-dismiss at 900ms.
  */
 interface PlayState {
   event: CandidacySentEvent;
@@ -93,7 +93,7 @@ export function CandidacySentOverlay() {
   return (
     <div key={playId} className={cn("celebration-overlay", exiting && "is-exiting")}>
       <div role="status" aria-live="polite" className="sr-only">
-        Candidacy sent — {event.ventureName} chosen.
+        Invitation sent. {event.ventureName} chosen.
       </div>
 
       {!reduced && (
@@ -106,8 +106,8 @@ export function CandidacySentOverlay() {
 
       <div className={cn("celebration-card", reduced && "celebration-card--reduced")}>
         <div className="border border-line bg-paper px-10 py-8 text-center shadow-lift">
-          <p className="mono-label text-electric">Candidacy sent</p>
-          <p className="mt-2 font-display text-h2 text-ink">{event.ventureName} — chosen.</p>
+          <p className="mono-label text-electric">Invitation sent</p>
+          <p className="mt-2 font-display text-h2 text-ink">{event.ventureName}, chosen.</p>
           {event.founderName && (
             <p className="mt-1 text-small text-quiet">
               Interview invitation sent to {event.founderName}.

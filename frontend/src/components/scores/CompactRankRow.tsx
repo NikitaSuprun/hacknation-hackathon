@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import { formatScore } from "@/lib/utils";
 
 /**
- * Compact ranked row (rank · name · score) — the weights-page live preview
+ * Compact ranked row (rank · name · score), the weights-page live preview
  * and any other place a dense re-rankable list is needed.
  */
 export function CompactRankRow({

@@ -1,7 +1,7 @@
 /**
  * Copy audit: CHOSEN's founder-facing voice never uses the language of an
  * application process ("You don't apply. You get chosen."). The interview
- * script is the founder-facing surface — every AI turn must stay clean.
+ * script is the founder-facing surface, every AI turn must stay clean.
  */
 import { describe, expect, it } from "vitest";
 import { FOLLOW_UP_REPLY, INTERVIEW_SCRIPT } from "@/mocks/fixtures/chatScript";
@@ -17,7 +17,7 @@ import { DEMO_STEPS } from "@/demo/script";
 const BANNED =
   /\b(apply|applies|applying|applied|application|applications|submit|submits|submitted|submitting|submission|submissions)\b/i;
 
-/** The brand writes without em or en dashes; hyphens are fine. */
+/** The brand writes without em or en dashes; hyphens are fine. (Unicode escapes so copy sweeps can't rewrite this regex.) */
 const DASHES = /[–—]/;
 
 const CLOSING = INTERVIEW_SCRIPT.length - 1;

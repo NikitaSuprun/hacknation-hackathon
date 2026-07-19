@@ -3,7 +3,7 @@ import { useEffect, useRef } from "react";
 /**
  * The founder-side hero background: a CSS-only layered-gradient "paint
  * poster". Three large gradient layers (electric, cream, ink at low opacity)
- * are blurred once on their wrapper — never animated — behind a cream veil
+ * are blurred once on their wrapper, never animated, behind a cream veil
  * so the headline stays AAA-readable. The one ambient motion is a very slow
  * 60s rotation of the layer wrapper (transform only), paused while the
  * document is hidden; the global reduced-motion clamp handles the rest.
@@ -60,7 +60,7 @@ export function PaintPoster() {
           }}
         />
       </div>
-      {/* Cream veil — keeps text on the poster AAA-readable. */}
+      {/* Cream veil, keeps text on the poster AAA-readable. */}
       <div className="absolute inset-0" style={{ background: "rgba(250, 247, 234, 0.72)" }} />
     </div>
   );

@@ -66,7 +66,7 @@ export function CategoryBreakdown({
                     <span
                       className="absolute -top-1 h-4 w-px bg-ink"
                       style={{ left: `${Math.max(0, Math.min(100, score))}%` }}
-                      title="Score capped — see rationale"
+                      title="Score capped, see rationale"
                     />
                   )}
                 </div>
@@ -77,7 +77,7 @@ export function CategoryBreakdown({
                   score == null ? "text-quiet" : "text-ink",
                 )}
               >
-                {score == null ? "N/A — weight redistributed" : formatScore(score)}
+                {score == null ? "N/A, weight redistributed" : formatScore(score)}
               </span>
             </button>
             {open && (

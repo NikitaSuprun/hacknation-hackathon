@@ -1,8 +1,8 @@
 /**
- * QueryBar — the ranked-pool query surface: one free-text prompt scored
+ * QueryBar, the ranked-pool query surface: one free-text prompt scored
  * semantically, plus structured chips (sector / location / score floor /
  * tier / status). Fully controlled; all state lives in the caller (or in
- * useVentureQuery). No dropdown libraries — chips and inputs only.
+ * useVentureQuery). No dropdown libraries, chips and inputs only.
  */
 import { useMemo, useState } from "react";
 import type { RankedVenture, VentureStatus } from "@/lib/domain/types";
@@ -66,7 +66,7 @@ export interface QueryBarProps {
 }
 
 export function QueryBar({ ventures, value, onChange, resultLabel, className }: QueryBarProps) {
-  // Only tags that actually group ventures earn a chip — one-off technology
+  // Only tags that actually group ventures earn a chip, one-off technology
   // tags would read as sectors and bury the real ones.
   const sectors = useMemo(() => {
     const counts = new Map<string, number>();
@@ -102,7 +102,7 @@ export function QueryBar({ ventures, value, onChange, resultLabel, className }: 
           value={value.text}
           onChange={(e) => patch({ text: e.target.value })}
           aria-label="Describe what you're hunting"
-          placeholder="Describe what you're hunting — e.g. 'tactile sensing for warehouse robots in Zurich'"
+          placeholder="Describe what you're hunting, e.g. 'tactile sensing for warehouse robots in Zurich'"
           className="h-9 flex-1 border-0 bg-transparent px-0 font-mono text-mono-data caret-electric focus-visible:ring-0 [&::-webkit-search-cancel-button]:appearance-none"
         />
         {resultLabel ? (

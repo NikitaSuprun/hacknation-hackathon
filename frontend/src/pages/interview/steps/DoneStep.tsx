@@ -1,5 +1,5 @@
 /**
- * Step 4 — the calm close. The candidacy is complete; a partner reviews the
+ * Step 4, the calm close. The candidacy is complete; a partner reviews the
  * update this week and the founder hears either way. Data rights stay in
  * mono smallprint, and in demo mode a collapsed transcript recap sits below.
  */
@@ -17,22 +17,22 @@ export function DoneStep({ session }: { session: InterviewBootstrap }) {
         <Card className="animate-fade-up rounded-warm border-line p-7 shadow-lift">
           <p className="mono-label mb-4">{session.fund_name}</p>
           <h1 className="font-display text-h2 text-ink">
-            Thank you — your candidacy is complete.
+            Thank you. Your candidacy is complete.
           </h1>
           <p className="mt-4 text-body text-quiet">
-            A partner reviews the update this week. You'll hear from {session.fund_name}{" "}
-            directly — either way.
+            A partner reviews the update this week. You'll hear directly from{" "}
+            {session.fund_name} either way.
           </p>
           <Separator className="my-6" />
           <p className="font-mono text-mono-label text-quiet">
-            Your data, your call — view · delete · {session.fund_contact_email}
+            Your data, your call: view · delete · {session.fund_contact_email}
           </p>
         </Card>
 
         {ds.mode === "mock" && session.transcript.length > 0 ? (
           <details className="mt-5 animate-fade-up rounded-warm border border-line px-5 py-4">
             <summary className="mono-label cursor-pointer list-none select-none">
-              Transcript recap — {session.transcript.length} turns
+              Transcript recap, {session.transcript.length} turns
             </summary>
             <div className="mt-4 space-y-4">
               {session.transcript.map((message) => (

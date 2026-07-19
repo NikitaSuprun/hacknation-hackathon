@@ -53,15 +53,15 @@ describe("mock interview stream (founder flow seam)", () => {
     const consented = await ds.getInterviewSession("demo");
     expect(consented.stage).toBe("consented");
 
-    // Turn 1 — the greeting streams when called with "" on an empty transcript.
+    // Turn 1, the greeting streams when called with "" on an empty transcript.
     const greeting = await collect(ds.streamInterviewMessage("demo", ""));
     expect(greeting.errors).toHaveLength(0);
     expect(greeting.tokens).toBeGreaterThan(1);
     expect(greeting.text).toBe(INTERVIEW_SCRIPT[0].ai);
     expect(greeting.doneId).toBe("ai-0");
 
-    // Turn 2 — a founder reply streams the next scripted interviewer turn.
-    const second = await collect(ds.streamInterviewMessage("demo", "Ready — go ahead."));
+    // Turn 2, a founder reply streams the next scripted interviewer turn.
+    const second = await collect(ds.streamInterviewMessage("demo", "Ready, go ahead."));
     expect(second.errors).toHaveLength(0);
     expect(second.tokens).toBeGreaterThan(1);
     expect(second.text).toBe(INTERVIEW_SCRIPT[1].ai);
@@ -74,8 +74,8 @@ describe("mock interview stream (founder flow seam)", () => {
       expect(turn.doneId).toBe(`ai-${i}`);
     }
 
-    // Exhausted script — the next call yields only done, no tokens: the
-    // signal the UI uses to surface "Finish — complete my candidacy".
+    // Exhausted script, the next call yields only done, no tokens: the
+    // signal the UI uses to surface "Finish, complete my candidacy".
     const exhausted = await collect(ds.streamInterviewMessage("demo", "anything else?"));
     expect(exhausted.tokens).toBe(0);
     expect(exhausted.text).toBe("");

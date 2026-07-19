@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import type { OutreachRow } from "@/lib/domain/types";
 import { StatusChip } from "@/components/outreach/StatusChip";
 
-/** "n days in state" from last_event_at — relative, mono. */
+/** "n days in state" from last_event_at, relative, mono. */
 function daysInState(iso: string | null): string {
   if (!iso) return "";
   const days = Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000);

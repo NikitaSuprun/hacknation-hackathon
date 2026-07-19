@@ -115,7 +115,7 @@ describe("memos", () => {
     }
   });
 
-  it("only GraspLab, Axonode, and TactiSense have memos — the rest use the no-memo state", () => {
+  it("only GraspLab, Axonode, and TactiSense have memos, the rest use the no-memo state", () => {
     const seed = seedDB();
     expect(Object.keys(seed.memos).sort()).toEqual(
       [

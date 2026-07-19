@@ -1,5 +1,5 @@
 /**
- * Track E — the spotlight ring: a fixed, pointer-transparent electric outline
+ * Track E, the spotlight ring: a fixed, pointer-transparent electric outline
  * hugging the current target's bounding rect. Repositions via a rAF loop (so
  * scroll, resize, and layout shifts are all covered) and fades in/out on
  * opacity; the last box is kept during fade-out so the ring never snaps.

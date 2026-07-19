@@ -20,25 +20,25 @@ export interface ScriptedTurn {
 
 export const INTERVIEW_SCRIPT: ScriptedTurn[] = [
   {
-    ai: "Hi Lena, thanks for making time, and for your consent just now. I'm the interview assistant for the fund reviewing GraspLab. This takes about ten minutes, you can type skip on anything, and nothing here is a commitment in either direction. Ready?",
+    ai: "Hi Lena, thanks for making time and for giving your consent. I'm the interview assistant for the fund reviewing GraspLab. This takes about ten minutes. You can type skip on anything, and nothing here is a commitment in either direction. Ready?",
     founder: "Ready, go ahead.",
   },
   {
     ai: "First, the thing our public data can't see: do you have paying pilots or revenue today?",
     founder:
-      "Yes. Three paid pilots, all warehouse logistics, running since spring. Each pays CHF 4,000 a month, so about CHF 12k MRR. Our lead pilot is at 96.3% pick accuracy, and two of the three decide on converting in December.",
+      "Yes. Three paid pilots, all in warehouse logistics, running since spring. Each pays CHF 4,000 a month, so about CHF 12k MRR. Our lead pilot is at 96.3% pick accuracy, and two of the three will decide whether to convert in December.",
     fills: ["traction.revenue"],
   },
   {
     ai: "That's concrete, thank you. Which customer segment do you serve first, and roughly how large is it?",
     founder:
-      "Mid-size 3PL warehouses in the DACH region, roughly 1,900 sites. At about CHF 60k per site per year that's a serviceable market around CHF 115M before the rest of Europe.",
+      "Mid-size 3PL warehouses in the DACH region, roughly 1,900 sites. At about CHF 60k per site per year, that's a serviceable market of around CHF 115M before the rest of Europe.",
     fills: ["market.tam"],
   },
   {
     ai: "On the team: are you and Wei both full-time on GraspLab?",
     founder:
-      "I'm full-time since June. Wei defends his PhD in August and joins full-time on September 1. He already holds founder equity.",
+      "I've been full-time since June. Wei defends his PhD in August and joins full-time on September 1. He already holds founder equity.",
     fills: ["team.commitment"],
   },
   {
@@ -59,7 +59,7 @@ export const INTERVIEW_SCRIPT: ScriptedTurn[] = [
       "The star spike came from one viral benchmark post. Stars aren't users, so I'd discount them. The number I'd watch is our 41-company design-partner waitlist.",
   },
   {
-    ai: "That's everything, Lena, thank you. Your answers go into the fund's memo now, with your consent on record. A partner reviews the update this week and you'll hear either way. To be clear, this review is never a promise of investment. Take care.",
+    ai: "That's everything, Lena. Thank you. Your answers now go into the fund's memo, with your consent on record. A partner reviews the update this week, and you'll hear either way. To be clear, this review is never a promise of investment. Take care.",
     founder: null,
   },
 ];
@@ -69,4 +69,4 @@ export const INTERVIEW_SCRIPT: ScriptedTurn[] = [
  * completed interview (streamed on the venture page).
  */
 export const FOLLOW_UP_REPLY =
-  "Both December decisions are on the calendar, one on the 9th and one on the 16th. The conversion terms are a 12-month order at CHF 60k per site with a 30-day out. If either converts we will share the signed order form the same week.";
+  "Both December decisions are on the calendar: one on the 9th and one on the 16th. The conversion terms are a 12-month order at CHF 60k per site with a 30-day out. If either converts, we will share the signed order that same week.";

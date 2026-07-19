@@ -1,6 +1,6 @@
 /**
- * Track E — the autopilot HUD: a small floating bar, bottom-center, paper on a
- * hairline border, mono labels. Quiet and Swiss — it narrates, it never covers
+ * Track E, the autopilot HUD: a small floating bar, bottom-center, paper on a
+ * hairline border, mono labels. Quiet and Swiss, it narrates, it never covers
  * the content being demonstrated. Everything inside is marked data-demo-hud so
  * presenter clicks here never trigger the auto-pause.
  */
@@ -51,7 +51,7 @@ export function DemoHud({ engine }: { engine: DemoEngine }) {
   const state = useEngineState(engine);
 
   // Surfaces that own the bottom of the viewport (the interview composer)
-  // reserve room for the bar while it is on screen — see index.css.
+  // reserve room for the bar while it is on screen, see index.css.
   useEffect(() => {
     if (!state.hudVisible) return;
     document.body.classList.add("demo-hud-active");
@@ -71,8 +71,8 @@ export function DemoHud({ engine }: { engine: DemoEngine }) {
       className="pointer-events-none fixed inset-x-0 bottom-5 z-[100] flex flex-col items-center gap-2 px-4 xl:items-start xl:pl-6"
     >
       {state.captionsOn && state.caption && (
-        <div className="pointer-events-auto max-w-xl rounded-ctrl border border-line bg-paper px-4 py-2 shadow-lift">
-          <p className="text-center text-small leading-snug text-ink">{state.caption}</p>
+        <div className="pointer-events-auto max-w-3xl rounded-ctrl border border-line bg-paper px-6 py-3 shadow-lift">
+          <p className="text-center font-display text-h3 leading-snug text-ink">{state.caption}</p>
         </div>
       )}
 
@@ -139,7 +139,7 @@ export function DemoHud({ engine }: { engine: DemoEngine }) {
         <span className="mono-label min-w-[104px] whitespace-nowrap px-1 text-left">
           b{String(state.beat).padStart(2, "0")}/{BEAT_COUNT} ·{" "}
           {STATUS_LABEL[state.status] ?? state.status}
-          {state.status === "stalled" && " — → skips"}
+          {state.status === "stalled" && ", → skips"}
         </span>
       </div>
     </div>

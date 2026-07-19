@@ -1,7 +1,7 @@
 /**
  * The in-memory demo store. Every MockDataSource mutation goes through
  * mutate(), so the UI (via useSyncExternalStore/react-query invalidation)
- * observes state exactly as it would from a real backend — the kanban
+ * observes state exactly as it would from a real backend, the kanban
  * really advances, the memo really swaps, the score really moves.
  *
  * applyScenario() fast-forwards to a named point in the demo script; the
@@ -26,7 +26,7 @@ import { seedDB, type SeedDB } from "@/mocks/fixtures/seed";
 
 /** The tokenized founder link used throughout the demo. */
 export const DEMO_TOKEN = "demo";
-/** Demo fund identity (fictional — self-referential on purpose). */
+/** Demo fund identity (fictional, self-referential on purpose). */
 export const FUND_NAME = "Chosen Partners";
 export const FUND_EMAIL = "partner@fund.example";
 
@@ -68,7 +68,7 @@ export interface PostInterviewPatch {
 export interface MockDB {
   thesis: Thesis;
   weights: ScoreWeights;
-  /** Base rows — getRanking() re-ranks them under the current weights. */
+  /** Base rows, getRanking() re-ranks them under the current weights. */
   ventures: RankedVenture[];
   team: Record<string, VentureTeamMember[]>;
   /** Score history per venture, newest first (the /scores contract). */
@@ -146,4 +146,4 @@ export function resetDB(): void {
 }
 
 // Scenario fast-forwarding (demo scrubber / ?beat= deep links) lives in
-// mocks/scenarios.ts — it replays mutations over this store.
+// mocks/scenarios.ts, it replays mutations over this store.

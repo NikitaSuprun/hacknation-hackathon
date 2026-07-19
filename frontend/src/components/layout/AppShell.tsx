@@ -1,4 +1,4 @@
-import { NavLink, Outlet, Link } from "react-router-dom";
+import { NavLink, Outlet, Link, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { dataSource } from "@/lib/data";
 import { cn } from "@/lib/utils";
@@ -6,7 +6,6 @@ import { cn } from "@/lib/utils";
 const NAV_ITEMS = [
   { label: "Ranking", path: "ranking" },
   { label: "Outreach", path: "outreach" },
-  { label: "Weights", path: "weights" },
   { label: "Ideal candidate", path: "ideal" },
 ] as const;
 
@@ -15,6 +14,7 @@ const NAV_ITEMS = [
  * and the data-mode chip. Content renders on the 1176px grid below.
  */
 export function AppShell() {
+  const { pathname } = useLocation();
   const ds = dataSource();
   const { data: theses } = useQuery({
     queryKey: ["theses"],
@@ -85,7 +85,9 @@ export function AppShell() {
           </div>
         </div>
       </header>
-      <main className="mx-auto w-full max-w-grid flex-1 px-gutter">
+      {/* Keyed by path: each page enters with a short opacity fade, so
+          navigations read as one smooth motion instead of a hard swap. */}
+      <main key={pathname} className="mx-auto w-full max-w-grid flex-1 animate-fade-in px-gutter">
         <Outlet />
       </main>
     </div>

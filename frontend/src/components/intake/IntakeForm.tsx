@@ -35,7 +35,7 @@ function FieldError({ id, children }: { id: string; children: ReactNode }) {
 }
 
 /**
- * The intake card. Everything is individually optional — the only rule is
+ * The intake card. Everything is individually optional, the only rule is
  * that at least one of GitHub / LinkedIn / website is present, because the
  * system evaluates public work and needs somewhere to look.
  */
@@ -67,9 +67,9 @@ export function IntakeForm({ onDone }: { onDone: (record: IntakeSubmission) => v
     const errs: FieldErrors = {};
     if (!g && !l && !w) errs.work = "Point us at least one place your work lives.";
     if (g && !GITHUB_RE.test(g))
-      errs.github = "That doesn't look like a GitHub link — it should start with https://github.com/";
+      errs.github = "That doesn't look like a GitHub link, it should start with https://github.com/";
     if (l && !LINKEDIN_RE.test(l))
-      errs.linkedin = "That doesn't look like a LinkedIn link — it should start with https://linkedin.com/";
+      errs.linkedin = "That doesn't look like a LinkedIn link, it should start with https://linkedin.com/";
     if (w && !URLISH_RE.test(w)) errs.website = "That doesn't look like a link.";
     if (mail && !EMAIL_RE.test(mail)) errs.email = "That doesn't look like an email address.";
     setErrors(errs);
@@ -103,7 +103,7 @@ export function IntakeForm({ onDone }: { onDone: (record: IntakeSubmission) => v
 
   return (
     <Card className="rounded-warm p-7">
-      {/* Where the work lives — the one thing we actually need. */}
+      {/* Where the work lives, the one thing we actually need. */}
       <div className="space-y-5">
         <div className="space-y-2">
           <FieldHead htmlFor="intake-github">GitHub</FieldHead>

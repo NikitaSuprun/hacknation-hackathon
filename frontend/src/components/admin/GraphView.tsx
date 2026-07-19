@@ -3,7 +3,7 @@
  * person_connections, enriched with live venture nodes and membership edges.
  * The simulation seeds from deterministic index angles, cools with
  * alphaDecay 0.05 and STOPS at alphaMin 0.02 (drag reheats briefly, then
- * stops again) — no perpetual CPU. Click a node for the provenance panel.
+ * stops again), no perpetual CPU. Click a node for the provenance panel.
  */
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -27,7 +27,7 @@ import {
 } from "./graph";
 import { DetailPanel, type GraphSelection } from "./DetailPanel";
 
-/** Keep nodes (and their labels) inside the viewBox — nothing drifts off-canvas. */
+/** Keep nodes (and their labels) inside the viewBox, nothing drifts off-canvas. */
 function clampToCanvas(nodes: GraphNode[]): void {
   for (const node of nodes) {
     const m = nodeHitRadius(node) + 16;
@@ -94,7 +94,7 @@ export function GraphView() {
       .force("y", forceY<GraphNode>(GRAPH_H / 2).strength(0.04))
       .force("collide", forceCollide<GraphNode>().radius((d) => nodeHitRadius(d) + 24))
       .alphaDecay(0.05)
-      .alphaMin(0.02) // d3 halts its timer below alphaMin — the layout settles and stops
+      .alphaMin(0.02) // d3 halts its timer below alphaMin, the layout settles and stops
       .on("tick", () => {
         ticks.current += 1;
         clampToCanvas(model.nodes);
@@ -174,7 +174,7 @@ export function GraphView() {
     select(node);
   }
 
-  /** Pointer capture can be lost (window blur, touch cancel) — never leave the sim hot. */
+  /** Pointer capture can be lost (window blur, touch cancel), never leave the sim hot. */
   function handlePointerCancel(node: GraphNode) {
     if (dragRef.current?.id !== node.id) return;
     dragRef.current = null;
@@ -379,7 +379,7 @@ export function GraphView() {
         </svg>
         <div className="pointer-events-none absolute bottom-3 left-4 right-4 font-mono text-[11px] leading-4 text-quiet">
           <p>
-            ● person · ■ venture · — connection · ┄ membership — drag to reposition, click for
+            ● person · ■ venture ·, connection · ┄ membership, drag to reposition, click for
             provenance
           </p>
           <p className="mt-0.5">

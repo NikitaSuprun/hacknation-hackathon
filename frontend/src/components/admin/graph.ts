@@ -1,6 +1,6 @@
 /**
  * Graph model for the admin people graph: person nodes (silver.persons),
- * venture nodes (live store), person–person edges (silver.person_connections,
+ * venture nodes (live store), person-person edges (silver.person_connections,
  * aggregated per pair) and dashed membership edges (live team map).
  * Initial positions are seeded from index angles so the settled layout is
  * deterministic-ish run to run.
@@ -50,7 +50,7 @@ export interface GraphModel {
   neighbors: Map<string, Set<string>>;
   /**
    * Ventures kept off the canvas because none of their gold.venture_members
-   * resolve to a silver.persons row — an ER coverage gap worth naming.
+   * resolve to a silver.persons row, an ER coverage gap worth naming.
    */
   unresolvedVentures: string[];
   /** Persons with no connection and no venture membership. */
@@ -71,7 +71,7 @@ export function nodeHitRadius(node: GraphNode): number {
 export function buildGraphModel(db: MockDB): GraphModel {
   const persons = GEN.persons as Raw[];
 
-  // Aggregate the (sparse) person–person connection rows per unordered pair.
+  // Aggregate the (sparse) person-person connection rows per unordered pair.
   const pairAgg = new Map<string, { a: string; b: string; weight: number; types: string[] }>();
   for (const conn of GEN.personConnections as Raw[]) {
     const a = str(conn.person_a_id);

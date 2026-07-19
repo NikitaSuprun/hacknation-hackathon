@@ -1,5 +1,5 @@
 /**
- * Invalid / expired invitation — quiet, no branding fireworks. One line of
+ * Invalid / expired invitation, quiet, no branding fireworks. One line of
  * fact, one line of help.
  */
 export function InvalidStep({

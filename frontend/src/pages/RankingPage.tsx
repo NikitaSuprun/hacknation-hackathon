@@ -1,5 +1,6 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import { Settings2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ConfidenceBar } from "@/components/scores/ConfidenceBar";
@@ -7,6 +8,7 @@ import { FundingBadge } from "@/components/scores/FundingBadge";
 import { QualityChip } from "@/components/scores/QualityChip";
 import { ScoreBar } from "@/components/scores/ScoreBar";
 import { StatusChip } from "@/components/scores/StatusChip";
+import { WeightsPanel } from "@/components/scores/WeightsPanel";
 import {
   COLD_START_HINT,
   useColdStartHint,
@@ -14,6 +16,8 @@ import {
   useRanking,
 } from "@/hooks/useInvestorData";
 import { QueryBar, RelevanceTag, useVentureQuery } from "@/components/query";
+import type { ScoreWeights } from "@/lib/domain/types";
+import { rerank } from "@/lib/ranking/rerank";
 import { cn, formatScore } from "@/lib/utils";
 
 /** Shared column template so the mono-label header stays aligned with rows. */
@@ -50,9 +54,19 @@ export default function RankingPage() {
   const { data: ventures, isLoading, isError, error, refetch } = useRanking(thesisId);
   const coldStart = useColdStartHint(isLoading);
 
+  // The weights panel pushes its in-progress weights up; while non-null the
+  // pool is re-ranked client-side so the list is the live preview. After a
+  // save settles, the panel clears the preview and the refetched seam order
+  // takes over with the same result.
+  const [weightsOpen, setWeightsOpen] = useState(false);
+  const [previewWeights, setPreviewWeights] = useState<ScoreWeights | null>(null);
+
   // The query bar filters and (with a prompt) relevance-ranks the pool
   // client-side; with no query it passes the seam's ranking through untouched.
-  const pool = useMemo(() => ventures ?? [], [ventures]);
+  const pool = useMemo(() => {
+    const base = ventures ?? [];
+    return previewWeights ? rerank(base, previewWeights) : base;
+  }, [ventures, previewWeights]);
   const { query, setQuery, hits, activeCount } = useVentureQuery(pool);
   const rows = useMemo(() => hits.map((hit) => hit.venture), [hits]);
   const hitByVenture = useMemo(
@@ -76,7 +90,20 @@ export default function RankingPage() {
           <h1 className="font-display text-h1">Ranking</h1>
         </div>
         {pool.length > 0 && (
-          <p className="font-mono text-mono-data tabular text-quiet">{resultLabel}</p>
+          <div className="flex items-center gap-2">
+            <p className="font-mono text-mono-data tabular text-quiet">{resultLabel}</p>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              data-demo-id="btn-open-weights"
+              aria-label="Scoring weights"
+              title="Scoring weights"
+              onClick={() => setWeightsOpen((prev) => !prev)}
+            >
+              <Settings2 strokeWidth={1.5} />
+            </Button>
+          </div>
         )}
       </div>
 
@@ -206,6 +233,13 @@ export default function RankingPage() {
           );
         })}
       </div>
+
+      <WeightsPanel
+        open={weightsOpen}
+        onOpenChange={setWeightsOpen}
+        thesisId={thesisId}
+        onPreviewWeights={setPreviewWeights}
+      />
     </div>
   );
 }

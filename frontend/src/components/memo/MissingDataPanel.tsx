@@ -13,7 +13,7 @@ interface MergedGap {
 
 /**
  * gold.venture_gaps merged with memo bullets flagged missing:true (live mode
- * may return [] gaps — the memo still knows what's absent). Deduped by field,
+ * may return [] gaps, the memo still knows what's absent). Deduped by field,
  * sorted by importance descending, unknown importance last.
  */
 export function mergeGaps(gaps: VentureGap[], memo?: Memo | null): MergedGap[] {
@@ -67,7 +67,7 @@ export function MissingDataPanel({
                     gap.importance == null ? "text-quiet" : "text-ink",
                   )}
                 >
-                  {gap.importance == null ? "—" : gap.importance.toFixed(2)}
+                  {gap.importance == null ? "-" : gap.importance.toFixed(2)}
                 </span>
               </div>
               <p className="mt-0.5 text-small text-quiet">{gap.question}</p>

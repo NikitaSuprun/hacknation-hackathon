@@ -1,5 +1,5 @@
 /**
- * Step 2 — "Complete your candidacy". The research is already done; these
+ * Step 2, "Complete your candidacy". The research is already done; these
  * fields close the gaps: LinkedIn, GitHub (mock-prefilled with a confirm
  * tick), CV + pitch dropzones, and a traction note. Everything is optional;
  * the CTA arms once anything is touched, and a quiet skip goes straight to
@@ -77,7 +77,7 @@ export function CandidacyStep({
           </p>
           <h1 className="mt-4 font-display text-h1 text-ink">Complete your candidacy</h1>
           <p className="mt-3 text-body text-quiet">
-            The research is already done. Help us close the gaps.
+            The research is already done. Help us fill in the gaps.
           </p>
         </header>
 
@@ -130,12 +130,12 @@ export function CandidacyStep({
               githubConfirmed ? (
                 <p className="mt-2 flex items-center gap-1.5 font-mono text-mono-label text-quiet">
                   <Check className="h-3.5 w-3.5 text-ink" strokeWidth={2.5} />
-                  confirmed — thanks
+                  confirmed, thanks
                 </p>
               ) : (
                 <div className="mt-2 flex items-center justify-between gap-3">
                   <p className="font-mono text-mono-label text-quiet">
-                    we found this — confirm it's you
+                    we found this, confirm it's you
                   </p>
                   <button
                     type="button"
@@ -160,7 +160,7 @@ export function CandidacyStep({
             </div>
             <FileDropzone
               demoId="candidacy-cv-drop"
-              prompt="Drop your CV here — PDF, max 10 MB"
+              prompt="Drop your CV here, PDF, max 10 MB"
               maxBytes={10 * 1024 * 1024}
               durationMs={1400}
               file={cv}
@@ -180,8 +180,8 @@ export function CandidacyStep({
             </div>
             <FileDropzone
               demoId="candidacy-pitch-drop"
-              prompt="Drop your pitch here — PDF"
-              note="Optional — only if you have one handy. We don't judge slides, we judge signals."
+              prompt="Drop your pitch here, PDF"
+              note="Optional. Only if you have one handy. We don't judge slides. We judge signals."
               maxBytes={25 * 1024 * 1024}
               durationMs={2200}
               file={pitch}
@@ -204,7 +204,7 @@ export function CandidacyStep({
             <Textarea
               id="candidacy-traction"
               data-demo-id="candidacy-traction"
-              placeholder="Pilots, revenue, waitlists, LOIs — numbers welcome"
+              placeholder="Pilots, revenue, waitlists, LOIs, numbers welcome"
               maxLength={TRACTION_LIMIT}
               rows={4}
               value={traction}
@@ -216,7 +216,7 @@ export function CandidacyStep({
         <footer className="mt-10 animate-fade-up" style={{ animationDelay: "380ms" }}>
           {isMock ? (
             <p className="mb-4 font-mono text-mono-label text-quiet">
-              Demo — nothing is uploaded, files stay in your browser.
+              Demo, nothing is uploaded, files stay in your browser.
             </p>
           ) : null}
           <div className="flex flex-wrap items-center gap-5">
@@ -234,12 +234,12 @@ export function CandidacyStep({
               disabled={save.isPending}
               className="text-small text-quiet underline-offset-4 transition-colors duration-120 ease-swift hover:text-ink hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
-              Skip for now — go to the interview
+              Skip for now, go to the interview
             </button>
           </div>
           {save.isError ? (
             <p className="mt-3 text-small text-danger">
-              That didn't save — try again in a moment.
+              That didn't save, try again in a moment.
             </p>
           ) : null}
         </footer>

@@ -1,14 +1,14 @@
 /**
  * CSS-only layered-gradient "paint poster" backdrop for the public pages
- * (landing + /chosen). Three big pre-blurred gradient layers — electric,
- * cream, low-opacity ink — with the blur set once on the wrapper and never
+ * (landing + /chosen). Three big pre-blurred gradient layers, electric,
+ * cream, low-opacity ink, with the blur set once on the wrapper and never
  * animated. The single ambient motion is one slow 60s transform rotation.
  * A cream veil keeps foreground text readable; the global reduced-motion
  * clamp in index.css stops the rotation. No WebGL, no canvas, no JS.
  *
  * `subtle` dials the layers down for the landing hero, where the wordmark
  * carries the page and the poster should only hum in the background.
- * `mono` drops the electric entirely — used on /chosen, where nobody has
+ * `mono` drops the electric entirely, used on /chosen, where nobody has
  * been chosen yet and the accent would be a false promise.
  */
 export function PosterBackdrop({
@@ -56,7 +56,7 @@ export function PosterBackdrop({
           }}
         />
       </div>
-      {/* Cream veil — ~70% paper so text on the poster stays readable. */}
+      {/* Cream veil, ~70% paper so text on the poster stays readable. */}
       <div
         className="absolute inset-0"
         style={{ background: subtle ? "rgba(250, 247, 234, 0.8)" : "rgba(250, 247, 234, 0.7)" }}

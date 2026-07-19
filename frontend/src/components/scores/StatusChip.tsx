@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 
 /**
  * Outlined status pill: mono 11px uppercase with a 6px state dot.
- * Dot color encodes the machine state — electric only while a decision is in
+ * Dot color encodes the machine state, electric only while a decision is in
  * flight (outreach/interviewing), quiet for pre-decision, ink for terminal.
  */
 const DOT: Record<VentureStatus, string> = {
@@ -17,7 +17,7 @@ const DOT: Record<VentureStatus, string> = {
 };
 
 /**
- * Resting states (sourced/scored) are the norm — they drop the pill outline
+ * Resting states (sourced/scored) are the norm, they drop the pill outline
  * and sit as quiet mono text, so a venture that is actually in flight reads
  * instantly against them.
  */

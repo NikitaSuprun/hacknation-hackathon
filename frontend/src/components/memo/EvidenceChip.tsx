@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 
 /**
  * "n sources" citation link → in-app citation dialog. Source URLs are
- * fictional and rendered as mono text — never as navigable links.
+ * fictional and rendered as mono text, never as navigable links.
  */
 export function EvidenceChip({
   evidence,

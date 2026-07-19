@@ -1,11 +1,11 @@
 import { cn } from "@/lib/utils";
 
-/** 2px confidence bar beneath the score bar — quiet at 50%, width = confidence%. */
+/** 2px confidence bar beneath the score bar, quiet at 50%, width = confidence%. */
 export function ConfidenceBar({
   value,
   className,
 }: {
-  /** 0–1. */
+  /** 0-1. */
   value: number;
   className?: string;
 }) {

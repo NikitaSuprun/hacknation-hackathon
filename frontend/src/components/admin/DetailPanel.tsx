@@ -90,10 +90,10 @@ function SourceRecordCard({ entry }: { entry: SourceRecordEntry }) {
     <div className={cn("border border-line p-3", retracted && "border-dashed")}>
       <div className="flex items-baseline justify-between gap-2">
         <span className="font-mono text-mono-data text-ink">
-          {str(record?.source_key) ?? str(link.source_record_id)?.slice(0, 8) ?? "—"}
+          {str(record?.source_key) ?? str(link.source_record_id)?.slice(0, 8) ?? "-"}
         </span>
         <span className="font-mono text-[11px] tabular text-quiet">
-          {str(link.match_method) ?? "—"} · {fmtConfidence(link.match_confidence)}
+          {str(link.match_method) ?? "-"} · {fmtConfidence(link.match_confidence)}
         </span>
       </div>
       {record && (
@@ -221,7 +221,7 @@ function PersonPanel({
               <SourceTag>github</SourceTag>
             </div>
             <div className="mt-1">
-              <Fact label="commits" value={String(num(contribution.commit_count) ?? "—")} />
+              <Fact label="commits" value={String(num(contribution.commit_count) ?? "-")} />
               <Fact
                 label="share"
                 value={
@@ -338,7 +338,7 @@ function PersonPanel({
         </>
       )}
 
-      {/* outreach + interview (live store — appears as the demo advances) */}
+      {/* outreach + interview (live store, appears as the demo advances) */}
       {dossier.outreach.length > 0 && (
         <>
           <SectionLabel>Outreach & interview</SectionLabel>
@@ -366,7 +366,7 @@ function PersonPanel({
                 </span>
               </div>
             )}
-            {/* The fixture gold.interview row is the post-interview state — only
+            {/* The fixture gold.interview row is the post-interview state, only
                 show it once the live interview has actually completed. */}
             {dossier.liveInterviewStage === "completed" &&
               dossier.interviews.map((i) => (

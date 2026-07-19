@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { PosterBackdrop } from "@/components/intake/PosterBackdrop";
 
-/** Tagline words rise one by one — ~90ms stagger, transform/opacity only. */
+/** Tagline words rise one by one, ~90ms stagger, transform/opacity only. */
 const TAGLINE: { word: string; tone: "quiet" | "ink" }[] = [
   { word: "You", tone: "quiet" },
   { word: "don't", tone: "quiet" },
@@ -17,7 +17,7 @@ const COLUMNS = [
   {
     num: "01",
     title: "Signals",
-    body: "We read public work — GitHub, arXiv, the Swiss registry. Nobody fills anything in.",
+    body: "We read public work on GitHub and arXiv, plus the Swiss registry. Nobody fills anything in.",
   },
   {
     num: "02",
@@ -27,14 +27,14 @@ const COLUMNS = [
   {
     num: "03",
     title: "Chosen",
-    body: "Partners decide. Founders get a personal invitation — never a form.",
+    body: "Partners decide. Founders get a personal invitation, never a form.",
   },
 ];
 
 export default function LandingPage() {
   return (
     <div className="flex min-h-screen flex-col bg-paper">
-      {/* Hero on the paint poster — subtle; the wordmark carries the page. */}
+      {/* Hero on the paint poster, subtle; the wordmark carries the page. */}
       <section className="relative overflow-hidden">
         <PosterBackdrop subtle />
         <div className="relative mx-auto flex min-h-[85vh] w-full max-w-grid flex-col items-start justify-center px-gutter py-section">

@@ -1,5 +1,5 @@
 /**
- * Mode selection — the one place the demo and the real app diverge.
+ * Mode selection, the one place the demo and the real app diverge.
  * Precedence: ?demo=1 / ?mode= URL param → localStorage → VITE_DATA_MODE →
  * default mock. The runtime toggle is the on-stage insurance: if the
  * warehouse dies mid-presentation, append ?mode=mock and keep talking.

@@ -1,7 +1,7 @@
 /**
  * The presentation-demo data source: bundled fixtures, an in-memory store,
  * simulated latency (so skeleton states are real), canned streaming chat.
- * Zero network — nothing leaves the browser.
+ * Zero network, nothing leaves the browser.
  */
 import type { ChatStreamEvent, DataSource } from "@/lib/data/DataSource";
 import type {
@@ -193,11 +193,11 @@ export class MockDataSource implements DataSource {
       fund_name: FUND_NAME,
       fund_contact_email: FUND_EMAIL,
       why_contacted:
-        "We came across your repository grasp-anything and your paper GraspFM. Nothing here is an application — you were already selected for review.",
+        "We came across your repository grasp-anything and your paper GraspFM. You were already selected for review.",
       data_sources: [
-        { label: "GitHub — grasplab/grasp-anything", url: "https://github.com/grasplab/grasp-anything" },
-        { label: "arXiv — GraspFM (2506.11111)", url: "https://arxiv.org/abs/2506.11111" },
-        { label: "Zefix — GraspLab AG, Zurich", url: "https://www.zefix.ch/" },
+        { label: "GitHub, grasplab/grasp-anything", url: "https://github.com/grasplab/grasp-anything" },
+        { label: "arXiv, GraspFM (2506.11111)", url: "https://arxiv.org/abs/2506.11111" },
+        { label: "Zefix, GraspLab AG, Zurich", url: "https://www.zefix.ch/" },
       ],
       question_plan: (db.gaps[GRASPLAB_ID] ?? []).map((gap) => gap.question_text),
       structured: db.interview.structured,
@@ -234,7 +234,7 @@ export class MockDataSource implements DataSource {
     file: File,
   ): Promise<UploadedFileRef> {
     if (token !== DEMO_TOKEN) throw new Error("Invalid link");
-    // Demo honesty: the file never leaves the browser — object URL only.
+    // Demo honesty: the file never leaves the browser, object URL only.
     return {
       kind,
       name: file.name,

@@ -1,6 +1,6 @@
 /**
- * Step 1 — the letter opens. Full-viewport hero on the paint poster:
- * "You've been chosen." with a per-word rise, then the consent card —
+ * Step 1, the letter opens. Full-viewport hero on the paint poster:
+ * "You've been chosen." with a per-word rise, then the consent card -
  * why you, what we hold, the consent text (server-verbatim when present),
  * data rights, and the one decision on the page. Declining is one click
  * and ends politely; no guilt.
@@ -57,7 +57,7 @@ export function HeroConsentStep({
             <p className="mono-label mb-4">{session.fund_name}</p>
             <h1 className="font-display text-h2 text-ink">Understood.</h1>
             <p className="mt-3 text-body text-quiet">
-              We won't contact you again. Your data is deleted on request —{" "}
+              We won't contact you again. We'll delete your data on request:{" "}
               <span className="font-mono text-mono-data">{session.fund_contact_email}</span>.
             </p>
           </Card>
@@ -89,8 +89,8 @@ export function HeroConsentStep({
             className="mx-auto mt-5 max-w-measure animate-fade-up text-h4 font-normal text-quiet"
             style={{ animationDelay: "420ms" }}
           >
-            {session.fund_name} reviewed your public work on {session.venture_name}. Nothing here
-            is an application — you were already selected.
+            {session.fund_name} reviewed your public work on {session.venture_name}. You were
+            already selected. This is a chance to fill in the gaps.
           </p>
         </div>
 
@@ -123,7 +123,7 @@ export function HeroConsentStep({
 
           <p className="text-small text-ink">{consentText}</p>
           <p className="mt-3 font-mono text-mono-label text-quiet">
-            Your data, your call — view · delete · {session.fund_contact_email}
+            Your data, your call: view · delete · {session.fund_contact_email}
           </p>
 
           <div className="mt-6 flex items-start gap-3">
@@ -145,7 +145,7 @@ export function HeroConsentStep({
               disabled={!agreed || consent.isPending}
               onClick={() => consent.mutate()}
             >
-              {consent.isPending ? "One moment…" : "I agree — continue"}
+              {consent.isPending ? "One moment…" : "Agree and continue"}
             </Button>
             <button
               type="button"
@@ -158,7 +158,7 @@ export function HeroConsentStep({
           </div>
           {consent.isError ? (
             <p className="mt-3 text-small text-danger">
-              That didn't go through — try again in a moment.
+              That didn't go through, try again in a moment.
             </p>
           ) : null}
         </Card>

@@ -19,7 +19,7 @@ export interface UseVentureQuery {
   setQuery: (q: VentureQuery) => void;
   /** Filtered + (when the query has text) relevance-ranked pool. */
   hits: QueryHit[];
-  /** Active constraint count — free text counts as one. */
+  /** Active constraint count, free text counts as one. */
   activeCount: number;
   reset: () => void;
 }

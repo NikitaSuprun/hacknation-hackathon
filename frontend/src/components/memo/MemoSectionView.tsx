@@ -35,7 +35,7 @@ function MarketFigures({ section }: { section: MemoMarketSection }) {
 
 /**
  * One memo section: eyebrow label, bullets at reading measure. Bullets flagged
- * missing render as gaps (dashed left rule, quiet, "missing — asked in
+ * missing render as gaps (dashed left rule, quiet, "missing, asked in
  * interview"); interview-cited bullets get the consented electric-wash tint.
  */
 export function MemoSectionView({
@@ -73,7 +73,7 @@ export function MemoSectionView({
                 )}
                 {bullet.missing && (
                   <span className="ml-2 whitespace-nowrap font-mono text-[11px] uppercase tracking-[0.06em] text-quiet">
-                    missing — asked in interview
+                    missing, asked in interview
                   </span>
                 )}
                 {consented && (

@@ -24,7 +24,7 @@ declare const process: { env: Record<string, string | undefined> };
 const LIVE_URL = process.env.LIVE_URL ?? "";
 const LIVE_PASSWORD = process.env.LIVE_PASSWORD ?? "demo";
 
-/** vitest runs in the node environment — Web Storage does not exist there. */
+/** vitest runs in the node environment, Web Storage does not exist there. */
 class MemoryStorage implements Storage {
   private store = new Map<string, string>();
   get length(): number {
@@ -49,7 +49,7 @@ class MemoryStorage implements Storage {
 
 /**
  * Node 22 exposes localStorage as an experimental getter that yields undefined
- * without --localstorage-file — plain assignment can be a no-op, so install
+ * without --localstorage-file, plain assignment can be a no-op, so install
  * the shim with defineProperty when the global is not a usable Storage.
  */
 function installStorage(name: "localStorage" | "sessionStorage"): void {
@@ -187,7 +187,7 @@ describe.skipIf(!LIVE_URL)("LiveDataSource against the fixtures server", () => {
   it("records consent through the first chat turn", async () => {
     await source.submitConsent(interviewToken, {
       agreed: true,
-      consent_text: "I agree — continue.",
+      consent_text: "I agree, continue.",
     });
     const session = await source.getInterviewSession(interviewToken);
     expect(session.stage).toBe("in_progress");

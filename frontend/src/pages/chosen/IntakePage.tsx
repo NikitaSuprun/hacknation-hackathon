@@ -6,7 +6,7 @@ import { PosterBackdrop } from "@/components/intake/PosterBackdrop";
 import type { IntakeSubmission } from "@/lib/intake";
 
 /**
- * Track H: the inbound "I was chosen" intake — standalone page at /chosen,
+ * Track H: the inbound "I was chosen" intake, standalone page at /chosen,
  * no investor shell. The fund evaluates PUBLIC work; the founder is only
  * telling us where to look.
  */
@@ -23,11 +23,11 @@ export default function IntakePage() {
             to="/"
             className="mono-label inline-block transition-colors duration-120 ease-swift hover:text-ink"
           >
-            Chosen — Maschmeyer's Chosen Portfolio
+            Chosen, Maschmeyer's Chosen Portfolio
           </Link>
           <h1 className="mt-10 font-display text-h1 text-ink">Put yourself on the radar.</h1>
           <p className="mt-4 max-w-measure-narrow text-body text-quiet">
-            You can't apply here — that's the point. Our system reads public work: repositories,
+            There is no pitch process here. That's the point. Our system reads public work: repositories,
             papers, registries. If you want to be found faster, tell us where to look.
           </p>
         </div>
@@ -36,7 +36,7 @@ export default function IntakePage() {
       <main className="mx-auto w-full max-w-grid px-gutter py-12">
         <div className="mx-auto w-full max-w-[640px]">
           <p className="text-small text-quiet">
-            Already have an invitation link? Open it from your email — it looks like{" "}
+            Already have an invitation link? Open it from your email, it looks like{" "}
             <span className="font-mono text-mono-data text-ink">/interview/…</span>
           </p>
           <div className="mt-5">
