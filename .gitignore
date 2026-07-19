@@ -1,0 +1,17 @@
+# Tooling artifacts
+.playwright-mcp/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.ruff_cache/
+.pytest_cache/
+.mypy_cache/
+
+# Env / secrets
+.env
+.env.local
+
+# OS
+.DS_Store
