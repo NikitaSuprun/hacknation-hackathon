@@ -127,6 +127,7 @@ def arxiv(
             fixtures=fixtures,
             dry_run=dry_run,
             catalog=DEFAULT_CATALOG,
+            repos=(),
         ),
     )
     typer.echo(f"{result.source}: items_upserted={result.items_upserted} rejects={result.rejects}")
@@ -151,6 +152,7 @@ def openalex(
             fixtures=fixtures,
             dry_run=dry_run,
             catalog=DEFAULT_CATALOG,
+            repos=(),
         ),
     )
     typer.echo(f"{result.source}: items_upserted={result.items_upserted} rejects={result.rejects}")
@@ -175,6 +177,7 @@ def s2(
             fixtures=fixtures,
             dry_run=dry_run,
             catalog=DEFAULT_CATALOG,
+            repos=(),
         ),
     )
     typer.echo(f"{result.source}: items_upserted={result.items_upserted} rejects={result.rejects}")

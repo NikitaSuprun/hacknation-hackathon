@@ -20,6 +20,7 @@ SEARCH_BUCKET: Final[str] = "search"
 CORE_BUCKET: Final[str] = "core"
 SEARCH_PAGE_SIZE: Final[int] = 100
 MIN_STARS: Final[int] = 10
+NOT_FOUND_STATUS: Final[int] = 404
 README_ACCEPT: Final[str] = "application/vnd.github.raw+json"
 API_VERSION_HEADER: Final[dict[str, str]] = {"X-GitHub-Api-Version": "2022-11-28"}
 
@@ -84,6 +85,24 @@ class GithubRest:
             },
         )
         return get_list_of_maps(response)
+
+    def repo(self, full_name: str) -> dict[str, Json] | None:
+        """Fetch one repo's REST metadata (targeted hydration path).
+
+        Args:
+            full_name: 'owner/repo'.
+
+        Returns:
+            The repo object, or None when the repo does not exist.
+        """
+        response = self._http.get(
+            f"{API_BASE}/repos/{full_name}",
+            bucket=CORE_BUCKET,
+            allow=frozenset({NOT_FOUND_STATUS}),
+        )
+        if response.status == NOT_FOUND_STATUS:
+            return None
+        return as_mapping(response.json())
 
     def readme(self, full_name: str, *, etag: str | None) -> FetchedResponse:
         """Fetch the raw README (conditional when an ETag is known).

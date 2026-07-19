@@ -107,6 +107,7 @@ class GithubDeps:
     clock: Callable[[], datetime]
     run_id: str
     log: FilteringBoundLogger
+    explicit_repos: tuple[str, ...]
 
 
 def _chunks[T](items: Sequence[T], size: int) -> Iterator[Sequence[T]]:
@@ -152,9 +153,16 @@ class GithubScraper:
         watermark = state.get("commits_since")
         commits_since = watermark if isinstance(watermark, str) else None
         self._window_end = self._deps.clock().date()
-        stubs = discover(
-            self._deps.rest, self._deps.since, self._window_end, self._deps.limit, self._deps.log
-        )
+        if self._deps.explicit_repos:
+            stubs = self._lookup_stubs(self._deps.explicit_repos)
+        else:
+            stubs = discover(
+                self._deps.rest,
+                self._deps.since,
+                self._window_end,
+                self._deps.limit,
+                self._deps.log,
+            )
         cached = self._deps.readback.readmes(
             [stub.repo_id for stub in stubs if str(stub.repo_id) in readme_etags]
         )
@@ -204,6 +212,36 @@ class GithubScraper:
         """
         del fixtures
         return execute_run(self, build_deps(SOURCE, dry_run=dry_run), since)
+
+    def _lookup_stubs(self, full_names: tuple[str, ...]) -> list[RepoStub]:
+        """Resolve an explicit repo list via REST, skipping missing repos.
+
+        Args:
+            full_names: 'owner/repo' names (deduplicated, order kept).
+
+        Returns:
+            Stubs for the repos that exist.
+        """
+        stubs: list[RepoStub] = []
+        for full_name in dict.fromkeys(full_names):
+            payload = self._deps.rest.repo(full_name)
+            if payload is None:
+                self._deps.log.warning("explicit repo not found", full_name=full_name)
+                continue
+            node_id = get_str(payload, "node_id")
+            repo_id = get_int(payload, "id")
+            if node_id is None or repo_id is None:
+                continue
+            stubs.append(
+                RepoStub(
+                    node_id=node_id,
+                    repo_id=repo_id,
+                    full_name=get_str(payload, "full_name") or full_name,
+                    stars=get_int(payload, "stargazers_count") or 0,
+                )
+            )
+        self._deps.log.info("explicit repos resolved", requested=len(full_names), found=len(stubs))
+        return stubs
 
     def _hydrate_batch(
         self,

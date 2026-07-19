@@ -72,7 +72,7 @@ def run(
         http.close()
     typer.echo(
         f"{SOURCE}: people={report.people} projects={report.projects} "
-        f"skipped_non_json={report.skipped_non_json}"
+        f"skipped_non_json={report.skipped_non_json} skipped_failed={report.skipped_failed}"
     )
 
 

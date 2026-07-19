@@ -6,7 +6,9 @@ One people request supplies the identity spine; contributionsByUserId yields
 the unique project ids fetched one by one (gently rate limited). Rows MERGE
 through the shared sink with registry keys, so re-runs are idempotent and the
 content_hash skip plus the hacknation suppression guard apply automatically.
-An SPA-fallback project detail (non-JSON) is skipped and counted, never fatal.
+A project detail that answers non-JSON (SPA fallback) or keeps failing
+upstream (the endpoint 502s on some ids) is skipped and counted, never
+fatal — one bad project must not lose a whole run's work.
 """
 
 from collections.abc import Callable
@@ -19,6 +21,7 @@ from structlog.typing import FilteringBoundLogger
 from contracts.interfaces import Sink
 from contracts.models import Json, SinkRow
 from er.io import sink_all
+from scrapers.common.http import HttpStatusError
 from scrapers.common.jsonutil import as_list, as_mapping, as_sink, get_list, get_map
 from sources.hacknation.client import (
     DEFAULT_PEOPLE_LIMIT,
@@ -52,6 +55,7 @@ class IngestReport:
     people: int
     projects: int
     skipped_non_json: int
+    skipped_failed: int
 
 
 def _key_str(value: Json) -> str | None:
@@ -108,20 +112,38 @@ def project_ids(data: dict[str, Json]) -> list[str]:
     return sorted(ids)
 
 
-def _fetch_projects(
-    context: IngestContext, ids: list[str], now: datetime
-) -> tuple[list[SinkRow], int]:
+@dataclass(frozen=True, slots=True)
+class _ProjectFetch:
+    """Rows plus the two per-project skip tallies."""
+
+    rows: list[SinkRow]
+    skipped_non_json: int
+    skipped_failed: int
+
+
+def _fetch_projects(context: IngestContext, ids: list[str], now: datetime) -> _ProjectFetch:
     rows: list[SinkRow] = []
-    skipped = 0
+    skipped_non_json = 0
+    skipped_failed = 0
     for project_id in ids:
         try:
             detail = context.client.project(project_id)
         except NotJsonResponseError:
             context.log.warning("spa fallback, skipping project", project_id=project_id)
-            skipped += 1
+            skipped_non_json += 1
+            continue
+        except HttpStatusError as error:
+            # The upstream function 502s on some project ids even after the
+            # client's retries; one bad project must not abort the run.
+            context.log.warning(
+                "project fetch failed, skipping", project_id=project_id, status=error.status
+            )
+            skipped_failed += 1
             continue
         rows.append(_project_row(project_id, detail, now, context.run_id))
-    return rows, skipped
+    return _ProjectFetch(
+        rows=rows, skipped_non_json=skipped_non_json, skipped_failed=skipped_failed
+    )
 
 
 def run_ingest(context: IngestContext) -> IngestReport:
@@ -144,8 +166,8 @@ def run_ingest(context: IngestContext) -> IngestReport:
     ids = project_ids(data)
     if context.limit > 0:
         ids = ids[: context.limit]
-    project_rows, skipped = _fetch_projects(context, ids, now)
-    results = sink_all(context.sink, {PEOPLE_TABLE: people_rows, PROJECTS_TABLE: project_rows})
+    fetched = _fetch_projects(context, ids, now)
+    results = sink_all(context.sink, {PEOPLE_TABLE: people_rows, PROJECTS_TABLE: fetched.rows})
     for table, result in results.items():
         context.log.info(
             "upserted",
@@ -156,5 +178,8 @@ def run_ingest(context: IngestContext) -> IngestReport:
             suppressed=result.suppressed,
         )
     return IngestReport(
-        people=len(people_rows), projects=len(project_rows), skipped_non_json=skipped
+        people=len(people_rows),
+        projects=len(fetched.rows),
+        skipped_non_json=fetched.skipped_non_json,
+        skipped_failed=fetched.skipped_failed,
     )

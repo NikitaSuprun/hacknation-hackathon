@@ -27,6 +27,9 @@ from scrapers.common.sink import DEFAULT_CATALOG, build_deps
 from tools.warehouse import Warehouse
 
 DEFAULT_WINDOW_DAYS: Final[int] = 30
+# Sentinel in ScraperContext.repos: expand to the repo URLs referenced by
+# bronze.hacknation_projects_raw (resolved by the github factory, warehouse-side).
+HACKNATION_REPOS_MARKER: Final[str] = "@hacknation"
 
 
 @dataclass(frozen=True, slots=True)
@@ -39,6 +42,7 @@ class ScraperContext:
     limit: int
     since: date
     catalog: str
+    repos: tuple[str, ...]
 
 
 MakeScraper = Callable[[ScraperContext], RunnableScraper]
@@ -54,6 +58,7 @@ class RunOptions:
     fixtures: bool
     dry_run: bool
     catalog: str
+    repos: tuple[str, ...]
 
 
 def resolve_since(since: str | None) -> date:
@@ -98,6 +103,7 @@ def run_scraper(
         limit=options.limit,
         since=options.since,
         catalog=options.catalog,
+        repos=options.repos,
     )
     result = execute_run(make_scraper(context), deps, options.since)
     deps.log.info(
@@ -125,14 +131,19 @@ def build_app(
     app = typer.Typer(add_completion=False)
 
     @app.command()
-    def run(  # pyright: ignore[reportUnusedFunction] - typer registers the command via the decorator
+    def run(  # noqa: PLR0913 - the shared CLI flag surface is one cohesive command  # pyright: ignore[reportUnusedFunction] - typer registers the command via the decorator
         *,
         since: str | None = None,
         limit: int = 0,
         fixtures: bool = False,
         dry_run: bool = False,
+        repos: str = "",
+        from_hacknation: bool = False,
     ) -> None:
         """Run the scraper (fetch, normalize, upsert, advance cursor)."""
+        explicit = tuple(part.strip() for part in repos.split(",") if part.strip())
+        if from_hacknation:
+            explicit = (*explicit, HACKNATION_REPOS_MARKER)
         result = run_scraper(
             source,
             make_scraper,
@@ -143,6 +154,7 @@ def build_app(
                 fixtures=fixtures,
                 dry_run=dry_run,
                 catalog=DEFAULT_CATALOG,
+                repos=explicit,
             ),
         )
         typer.echo(

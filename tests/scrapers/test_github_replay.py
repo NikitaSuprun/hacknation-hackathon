@@ -54,6 +54,7 @@ def build_scraper() -> GithubScraper:
             clock=lambda: FROZEN_NOW,
             run_id="fixture-run",
             log=log,
+            explicit_repos=(),
         )
     )
 
