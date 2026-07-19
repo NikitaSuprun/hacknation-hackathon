@@ -1,0 +1,6 @@
+# Promote likely-bug diagnostics to errors (see docs/plan/reference/engineering-standards.md).
+[rules]
+possibly-unresolved-reference = "error"
+division-by-zero = "error"
+redundant-cast = "error"
+unused-ignore-comment = "error"

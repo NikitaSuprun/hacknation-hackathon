@@ -1,0 +1,61 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-toml
+      - id: check-added-large-files
+      - id: check-merge-conflict
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.17
+    hooks:
+      - id: ruff-check
+        args: [--fix]
+      - id: ruff-format
+  - repo: local
+    hooks:
+      - id: ty
+        name: ty check
+        entry: uv run ty check
+        language: system
+        types: [python]
+        pass_filenames: false
+      - id: basedpyright
+        name: basedpyright (strict)
+        entry: uv run basedpyright
+        language: system
+        types: [python]
+        pass_filenames: false
+      - id: pydoclint
+        name: pydoclint (docstring matches signature)
+        entry: uv run pydoclint
+        language: system
+        types: [python]
+      # Suppressions must carry a reason: "<directive>: <CODE> - <reason>".
+      - id: noqa-needs-reason
+        name: "# noqa must be: # noqa: <CODE> - <reason>"
+        language: pygrep
+        entry: '(?i)#\s*noqa(?!:\s*[A-Z]+[0-9]+(?:\s*,\s*[A-Z]+[0-9]+)*\s+-\s+\S)'
+        types: [python]
+      - id: type-ignore-needs-reason
+        name: "# type:/pyright: ignore must carry a reason"
+        language: pygrep
+        entry: '(?i)#\s*(?:type|pyright):\s*ignore(?!(?:\[[^\]]*\])?\s+-\s+\S)'
+        types: [python]
+      - id: constants-final
+        name: "module constants must be annotated Final[...]"
+        entry: uv run python scripts/pre-commit/check_constants_final.py
+        language: system
+        types: [python]
+      - id: max-nesting
+        name: "functions must not nest control-flow more than 3 deep"
+        entry: uv run python scripts/pre-commit/check_max_nesting.py
+        language: system
+        types: [python]
+      - id: license-header
+        name: "license-header (proprietary copyright on every .py)"
+        entry: uv run python scripts/pre-commit/add_license_header.py
+        language: system
+        types: [python]

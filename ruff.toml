@@ -1,0 +1,21 @@
+target-version = "py313"
+line-length = 100
+
+[lint]
+select = [
+  "F", "E", "W", "I", "N", "UP", "ANN", "B", "A", "C4", "PIE", "PT", "RET",
+  "SIM", "ARG", "PTH", "TC", "PGH", "PL", "PERF", "FURB", "RUF", "BLE",
+  "SLF", "DTZ", "TRY", "ISC", "S", "FBT", "RSE", "TID", "G", "LOG",
+  "ASYNC", "D", "TD",
+]
+# ISC001 conflicts with the formatter.
+ignore = ["ISC001"]
+
+[lint.pydocstyle]
+convention = "google"
+
+[lint.flake8-type-checking]
+runtime-evaluated-decorators = ["dataclasses.dataclass"]
+
+[lint.per-file-ignores]
+"tests/**" = ["S101", "S105", "S106", "D", "PLR2004", "SLF001", "PLR0913"]

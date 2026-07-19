@@ -1,0 +1,13 @@
+{
+  "typeCheckingMode": "strict",
+  "pythonVersion": "3.13",
+  "venvPath": ".",
+  "venv": ".venv",
+  "include": ["contracts", "fixtures", "tools", "tests", "scripts"],
+  "exclude": ["**/__pycache__", ".venv"],
+  "reportExplicitAny": "error",
+  "reportUnannotatedClassAttribute": "error",
+  "reportInvalidCast": "error",
+  "reportImplicitRelativeImport": "error",
+  "reportIgnoreCommentWithoutRule": "error"
+}
