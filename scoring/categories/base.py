@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Shared category machinery: names, payloads, weights, confidence.
 
 The breakdown payload here must satisfy contracts/schemas/breakdown.schema.json

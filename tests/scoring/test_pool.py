@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Candidate pool: golden bytes plus thesis mutations flipping inclusion."""
 
 from contracts.models import Json

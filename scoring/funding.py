@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """The funding backbone: has this founder/company already raised?
 
 Cascade order per scoring-and-memo.md: SOGC capital-increase filings (the

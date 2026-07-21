@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """The eight Protocols that decouple the workstreams (see reference/interfaces.md).
 
 Implementations live entirely behind these seams: fixtures implement every one

@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """T10 golden: survivorship reproduces the fixture persons, scores, backfill."""
 
 from typing import Final

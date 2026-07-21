@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """The Hack Nation showcase client: two public JSON endpoints, no login.
 
 Netlify SPA-fallbacks unknown routes to index.html with HTTP 200, so every

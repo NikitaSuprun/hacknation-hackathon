@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Generate the fixture personas as JSONL, one file per table.
 
 The fixtures are the executable contract: bronze payloads and their PSR rows

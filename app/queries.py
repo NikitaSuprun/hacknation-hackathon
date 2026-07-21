@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Live-mode SQL text for the /v1 proxy.
 
 Every identifier comes from the frozen READABLE_NAMES allowlist plus a

@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Outreach: token minting (hash stored, not the token), compliant email,
 state transitions with history, and the suppression gate."""
 

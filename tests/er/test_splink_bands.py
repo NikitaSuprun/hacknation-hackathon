@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """T8: pinned-parameter Splink bands are correct and run-to-run deterministic."""
 
 from er.models import psr_view

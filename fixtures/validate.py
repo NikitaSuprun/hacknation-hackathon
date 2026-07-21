@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Validate the fixture JSONL offline: the T4 acceptance gate.
 
 Checks referential integrity, enum/CHECK validity, the one-active-link and

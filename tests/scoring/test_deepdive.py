@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Deep dive: scripted transports, the 12-search cap, weekly cache, run log."""
 
 import json

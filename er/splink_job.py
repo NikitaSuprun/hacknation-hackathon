@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Stage 3: the Splink probabilistic pass (DuckDB backend, run locally).
 
 Untyped vendor surface (splink + duckdb) is confined to this module. Offline

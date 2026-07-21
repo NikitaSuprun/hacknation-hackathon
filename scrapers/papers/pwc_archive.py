@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """One-shot load of the Papers-with-Code archive into bronze.paper_code_links.
 
 The archive (Hugging Face `pwc-archive/links-between-paper-and-code`,

@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """GitHub REST endpoints: repo search, raw READMEs, contributor lists.
 
 Search runs on its own bucket (separate 30 req/min budget); README and

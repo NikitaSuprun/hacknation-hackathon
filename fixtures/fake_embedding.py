@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Deterministic stand-in embeddings until `databricks-gte-large-en` is wired up.
 
 Each token maps to a hash-derived vector and a text is the L2-normalized sum

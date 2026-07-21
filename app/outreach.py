@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Consent-based outreach: compliant email render, suppression, state machine.
 
 Every send is preceded by a suppression check (ops.erasure_suppression plus

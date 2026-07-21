@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """The GitHub scraper: discovery, hydration, contributors, profiles.
 
 ETags live in the cursor VARIANT (pruned to the current window each run) and

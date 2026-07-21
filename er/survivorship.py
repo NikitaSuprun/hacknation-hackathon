@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Stage 5: survivorship - golden person fields from linked source records.
 
 Identifiers follow source precedence, names prefer completeness, affiliations

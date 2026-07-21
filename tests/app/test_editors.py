@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Thesis, weights, and ideal editors: persistence to the overlay and validation."""
 
 import json

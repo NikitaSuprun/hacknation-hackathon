@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """The full Hack Nation run: bronze sweep, CV enrichment, PSR merge, silver.
 
 Unlike the other scrapers, Hack Nation loads silver directly (person source

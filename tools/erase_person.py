@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """T12: the right-to-erasure script (`python -m tools.erase_person`).
 
 plan_erasure is pure: given the person's rows per table it returns a plan -

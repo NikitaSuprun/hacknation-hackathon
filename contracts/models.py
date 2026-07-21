@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Frozen value objects crossing the workstream seams.
 
 These shapes are contract surface: evolve them additive-only after the Day-1

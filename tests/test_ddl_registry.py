@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """The DDL registry is the single source of truth for tables, types, and keys."""
 
 from datetime import UTC, date, datetime

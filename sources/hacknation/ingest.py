@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """People + project details into the two Hack Nation bronze tables.
 
 One people request supplies the identity spine; contributionsByUserId yields

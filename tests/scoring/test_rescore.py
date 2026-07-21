@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Rescore: the two-row fixture history, duplicate no-op, schema hard-check."""
 
 import json

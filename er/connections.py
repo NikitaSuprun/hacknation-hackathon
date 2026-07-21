@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Stage 5: the collaboration graph (silver.person_connection).
 
 Edges come from shared-artifact self-joins over active links; person_a_id <

@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """T10: unmerge reproduces the Jonas retracted + corrective fixture rows."""
 
 import json

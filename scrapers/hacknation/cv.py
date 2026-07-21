@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Participant CV toolkit: fetch the PDF, store it, extract text and facts.
 
 CV handling is deliberately isolated from the JSON scrape so a broken PDF, a

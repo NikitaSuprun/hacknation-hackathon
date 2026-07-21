@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Cursor persistence in ops.scrape_state (one row per source).
 
 SQL identifiers here come from frozen internal constants plus the injected

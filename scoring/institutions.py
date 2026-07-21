@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """InstitutionScorer over the calibrated gold.institution_score rows.
 
 Lookup is alias-first (the seed rows carry org_key'd aliases), then via the

@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """The Hack Nation scraper: one people sweep, then every referenced project.
 
 Each people entry becomes its own raw item so a single malformed profile

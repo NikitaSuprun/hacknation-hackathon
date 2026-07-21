@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """CLI: the credential-free `--fixtures --dry-run` path, end to end.
 
 Also proves every emitted row shape stays inside the DDL contract: emitted

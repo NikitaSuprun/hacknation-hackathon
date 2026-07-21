@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Fixture contract tests: committed JSONL matches the builder; validator bites."""
 
 import json

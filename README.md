@@ -187,3 +187,7 @@ belong to the fund, and changing one re-sorts the list in the browser.
 The pitch script lives in [presentation/](presentation/), which renders the
 diagram above to a slide PDF — one source, so the deck and the README cannot
 drift apart.
+
+## License
+
+MIT — see [LICENSE](LICENSE). Use it however you like.

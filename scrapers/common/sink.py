@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Sink wiring: the NullSink for dry runs and the dependency composition root.
 
 build_deps is the only scraper code that touches Databricks constructors, and

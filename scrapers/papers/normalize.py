@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Source payloads to unified records and bronze rows (WS-B).
 
 Bronze payload identity is content identity: payloads carry no volatile values

@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """T13: the credential-free CLI path and incremental idempotence."""
 
 from collections.abc import Iterator

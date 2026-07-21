@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """End-to-end fixture replay: the whole WS-A stack over MockTransport, offline.
 
 This is the CI proxy for the G1-G3 acceptance criteria: the 20-repo fixture

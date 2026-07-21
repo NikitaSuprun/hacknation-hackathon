@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Load the fixture JSONL into dealflow_dev through the shared sink (T5).
 
 Validates first, coerces every cell to its DDL type via the registry (no

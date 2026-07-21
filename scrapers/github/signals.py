@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Funded-team signals collected into bronze; classification happens downstream.
 
 Bronze only records which signals fired (payload["funded_signals"]); the

@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """The only place IDs are minted.
 
 Deterministic UUIDv5 for source-keyed entities (idempotent MERGE, fixture FKs

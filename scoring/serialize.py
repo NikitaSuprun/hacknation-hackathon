@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Fixture-identical JSONL rendering.
 
 The golden tests byte-compare job output against fixtures/data/gold.*.jsonl,

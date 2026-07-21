@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """CLI entry: python -m scrapers.github [--since ...] [--fixtures] [--dry-run].
 
 Targeted hydration: `--repos owner/name,...` scrapes exactly those repos, and

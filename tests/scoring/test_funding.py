@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Funding backbone: static list, SOGC capital increase, tri-state signal."""
 
 from datetime import date

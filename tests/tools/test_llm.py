@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """LLMClient implementations: scripting, ai_query SQL, Anthropic transport."""
 
 import json

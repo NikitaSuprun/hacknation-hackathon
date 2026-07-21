@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """The calibrated gold.institution_score seed (home of MIT > KTH).
 
 Mirrors the fixture constants in fixtures/build._institution_scores: ROR ids,

@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Fixture replay for the Hack Nation scraper (the --fixtures transport).
 
 The people file answers the directory sweep, project files are routed by the

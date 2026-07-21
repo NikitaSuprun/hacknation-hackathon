@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Scraper-side configuration, separate from the WS0 Databricks settings.
 
 Only the contact email is unconditionally required (it goes into every

@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Fixture replay for the GitHub scraper (the --fixtures transport).
 
 Responders assemble wire-shaped responses from committed maps (search page,

@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Optional Semantic Scholar layer: a clean no-op when S2_API_KEY is unset."""
 
 from collections.abc import Callable, Iterator

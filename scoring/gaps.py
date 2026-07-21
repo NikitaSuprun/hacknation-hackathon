@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """gold.venture_gaps: unfilled fields ranked into the interview question plan.
 
 The catalog owns the exact question wording (the outreach flow reuses it

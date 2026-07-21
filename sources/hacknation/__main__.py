@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """CLI entry: python -m sources.hacknation [--fixtures] [--dry-run] [--limit] [--catalog].
 
 Deliberately not built on the shared BaseScraper runner (the source is two

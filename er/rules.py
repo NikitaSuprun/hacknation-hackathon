@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Stages 1-2: artifact cross-links and the deterministic match rules D1-D8.
 
 Stage 1 links artifacts (repo<->paper<->company) through high-precision signals

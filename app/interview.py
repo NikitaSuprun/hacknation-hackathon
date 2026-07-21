@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """The consent-gated founder interview: token auth, chat loop, completion sync.
 
 Founders authenticate by the emailed single-use token (sha256 matched against

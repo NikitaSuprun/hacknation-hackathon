@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Person features: golden bytes under calibration; real formulas unit-tested.
 
 Documented divergences (calibrated in scoring.scripted.FIXTURE_OVERRIDES,

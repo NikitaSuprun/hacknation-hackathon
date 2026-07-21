@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Funded-signal battery: planted READMEs fire, near-miss words never do."""
 
 from typing import Final

@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Stage 0: bronze rows to person_source_record, one extractor per source.
 
 Every derived field goes through tools.norm/tools.institutions exactly as the

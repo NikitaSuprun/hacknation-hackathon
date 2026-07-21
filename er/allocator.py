@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Person-id allocation: random for live runs, seeded for fixture reproduction.
 
 Golden person ids are UUIDv4 minted once and never derived from cluster

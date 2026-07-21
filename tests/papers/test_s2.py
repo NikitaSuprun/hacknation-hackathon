@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """S2 layer: clean no-op without a key, batching and promotion with one."""
 
 from datetime import UTC, date, datetime

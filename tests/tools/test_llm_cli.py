@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """ClaudeCodeLLMClient: CLI argv surface, envelope parsing, Messages emulation."""
 
 import json

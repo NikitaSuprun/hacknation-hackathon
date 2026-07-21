@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Offline tests for DDL rendering, splitting, and idempotency classification."""
 
 from tools.apply_ddl import DDL_DIR, is_skippable_error, render, split_statements

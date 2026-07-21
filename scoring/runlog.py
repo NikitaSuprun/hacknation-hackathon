@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """ops.llm_run_log accounting: one row per (run, stage) with tokens/searches/cost.
 
 The table carries no primary key in the DDL, so the merge keys fall back to

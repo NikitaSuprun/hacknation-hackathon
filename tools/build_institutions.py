@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Regenerate data/institutions/ror_seed.jsonl from the ROR registry (CC0).
 
 Default mode queries the free ROR REST API for each name in

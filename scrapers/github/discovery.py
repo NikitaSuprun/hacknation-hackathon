@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Repo discovery: top-starred fast path plus created-date bisection.
 
 REST search caps at 1000 results per query. The fast path (5 pages sorted by

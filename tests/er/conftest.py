@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Shared ER test plumbing: fixture IO, byte rendering, cached pipeline runs."""
 
 import json

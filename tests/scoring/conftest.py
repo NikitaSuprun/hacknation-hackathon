@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Shared WS-E fixtures: loaded snapshots, offline deps, golden-file access."""
 
 from collections.abc import Iterator

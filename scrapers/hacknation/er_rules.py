@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """WS-G's two additive deterministic ER rules: D7 (LinkedIn) and D8 (repo team).
 
 Stage 2 of entity resolution (docs/plan/reference/entity-resolution.md) is a

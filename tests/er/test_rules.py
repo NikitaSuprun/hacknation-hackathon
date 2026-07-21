@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """T7: artifact cross-links and the deterministic rules D1-D6."""
 
 from er.models import psr_view

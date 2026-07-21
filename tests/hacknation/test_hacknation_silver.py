@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Golden-row tests: Hack Nation payloads render every silver.project column exactly."""
 
 from datetime import UTC, datetime

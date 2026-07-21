@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """The unified PublicationRecord family (source-agnostic core + source extras).
 
 Affiliation caveat (contract): an author's affiliation string is a

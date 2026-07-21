@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Thesis to gold.candidate_pool: filters plus the tri-state funding signal.
 
 A candidate is excluded (never deleted) with explicit reasons: sector, or

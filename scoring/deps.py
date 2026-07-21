@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Composition root for the scoring jobs (the only place constructors live).
 
 `--fixtures --dry-run` is the zero-credential CI path: NullSink plus the

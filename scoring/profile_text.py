@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Deterministic "what they build/research" texts for the domain-fit embedding.
 
 The embedding does topic-fit only (prestige and magnitude live in the

@@ -66,11 +66,6 @@ repos:
         entry: uv run python scripts/pre-commit/check_max_nesting.py
         language: system
         types: [python]
-      - id: license-header
-        name: "license-header (proprietary copyright on every .py)"
-        entry: uv run python scripts/pre-commit/add_license_header.py
-        language: system
-        types: [python]
 ```
 
 ## Ruff `select` set (`ruff.toml`, `target-version = "py313"`, pydocstyle google)

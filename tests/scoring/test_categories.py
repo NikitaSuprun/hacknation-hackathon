@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Category math: real rubric formulas, renormalization, payload shapes.
 
 Documented divergence: the schools rule computes 97.0 on the fixture data

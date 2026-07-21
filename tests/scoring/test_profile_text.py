@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Domain-fit: the robotics founder tops the robotics ideal; edits reorder."""
 
 from contracts.models import Json

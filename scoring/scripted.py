@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Fixture scripts and calibrations: the offline layer that reproduces gold.
 
 Three provenance layers per the WS-E plan:

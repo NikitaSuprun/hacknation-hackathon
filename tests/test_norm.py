@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Mechanical normalizer behavior: diacritics, noreply bans, suffix stripping."""
 
 from tools.norm import email_domain, email_norm, name_norm, org_key, url_norm

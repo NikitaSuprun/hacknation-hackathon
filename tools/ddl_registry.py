@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Authoritative table schemas parsed from schemas/ddl/*.sql.
 
 Column types, merge keys, and staging schemas must come from the DDL contract

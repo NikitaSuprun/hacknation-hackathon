@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """T10 golden: person_connection edges byte-match the fixtures; decay behaves."""
 
 from datetime import datetime

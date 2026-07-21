@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Normalizers feeding entity resolution: same input, same output, everywhere.
 
 Rules per docs/plan/reference/entity-resolution.md: GitHub noreply addresses

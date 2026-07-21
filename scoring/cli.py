@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """The scoring CLI: one subcommand per job, `--fixtures --dry-run` is CI-safe.
 
 Jobs stay pure functions; this module only loads snapshots, composes deps

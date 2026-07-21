@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Structured JSON logging for scraper runs (one event per line on stderr)."""
 
 import logging

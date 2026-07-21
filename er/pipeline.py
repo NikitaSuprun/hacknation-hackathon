@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """The ER pipeline: normalize, match, adjudicate, survive - as one pure function.
 
 run_pipeline is side-effect free: rows in, rows out. Composition roots

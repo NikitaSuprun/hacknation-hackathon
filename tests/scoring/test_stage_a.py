@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Stage A: golden score row, schema hard-check, confidence response, gate."""
 
 import json

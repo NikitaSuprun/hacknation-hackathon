@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """The real Stage-A category scorers (1.1.1 / 1.1.2 / 1.1.4 / 2.2 / ideal-match).
 
 Rubrics per docs/plan/reference/scoring-and-memo.md. The fixture golden path

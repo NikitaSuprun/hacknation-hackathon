@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Render the architecture slide from SVG to a vector PDF (and a PNG proof).
 
 The slide is hand-authored SVG so the layout is exact; this only converts it.

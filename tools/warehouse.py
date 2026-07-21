@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """The single typed seam to the Databricks SQL warehouse.
 
 The vendor connector ships no complete type information, so every untyped

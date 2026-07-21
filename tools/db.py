@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Idempotent lakehouse writes: canonical JSON, Parquet to a UC Volume, one MERGE.
 
 The connector's native parameters cap at ~25 rows per statement, so batches are

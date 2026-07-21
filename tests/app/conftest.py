@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Shared WS-F fixtures: one fixtures-mode app per test, driven in-process.
 
 starlette 1.3 types TestClient against the optional httpx2 package, which this

@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """T6 golden: fixture bronze rows normalize byte-exact into the committed PSRs."""
 
 import json

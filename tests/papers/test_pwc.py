@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """PwC archive load: format handling, NULL-key drops, in-file dedupe."""
 
 import json

@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Targeted hydration: --repos/--from-hacknation bypass star-based discovery."""
 
 from datetime import UTC, date, datetime

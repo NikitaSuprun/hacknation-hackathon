@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """T-QA: pairwise ER precision against the golden set, plus corroboration.
 
 Precision is pairwise: every unordered PSR pair co-linked to one person is a

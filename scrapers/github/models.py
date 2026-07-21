@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Raw-item validation models and intra-pipeline value objects for WS-A."""
 
 from dataclasses import dataclass

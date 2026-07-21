@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """The person-to-person collaboration graph (centrality + funded-founder paths).
 
 silver.person_connection carries one row per edge type; parallel edges

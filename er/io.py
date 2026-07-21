@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Row sources and the registry-driven sink fan-out for the ER pipeline.
 
 SQL identifiers here are DDL-contract table names plus a catalog guarded by

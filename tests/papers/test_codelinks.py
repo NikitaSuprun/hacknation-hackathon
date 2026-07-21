@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Code-link extraction: suffixes, trailing punctuation, hosts, dedupe."""
 
 from scrapers.papers.codelinks import extract_code_links

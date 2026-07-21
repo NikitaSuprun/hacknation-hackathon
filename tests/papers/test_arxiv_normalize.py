@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """arXiv normalization: id splitting, record building, version semantics."""
 
 from datetime import UTC, date, datetime

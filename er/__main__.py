@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """ER CLI: `python -m er run` and `python -m er unmerge`.
 
 `run --fixtures --dry-run` is the zero-credential path: fixture rows, a

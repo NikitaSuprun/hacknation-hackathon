@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """ClaudeCodeLLMClient: completions billed to a Claude Pro/Max subscription.
 
 Headless Claude Code (`claude -p --output-format json`) is the only way to run

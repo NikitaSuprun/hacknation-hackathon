@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Credential-free ER composition: fixtures in, scripted decisions, no network.
 
 Everything nondeterministic is pinned: the clock is the fixture clock, the

@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Discovery: fast path, 1000-cap bisection, node_id dedupe, limit cap."""
 
 from datetime import date

@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Memo: golden bytes, citation belt-and-braces, gap markers, latest flips."""
 
 from collections.abc import Mapping

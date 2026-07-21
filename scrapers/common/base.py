@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """The shared run loop: fetch -> normalize -> buffered upserts -> cursor advance.
 
 At-least-once fetch plus idempotent MERGE gives effectively-exactly-once

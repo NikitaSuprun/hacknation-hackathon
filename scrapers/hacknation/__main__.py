@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """CLI entry: python -m scrapers.hacknation run [--since] [--fixtures] [--dry-run] [--no-cvs]."""
 
 import time

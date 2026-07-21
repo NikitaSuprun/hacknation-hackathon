@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """The interview loop: token binding, consent-first transcript, skip, expiry,
 completion sync into gold.interview plus the targeted rescore."""
 

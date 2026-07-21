@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Smoke: the fixtures app builds in-process and serves /healthz, /v1/ranking,
 and the static SPA shell."""
 

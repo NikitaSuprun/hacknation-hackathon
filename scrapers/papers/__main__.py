@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """CLI entry: python -m scrapers.papers {arxiv|openalex|s2|pwc-load} [...]."""
 
 import time

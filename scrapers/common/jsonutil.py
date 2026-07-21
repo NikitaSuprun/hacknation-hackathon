@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Typed access into JSON payloads (the one cast seam for API bodies).
 
 Decoded JSON enters as `object` and is narrowed to `Json` shapes here; the

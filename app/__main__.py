@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """The app CLI: `python -m app serve [--fixtures]` runs the whole loop locally.
 
 Fixtures mode needs zero credentials (JSONL data, recorded mail, scripted

@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """The SPA fallback: client-side routes resolve, missing assets still 404.
 
 The deployed image serves the React bundle from app/static same-origin, and

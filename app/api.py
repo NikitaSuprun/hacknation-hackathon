@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """The /v1 HTTP surface: session-gated proxy over the gold views plus the loop.
 
 Routes mirror the frozen proxy contract: thesis/weights/ideal editors,

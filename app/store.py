@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """The one data seam of the app: fixture-backed or warehouse-backed rows.
 
 FixtureStore serves fixtures/data JSONL with an in-memory overlay so the demo

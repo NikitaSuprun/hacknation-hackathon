@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Pre-commit hook: control-flow nesting inside a function is capped at 3 levels.
 
 An `elif` continues its chain at the same depth (Python's AST nests it inside

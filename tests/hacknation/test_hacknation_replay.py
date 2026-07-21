@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """End-to-end fixture replay: the whole WS-G pipeline over MockTransport, offline.
 
 The three-persona fixture set flows through the people sweep, both project

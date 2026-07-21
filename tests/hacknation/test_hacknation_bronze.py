@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Golden-row tests for the Hack Nation bronze row-builders."""
 
 from datetime import UTC, datetime

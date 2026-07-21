@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Fixture replay: route recorded response bodies through httpx.MockTransport.
 
 Replay enters at the transport layer, so fixtures exercise the entire client,

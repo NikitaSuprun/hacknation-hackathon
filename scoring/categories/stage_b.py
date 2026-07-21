@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Stage-B category scorers: thin delegates over precomputed deep-dive results.
 
 The web-search agent (scoring.deepdive) runs once per venture and produces

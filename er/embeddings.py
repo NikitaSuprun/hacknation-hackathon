@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Stage 6 library: person profile texts and unit-norm profile embeddings.
 
 WS-E owns full gold.person_features rows; this module renders deterministic

@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Raw items to bronze rows; validation failures divert to bronze._rejects.
 
 Payload composition (done fetch-side, documented here): a repo payload is the

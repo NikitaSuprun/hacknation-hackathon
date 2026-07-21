@@ -1,6 +1,4 @@
-/* Copyright (c) 2026 Venture Hunt. All rights reserved.
-   Proprietary and confidential. See LICENSE.
-   Vanilla-JS SPA over the /v1 proxy: login, ranking with client-side
+/* Vanilla-JS SPA over the /v1 proxy: login, ranking with client-side
    re-ranking sliders, memo detail, editors, outreach board, interview. */
 "use strict";
 

@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """T-QA: golden-set precision report and fact corroboration."""
 
 from contracts.models import Json

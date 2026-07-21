@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Staged T3 acceptance against a live warehouse (run via `poe verify-merge`).
 
 Proves on dealflow_dev: a double-run reports 0 inserted / 0 updated, a

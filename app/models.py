@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Frozen value objects for the app layer (WS-F)."""
 
 from dataclasses import dataclass

@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Ranking contract: pool join, the nine score columns, VARIANT-as-string,
 and the client re-rank mirror."""
 

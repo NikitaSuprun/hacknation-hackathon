@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Hack Nation project payloads to silver.project rows.
 
 silver.project was born GitHub-shaped; Hack Nation projects join it as

@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """LLMClient implementations: the ai_query/Anthropic swap point plus a fake.
 
 Three implementations of contracts.interfaces.LLMClient:

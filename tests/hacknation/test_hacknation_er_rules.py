@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Golden constants and DDL-reality checks for the WS-G deterministic ER rules."""
 
 import re

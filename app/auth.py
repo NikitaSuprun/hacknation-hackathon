@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """The VC login gate: password login mints in-memory bearer session tokens.
 
 Interview routes are NOT gated here — founders authenticate by outreach token

@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Fixture replay for the papers scrapers (the --fixtures transport).
 
 One transport serves all papers sources: arXiv Atom pages are routed by the

@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """OpenAlex enrichment: keyed DOI-batch lookups over the pending-work queue.
 
 Discovery is a stateless warehouse anti-join (arXiv bronze minus OpenAlex

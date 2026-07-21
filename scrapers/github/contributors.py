@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Bot filtering and the core-contributor rule (the G2 selection contract)."""
 
 import math

@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Institution seed: golden bytes, MIT>KTH, aliases, unknown floors, 50/50 blend."""
 
 from scoring.deps import ScoringDeps

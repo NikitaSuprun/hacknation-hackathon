@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Venture construction: resolved silver anchors into gold.venture(+members).
 
 Repo anchors pass the venture-likeness gate, companies pass the startup gate,

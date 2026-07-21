@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Rate-limited HTTP with retries: the one client every scraper goes through.
 
 All time sources (clock, sleep) are injected so tests replay deterministically

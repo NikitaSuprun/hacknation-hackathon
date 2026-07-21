@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Golden-value tests: identical input must mint the identical UUID on any machine."""
 
 import pytest

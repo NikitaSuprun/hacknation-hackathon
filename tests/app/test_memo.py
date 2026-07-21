@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Memo endpoint: nine sections, cited bullets, missing-data markers."""
 
 import json

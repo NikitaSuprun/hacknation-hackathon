@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """ROR-backed institution resolution: every observed spelling, one canonical record."""
 
 import json

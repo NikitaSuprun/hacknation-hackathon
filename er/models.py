@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Value objects shared across the ER pipeline stages."""
 
 from collections.abc import Mapping

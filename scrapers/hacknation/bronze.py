@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Pure row-builders shaping Hack Nation payloads into the bronze envelope.
 
 No I/O happens here — the CLI fetches bodies and owns every sink write — so

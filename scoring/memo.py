@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Memo generation: nine fixed sections, every bullet cited or marked missing.
 
 The model answers through a structured-output schema; belt-and-braces beyond

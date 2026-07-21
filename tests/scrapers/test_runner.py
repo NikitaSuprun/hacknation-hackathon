@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Run-loop guarantees: batching, counts, and cursor-advance-only-on-success."""
 
 from collections.abc import Iterator

@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Stage-B deep dive: Opus + web_search under hard caps, cached weekly.
 
 Drives the raw Messages API (AnthropicHttpClient.messages) in a tool loop:

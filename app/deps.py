@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Composition root for the app (the only place app constructors live).
 
 `--fixtures` is the zero-credential demo path: FixtureStore over

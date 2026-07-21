@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Interview-completion sync: feed the interview into the WS-E targeted rescore.
 
 Rows come from the DataStore (fixtures overlay or warehouse), get shaped into

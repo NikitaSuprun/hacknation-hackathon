@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """End-to-end fixture replay for arXiv and OpenAlex, fully offline.
 
 The CI proxy for P1/P2 acceptance: Atom pages flow through paging, cross-list

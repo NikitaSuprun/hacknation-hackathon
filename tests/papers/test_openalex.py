@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """OpenAlex enrichment: DOI batching, abstract reconstruction, promotions."""
 
 from datetime import UTC, date, datetime

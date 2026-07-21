@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """HN4: the CV ingestion gate is off by default and never fetches today."""
 
 from sources.hacknation.cv import (

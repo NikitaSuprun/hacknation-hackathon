@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """HN1: fixture-replay ingest into the two bronze tables via the NullSink."""
 
 import json

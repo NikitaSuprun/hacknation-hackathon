@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """T7 acceptance: the deterministic pass under the fixture-seeded allocator."""
 
 import json

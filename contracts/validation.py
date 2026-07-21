@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Validate semi-structured payloads against the frozen JSON Schemas."""
 
 import json

@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Alias-batched GraphQL: repo hydration (25/query) and profiles (50/query).
 
 Per-alias error policy: NOT_FOUND (deleted/renamed between search and hydrate)

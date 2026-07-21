@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Cursor persistence: load parses the VARIANT, save merges through the sink."""
 
 from datetime import UTC, datetime

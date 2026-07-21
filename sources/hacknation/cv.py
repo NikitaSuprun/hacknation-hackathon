@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """CV ingestion gate: pointers only until legal sign-off.
 
 Hack Nation participants disclose cvUrl for platform display, not VC

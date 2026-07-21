@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Venture gaps: golden bytes, ranking, filled fields, the cap."""
 
 from fixtures import build

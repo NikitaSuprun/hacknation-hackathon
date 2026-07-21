@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Bot filter and core-contributor rule: the G2 'zero bots harvested' gate."""
 
 from scrapers.github.contributors import core_contributors, is_bot

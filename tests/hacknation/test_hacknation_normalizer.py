@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Golden-value tests: Hack Nation bronze rows normalize byte-exact into PSR fragments."""
 
 from dataclasses import replace

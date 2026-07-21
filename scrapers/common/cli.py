@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """CLI composition: one place that wires settings, transport, deps, and runner.
 
 Per-source packages provide a factory from ScraperContext to a scraper; this

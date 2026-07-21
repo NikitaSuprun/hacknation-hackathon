@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """HacknationClient behavior on the shared HttpClient, over httpx.MockTransport."""
 
 from collections.abc import Callable

@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """The session gate: 401 without a token, login mints one, public routes stay open."""
 
 from tests.app.conftest import AppClient

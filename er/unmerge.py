@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """The unmerge path: retract a wrong link, repoint the PSR, plan the repairs.
 
 Plan-as-data: the outcome carries the retracted and corrective link rows plus

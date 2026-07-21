@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Fixture replay routes for the Hack Nation client.
 
 The committed wire fixtures include one project id (hnp-spa-01) that answers

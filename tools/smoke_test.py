@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Day-0 model smoke test against the Free Edition warehouse (`poe smoke`).
 
 Proves connectivity (SELECT 1), the embedding endpoint (1024 floats), and

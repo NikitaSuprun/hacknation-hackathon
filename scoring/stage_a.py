@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Stage A: assemble category verdicts into one gold.venture_score row.
 
 Pure function of (venture view, features, weights, registry, prior scores):

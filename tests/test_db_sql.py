@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Pure-logic tests for the sink: hashing, staging, and generated MERGE SQL."""
 
 from typing import Final

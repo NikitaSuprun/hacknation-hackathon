@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """The single feedparser touchpoint: Atom XML to typed AtomEntry values.
 
 feedparser ships no type stubs; its FeedParserDict is a dict subclass, so all

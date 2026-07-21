@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """Hack Nation bronze rows to person_source_record fragments (the ER input).
 
 One person surfaces in the people list plus every project they built, so the

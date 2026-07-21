@@ -1,5 +1,3 @@
-# Copyright (c) 2026 Venture Hunt. All rights reserved.
-# Proprietary and confidential. See LICENSE.
 """gold.person_features: deterministic first, LLM second, NULL means unknown.
 
 Every feature is derived from the silver snapshot by real code; an absent key
